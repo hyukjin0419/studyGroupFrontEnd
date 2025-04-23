@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:study_group_front_end/screens/study_screen.dart';
 import 'screens/checklist_screen.dart';
 
 void main() {
@@ -31,7 +32,7 @@ class MyApp extends StatelessWidget {
         // tested with just a hot reload.
         colorScheme: ColorScheme.fromSeed(seedColor: Colors.deepPurple),
       ),
-      home: ChecklistScreen(),
+      home: StudyScreen(),
     );
   }
 }
