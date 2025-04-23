@@ -1,9 +1,15 @@
 import 'package:flutter/material.dart';
+import 'package:study_group_front_end/providers/checklist_provider.dart';
 import 'package:study_group_front_end/screens/study_screen.dart';
-import 'screens/checklist_screen.dart';
+import 'package:provider/provider.dart';
 
 void main() {
-  runApp(const MyApp());
+  runApp(
+      ChangeNotifierProvider(
+        create: (_) => ChecklistProvider(),
+        child:MyApp(),
+      ),
+  );
 }
 
 class MyApp extends StatelessWidget {
