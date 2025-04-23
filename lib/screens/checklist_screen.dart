@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import '../models/checklist_item.dart';
 import '../mock/mock_checklists.dart';
 import '../models/study.dart';
+import '../widgets/checklist_tile.dart';
 
 class ChecklistScreen extends StatefulWidget {
   final Study study;
@@ -40,10 +41,9 @@ class _ChecklistScreenState extends State<ChecklistScreen>{
         itemCount: items.length,
         itemBuilder: (context,index){
           final item = items[index];
-          return CheckboxListTile(
-              title: Text(item.content),
-              value: item.isCompleted,
-              onChanged: (_) => toggleItem(index),
+          return ChecklistTile(
+              item: item,
+              onChange: () => toggleItem(index),
           );
         },
       ),

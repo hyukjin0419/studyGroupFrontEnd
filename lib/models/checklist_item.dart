@@ -9,6 +9,4 @@ class ChecklistItem {
     required this.content,
     required this.isCompleted,
     required this.createdByUserId});
-
-
 }
