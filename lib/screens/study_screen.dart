@@ -2,7 +2,9 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:study_group_front_end/providers/study_provider.dart';
 import 'package:study_group_front_end/screens/checklist_screen.dart';
+import 'package:study_group_front_end/widgets/study_tile.dart';
 import '../providers/study_provider.dart';
+import '../dialog/add_study_dialog.dart';
 
 class StudyScreen extends StatelessWidget{
 
@@ -16,18 +18,12 @@ class StudyScreen extends StatelessWidget{
         itemCount: studies.length,
         itemBuilder: (context, index) {
           final study = studies[index];
-          return ListTile(
-            title: Text(study.title),
-            onTap: (){
-              Navigator.push(
-                context,
-                MaterialPageRoute(
-                    builder: (_) => ChecklistScreen(study: study),
-                )
-              );
-            },
-          );
+          return StudyTile(study: study);
         },
+      ),
+      floatingActionButton: FloatingActionButton(
+        onPressed: () => showAddStudyDialog(context),
+        child: Icon(Icons.add),
       ),
     );
   }
