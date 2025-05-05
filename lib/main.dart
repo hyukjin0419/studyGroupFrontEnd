@@ -1,14 +1,23 @@
 import 'package:flutter/material.dart';
 import 'package:study_group_front_end/providers/checklist_provider.dart';
+import 'package:study_group_front_end/providers/study_provider.dart';
 import 'package:study_group_front_end/screens/study_screen.dart';
 import 'package:provider/provider.dart';
 
 void main() {
   runApp(
-      ChangeNotifierProvider(
-        create: (_) => ChecklistProvider(),
-        child:MyApp(),
-      ),
+      MultiProvider(
+        providers: [
+          ChangeNotifierProvider(
+            create: (_) => ChecklistProvider(),
+          ),
+          ChangeNotifierProvider(
+            create: (_) => StudyProvider(),
+          ),
+        ],
+        child: MyApp(),
+      )
+
   );
 }
 
