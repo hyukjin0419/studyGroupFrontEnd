@@ -3,6 +3,7 @@ import 'package:provider/provider.dart';
 import '../models/study.dart';
 import '../widgets/checklist_tile.dart';
 import '../providers/checklist_provider.dart';
+import '../dialogs/add_checklist_dialog.dart';
 
 class ChecklistScreen extends StatelessWidget {
   final Study study;
@@ -26,7 +27,10 @@ class ChecklistScreen extends StatelessWidget {
         },
       ),
       floatingActionButton: FloatingActionButton(
-        onPressed: () => _showAddDialog(context),
+        onPressed: () => showAddChecklistDialog(
+            context,
+            (content) => context.read<ChecklistProvider>().addItem(content),
+        ),
         child: Icon(Icons.add),
       ),
     );

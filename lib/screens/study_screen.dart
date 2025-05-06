@@ -4,7 +4,7 @@ import 'package:study_group_front_end/providers/study_provider.dart';
 import 'package:study_group_front_end/screens/checklist_screen.dart';
 import 'package:study_group_front_end/widgets/study_tile.dart';
 import '../providers/study_provider.dart';
-import '../dialog/add_study_dialog.dart';
+import '../dialogs/add_study_dialog.dart';
 
 class StudyScreen extends StatelessWidget{
 
