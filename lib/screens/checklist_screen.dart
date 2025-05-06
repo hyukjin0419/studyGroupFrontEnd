@@ -15,7 +15,7 @@ class ChecklistScreen extends StatelessWidget {
     final items = provider.items;
     
     return Scaffold(
-      appBar: AppBar(title: Text('${study.title}의 체크리스트')),
+      appBar: AppBar(title: Text('${study.name}의 체크리스트')),
       body: ListView.builder(
         itemCount: items.length,
         itemBuilder: (context,index){

@@ -10,7 +10,7 @@ class StudyTile extends StatelessWidget{
   @override
   Widget build(BuildContext context){
     return ListTile(
-      title: Text(study.title),
+      title: Text(study.name),
       onTap: (){
         Navigator.push(
           context,

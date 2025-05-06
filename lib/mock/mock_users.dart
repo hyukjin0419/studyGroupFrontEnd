@@ -1,4 +1,4 @@
-import '../models/user.dart';
+import '../models/member.dart';
 
 final mockUsers = [
   Member(id:1, userName: '유진', email: "example@.com"),

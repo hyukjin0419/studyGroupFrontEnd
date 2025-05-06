@@ -1,10 +1,10 @@
 import 'package:flutter/material.dart';
 
 class AddStudyForm extends StatelessWidget {
-  final TextEditingController titleController;
+  final TextEditingController nameController;
 
   const AddStudyForm({
-    required this.titleController,
+    required this.nameController,
     Key? key,
   }) : super(key: key);
 
@@ -14,7 +14,7 @@ class AddStudyForm extends StatelessWidget {
       mainAxisSize: MainAxisSize.min,
       children: [
         TextField(
-          controller: titleController,
+          controller: nameController,
           decoration: InputDecoration(labelText: '제목'),
         )
       ],
