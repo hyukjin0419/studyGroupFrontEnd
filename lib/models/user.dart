@@ -1,16 +1,16 @@
-class User{
+class Member{
   final int id;
   final String userName;
   final String email;
 
-  User({
+  Member({
     required this.id,
     required this.userName,
     required this.email,
   });
 
-  factory User.fromJson(Map<String, dynamic> json){
-    return User(
+  factory Member.fromJson(Map<String, dynamic> json){
+    return Member(
       id: json['id'],
       userName: json['userName'],
       email: json['email'],

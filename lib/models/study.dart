@@ -3,7 +3,7 @@ import 'user.dart';
 class Study {
   final int id;
   final String title;
-  final List<User> members;
+  final List<Member> members;
 
   Study({
     required this.id,

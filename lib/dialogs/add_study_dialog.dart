@@ -29,7 +29,7 @@ void showAddStudyDialog(BuildContext context){
                   id: DateTime.now().millisecondsSinceEpoch,
                   title: title,
                   members: [
-                    User(id: 4, userName: "나는 임시야", email: "E@E.com"),
+                    Member(id: 4, userName: "나는 임시야", email: "E@E.com"),
                   ]
                 );
 
