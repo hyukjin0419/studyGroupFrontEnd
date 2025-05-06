@@ -1,3 +1,5 @@
+import 'package:study_group_front_end/models/study_member.dart';
+
 import 'member.dart';
 
 class Study {
