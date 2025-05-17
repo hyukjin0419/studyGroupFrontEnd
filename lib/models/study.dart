@@ -1,41 +1,179 @@
-import 'package:study_group_front_end/models/study_member.dart';
+import 'base_res_dto.dart';
 
-import 'member.dart';
+class StudyCreateReqDto {
+  final String name;
+  final String description;
+  final int leaderId;
 
-class Study {
+  StudyCreateReqDto({
+    required this.name,
+    required this.description,
+    required this.leaderId,
+  });
+
+  Map<String, dynamic> toJson() => {
+    'name': name,
+    'description': description,
+    'leaderId': leaderId,
+  };
+}
+
+class StudyCreateResDto extends BaseResDto {
   final int id;
   final String name;
   final String description;
   final int leaderId;
-  final List<StudyMember> members;
+  final String leaderName;
 
-  Study({
+  StudyCreateResDto({
+    required this.id,
+    required this.name,
+    required this.description,
+    required this.leaderId,
+    required this.leaderName,
+    DateTime? createdAt,
+    DateTime? modifiedAt,
+  }) : super(createdAt: createdAt, modifiedAt: modifiedAt);
+
+  factory StudyCreateResDto.fromJson(Map<String, dynamic> json) {
+    return StudyCreateResDto(
+      id: json['id'],
+      name: json['name'],
+      description: json['description'],
+      leaderId: json['leaderId'],
+      leaderName: json['leaderName'],
+      createdAt: json['createdAt'] != null ? DateTime.parse(json['createdAt']) : null,
+      modifiedAt: json['modifiedAt'] != null ? DateTime.parse(json['modifiedAt']) : null,
+    );
+  }
+}
+
+class StudyMemberResDto {
+  final int id;
+  final String userName;
+  final String role;
+
+  StudyMemberResDto({
+    required this.id,
+    required this.userName,
+    required this.role,
+  });
+
+  factory StudyMemberResDto.fromJson(Map<String, dynamic> json) {
+    return StudyMemberResDto(
+      id: json['id'],
+      userName: json['userName'],
+      role: json['role'],
+    );
+  }
+}
+
+class StudyDetailResDto extends BaseResDto {
+  final int id;
+  final String name;
+  final String description;
+  final int leaderId;
+  final List<StudyMemberResDto> members;
+
+  StudyDetailResDto({
     required this.id,
     required this.name,
     required this.description,
     required this.leaderId,
     required this.members,
-  });
+    DateTime? createdAt,
+    DateTime? modifiedAt,
+  }) : super(createdAt: createdAt, modifiedAt: modifiedAt);
 
-  factory Study.fromJson(Map<String, dynamic> json){
-    return Study(
+  factory StudyDetailResDto.fromJson(Map<String, dynamic> json) {
+    return StudyDetailResDto(
       id: json['id'],
       name: json['name'],
       description: json['description'],
       leaderId: json['leaderId'],
-      members: (json['members'] as List<dynamic>)
-        .map((e) => StudyMember.fromJson(e))
-        .toList(),
+      members: (json['members'] as List)
+          .map((m) => StudyMemberResDto.fromJson(m))
+          .toList(),
+      createdAt: json['createdAt'] != null ? DateTime.parse(json['createdAt']) : null,
+      modifiedAt: json['modifiedAt'] != null ? DateTime.parse(json['modifiedAt']) : null,
     );
   }
+}
 
-  Map<String, dynamic> toJson() {
-    return {
-      'id': id,
-      'name': name,
-      'description': description,
-      'leaderId': leaderId,
-      'members': members.map ((e) => e.toJson()).toList(),
-    };
+class StudyListResDto extends BaseResDto {
+  final int id;
+  final String name;
+  final String description;
+  final int leaderId;
+
+  StudyListResDto({
+    required this.id,
+    required this.name,
+    required this.description,
+    required this.leaderId,
+    DateTime? createdAt,
+    DateTime? modifiedAt,
+  }) : super(createdAt: createdAt, modifiedAt: modifiedAt);
+
+  factory StudyListResDto.fromJson(Map<String, dynamic> json) {
+    return StudyListResDto(
+      id: json['id'],
+      name: json['name'],
+      description: json['description'],
+      leaderId: json['leaderId'],
+      createdAt: json['createdAt'] != null ? DateTime.parse(json['createdAt']) : null,
+      modifiedAt: json['modifiedAt'] != null ? DateTime.parse(json['modifiedAt']) : null,
+    );
+  }
+}
+
+class StudyUpdateReqDto {
+  final String name;
+  final String description;
+
+  StudyUpdateReqDto({
+    required this.name,
+    required this.description,
+  });
+
+  Map<String, dynamic> toJson() => {
+    'name': name,
+    'description': description,
+  };
+}
+
+class StudyUpdateResDto extends StudyCreateResDto {
+  StudyUpdateResDto({
+    required super.id,
+    required super.name,
+    required super.description,
+    required super.leaderId,
+    required super.leaderName,
+    super.createdAt,
+    super.modifiedAt,
+  });
+
+  factory StudyUpdateResDto.fromJson(Map<String, dynamic> json) {
+    return StudyUpdateResDto(
+      id: json['id'],
+      name: json['name'],
+      description: json['description'],
+      leaderId: json['leaderId'],
+      leaderName: json['leaderName'],
+      createdAt: json['createdAt'] != null ? DateTime.parse(json['createdAt']) : null,
+      modifiedAt: json['modifiedAt'] != null ? DateTime.parse(json['modifiedAt']) : null,
+    );
+  }
+}
+
+class StudyDeleteResDto {
+  final String message;
+
+  StudyDeleteResDto({required this.message});
+
+  factory StudyDeleteResDto.fromJson(Map<String, dynamic> json) {
+    return StudyDeleteResDto(
+      message: json['message'],
+    );
   }
 }

@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import '../models/checklist_item.dart';
+import '../models/checklist.dart';
 import '../mock/mock_checklists.dart';
 
 class ChecklistProvider extends ChangeNotifier{

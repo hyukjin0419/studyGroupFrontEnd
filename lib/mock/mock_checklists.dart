@@ -1,4 +1,4 @@
-import '../models/checklist_item.dart';
+import '../models/checklist.dart';
 
 final mockChecklistItems = [
   ChecklistItem(id: 1, content: 'API 명세 작성', isCompleted: false, createdByUserId: 1),

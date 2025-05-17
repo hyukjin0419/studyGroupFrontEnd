@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import '../models/checklist_item.dart';
+import '../models/checklist.dart';
 
 class ChecklistTile extends StatelessWidget{
   final ChecklistItem item;

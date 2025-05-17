@@ -1,27 +1,58 @@
-class StudyMember{
-  final int id;
-  final String userName;
+import 'base_res_dto.dart';
+
+class StudyMemberInviteReqDto {
+  final int memberId;
+
+  StudyMemberInviteReqDto({required this.memberId});
+
+  Map<String, dynamic> toJson() => {
+    'memberId': memberId,
+  };
+}
+
+class StudyMemberInviteResDto extends BaseResDto {
+  final int studyId;
+  final int memberId;
   final String role;
+  final DateTime joinedAt;
 
-  StudyMember({
-    required this.id,
-    required this.userName,
+  StudyMemberInviteResDto({
+    required this.studyId,
+    required this.memberId,
     required this.role,
-  });
+    required this.joinedAt,
+    DateTime? createdAt,
+    DateTime? modifiedAt,
+  }) : super(createdAt: createdAt, modifiedAt: modifiedAt);
 
-  factory StudyMember.fromJson(Map<String, dynamic> json){
-    return StudyMember(
-      id: json['id'],
-      userName: json['userName'],
+  factory StudyMemberInviteResDto.fromJson(Map<String, dynamic> json) {
+    return StudyMemberInviteResDto(
+      studyId: json['studyId'],
+      memberId: json['memberId'],
       role: json['role'],
+      joinedAt: DateTime.parse(json['joinedAt']),
+      createdAt: json['createdAt'] != null ? DateTime.parse(json['createdAt']) : null,
+      modifiedAt: json['modifiedAt'] != null ? DateTime.parse(json['modifiedAt']) : null,
     );
   }
+}
 
-  Map<String, dynamic> toJson(){
-    return {
-      'id': id,
-      'userName': userName,
-      'role': role,
-    };
+class StudyMemberRemoveResDto {
+  final int studyId;
+  final int memberId;
+  final String message;
+
+  StudyMemberRemoveResDto({
+    required this.studyId,
+    required this.memberId,
+    required this.message,
+  });
+
+  factory StudyMemberRemoveResDto.fromJson(Map<String, dynamic> json) {
+    return StudyMemberRemoveResDto(
+      studyId: json['studyId'],
+      memberId: json['memberId'],
+      message: json['message'],
+    );
   }
 }
