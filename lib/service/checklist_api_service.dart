@@ -1,20 +1,20 @@
 import 'dart:convert';
 import 'package:http/http.dart' as http;
 import 'package:study_group_front_end/models/checklist_member.dart';
+import 'package:study_group_front_end/service/base_api_service.dart';
 
-class ChecklistApiService {
-  final String baseUrl;
-  final http.Client httpClient;
+class ChecklistApiService extends BaseApiService{
   final String basePath = '/checklist-mebmers';
 
-  ChecklistApiService({required this.baseUrl, http.Client? client})
-    : httpClient = client ?? http.Client();
+  ChecklistApiService({
+    required super.baseUrl,
+    super.client,
+  });
 
-  Uri _uri(String endpoint) => Uri.parse('$baseUrl$basePath$endpoint');
 
   Future<ChecklistMemberAssignResDto> assignChecklist(ChecklistMemberAssignReqDto request) async {
     final response = await httpClient.post(
-        _uri('/assign'),
+        uri(baseUrl, '/assign'),
         headers: {'Content-Type': 'application/json'},
         body: jsonEncode(request.toJson()),
     );
@@ -27,8 +27,8 @@ class ChecklistApiService {
   }
 
   Future<ChecklistMemberChangeStatusResDto> changeChecklistStatus(ChecklistMemberAssignReqDto request) async {
-    final response = await httpClient.patch(
-      _uri('/change-status'),
+    final response = await httpClient.post(
+      uri(baseUrl, '/change-status'),
       headers: {'Content-Type': 'application/json'},
       body: jsonEncode(request.toJson()),
     );
@@ -42,7 +42,7 @@ class ChecklistApiService {
 
   Future<ChecklistMemberUnassignResDto> unassignChecklist(int checklistId, int memberId) async{
     final response = await httpClient.delete(
-      _uri('/$checklistId/members/$memberId'),
+      uri(baseUrl, '/$checklistId/members/$memberId'),
     );
 
     if (response.statusCode == 200) {
@@ -53,7 +53,7 @@ class ChecklistApiService {
   }
 
   Future<List<ChecklistMemberResDto>> getChecklistsByMemberId(int memberId) async {
-    final response = await httpClient.get(_uri('/member/$memberId'));
+    final response = await httpClient.get(uri(baseUrl, '/member/$memberId'));
 
     if (response.statusCode == 200) {
       final List<dynamic> jsonList = jsonDecode(utf8.decode(response.bodyBytes));
@@ -64,7 +64,7 @@ class ChecklistApiService {
   }
 
   Future<List<StudyChecklistMemberResDto>> getChecklistByStudyId(int studyId) async{
-    final response = await httpClient.get(_uri('/study/$studyId'));
+    final response = await httpClient.get(uri(baseUrl,'/study/$studyId'));
 
     if (response.statusCode == 200) {
       final List<dynamic> jsonList = jsonDecode(utf8.decode(response.bodyBytes));
