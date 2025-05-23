@@ -1,6 +1,4 @@
 import 'dart:convert';
-import 'package:http/http.dart' as http;
-import 'package:study_group_front_end/models/checklist_member.dart';
 import 'package:study_group_front_end/models/member.dart';
 import 'package:study_group_front_end/service/base_api_service.dart';
 
