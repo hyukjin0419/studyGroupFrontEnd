@@ -35,7 +35,7 @@ class MemberProvider with ChangeNotifier {
     } catch (e) {
       rethrow;
     } finally {
-      _setLoading(false)
+      _setLoading(false);
     }
   }
 
