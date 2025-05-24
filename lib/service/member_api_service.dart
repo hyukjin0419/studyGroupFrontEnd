@@ -86,10 +86,4 @@ class  MemberApiService extends BaseApiService{
       throw Exception('delete member failed: ${response.statusCode}');
     }
   }
-  /*
-
-
-  1. delete dto 프론트단에서 바꾸고
-  2. 이거 바꿔
-   */
 }
