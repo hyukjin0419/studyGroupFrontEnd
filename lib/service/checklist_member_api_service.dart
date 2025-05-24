@@ -3,7 +3,7 @@ import 'package:study_group_front_end/models/checklist_member.dart';
 import 'package:study_group_front_end/service/base_api_service.dart';
 
 class ChecklistApiService extends BaseApiService{
-  final String basePath = '/checklist-mebmers';
+  final String basePath = '/checklist-members';
 
   ChecklistApiService({
     required super.baseUrl,
