@@ -11,10 +11,10 @@ class ChecklistProvider with ChangeNotifier, LoadingNotifier {
   ChecklistDetailResDto? _selectedChecklist;
   ChecklistDetailResDto? get selectedChecklist => _selectedChecklist;
 
-  Future<void> createChecklist(int creatorId, ChecklistCreateReqDto req) async {
+  Future<void> createChecklist(int creatorId, ChecklistCreateReqDto request) async {
     await runWithLoading(() async {
-      final res = await apiService.createChecklist(creatorId, req);
-      _selectedChecklist = await apiService.getChecklistDetail(res.id);
+      final response = await apiService.createChecklist(creatorId, request);
+      _selectedChecklist = await apiService.getChecklistDetail(response.checklistId);
     });
   }
 
