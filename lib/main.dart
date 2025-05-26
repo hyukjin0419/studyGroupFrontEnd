@@ -1,23 +1,27 @@
 import 'package:flutter/material.dart';
 import 'package:study_group_front_end/providers/checklist_provider.dart';
+import 'package:study_group_front_end/providers/member_provider.dart';
 import 'package:study_group_front_end/providers/study_provider.dart';
 import 'package:study_group_front_end/screens/study_screen.dart';
 import 'package:provider/provider.dart';
+import 'package:study_group_front_end/service/member_api_service.dart';
+import 'package:study_group_front_end/test_screens/Member_test_screen.dart';
 
 void main() {
   runApp(
       MultiProvider(
         providers: [
           ChangeNotifierProvider(
-            create: (_) => ChecklistProvider(),
-          ),
-          ChangeNotifierProvider(
-            create: (_) => StudyProvider(),
-          ),
+            create: (_) => MemberProvider(
+              apiService: MemberApiService(baseUrl: 'http://localhost:8080'),
+            )),
+      //     ),
+      //     ChangeNotifierProvider(
+      //       create: (_) => StudyProvider(),
+      //     ),
         ],
         child: MyApp(),
       )
-
   );
 }
 
@@ -47,7 +51,7 @@ class MyApp extends StatelessWidget {
         // tested with just a hot reload.
         colorScheme: ColorScheme.fromSeed(seedColor: Colors.deepPurple),
       ),
-      home: StudyScreen(),
+      home: MemberTestScreen(),
     );
   }
 }

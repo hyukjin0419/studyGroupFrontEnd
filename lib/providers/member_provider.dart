@@ -9,8 +9,11 @@ class MemberProvider with ChangeNotifier,LoadingNotifier {
   MemberProvider({required this.apiService});
 
   MemberDetailResDto? _currentMember;
+  List<MemberDetailResDto> _memberList = [];
 
   MemberDetailResDto? get currentMember => _currentMember;
+  List<MemberDetailResDto> get memberList => _memberList;
+
 
   //오리지널
   // Future<void> login(MemberLoginReqDto request) async {
@@ -41,6 +44,21 @@ class MemberProvider with ChangeNotifier,LoadingNotifier {
       _currentMember = member;
     });
   }
+
+  Future<MemberDetailResDto> getMemberById(int id) async {
+    return await runWithLoading(() async {
+      final member = await apiService.getMemberById(id);
+      return member;
+    });
+  }
+
+  Future<void> getAllMembers() async {
+    await runWithLoading(() async {
+      _memberList = await apiService.getAllMembers();
+      notifyListeners();
+    });
+  }
+
 
   Future<void> update(MemberUpdateReqDto request) async {
     await runWithLoading(() async {

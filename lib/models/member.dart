@@ -75,6 +75,7 @@ class MemberDetailResDto extends BaseResDto {
   final int id;
   final String userName;
   final String email;
+  //role 추가하자
 
   MemberDetailResDto({
     required this.id,
