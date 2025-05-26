@@ -3,10 +3,12 @@ import 'base_res_dto.dart';
 class ChecklistMemberAssignReqDto {
   final int checklistId;
   final int memberId;
+  final int studyId;
 
   ChecklistMemberAssignReqDto({
     required this.checklistId,
     required this.memberId,
+    required this.studyId,
   });
 
   Map<String, dynamic> toJson() => {

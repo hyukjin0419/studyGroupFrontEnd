@@ -13,7 +13,7 @@ class ChecklistMemberApiService extends BaseApiService{
 
   Future<ChecklistMemberAssignResDto> assignChecklist(ChecklistMemberAssignReqDto request) async {
     final response = await httpClient.post(
-        uri(baseUrl, '/assign'),
+        uri(basePath, '/assign'),
         headers: {'Content-Type': 'application/json'},
         body: jsonEncode(request.toJson()),
     );
@@ -27,7 +27,7 @@ class ChecklistMemberApiService extends BaseApiService{
 
   Future<ChecklistMemberChangeStatusResDto> changeChecklistStatus(ChecklistMemberAssignReqDto request) async {
     final response = await httpClient.post(
-      uri(baseUrl, '/change-status'),
+      uri(basePath, '/change-status'),
       headers: {'Content-Type': 'application/json'},
       body: jsonEncode(request.toJson()),
     );
@@ -41,7 +41,7 @@ class ChecklistMemberApiService extends BaseApiService{
 
   Future<ChecklistMemberUnassignResDto> unassignChecklist(int checklistId, int memberId) async{
     final response = await httpClient.delete(
-      uri(baseUrl, '/$checklistId/members/$memberId'),
+      uri(basePath, '/$checklistId/members/$memberId'),
     );
 
     if (response.statusCode == 200) {

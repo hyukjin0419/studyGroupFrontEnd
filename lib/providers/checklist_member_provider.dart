@@ -1,55 +1,59 @@
 import 'package:flutter/material.dart';
 import 'package:study_group_front_end/models/checklist_member.dart';
 import 'package:study_group_front_end/providers/loading_notifier.dart';
-import 'package:study_group_front_end/service/checklist_api_service.dart';
+import 'package:study_group_front_end/service/checklist_member_api_service.dart';
 
 class ChecklistMemberProvider with ChangeNotifier, LoadingNotifier{
-  final ChecklistApiService apiService;
+  final ChecklistMemberApiService apiService;
 
   ChecklistMemberProvider({required this.apiService});
 
-  List<ChecklistMemberResDto> _memberChecklists = [];
-  List<StudyChecklistMemberResDto> _studyChecklists = [];
+  List<ChecklistMemberResDto> _memberChecklistList = [];
+  List<StudyChecklistMemberResDto> _studyChecklistList = [];
 
-  List<ChecklistMemberResDto> get memberChecklists => _memberChecklists;
-  List<StudyChecklistMemberResDto> get studyChecklists => _studyChecklists;
+  List<ChecklistMemberResDto> get memberChecklistList => _memberChecklistList;
+  List<StudyChecklistMemberResDto> get studyChecklistList => _studyChecklistList;
 
   Future<void> fetchChecklistsByMemberId(int memberId) async {
     await runWithLoading(() async {
-      _memberChecklists = await apiService.getChecklistsByMemberId(memberId);
+      _memberChecklistList = await apiService.getChecklistsByMemberId(memberId);
     });
   }
 
   Future<void> fetchChecklistsByStudyId(int studyId) async {
     await runWithLoading(() async {
-      _studyChecklists = await apiService.getChecklistByStudyId(studyId);
+      _studyChecklistList = await apiService.getChecklistByStudyId(studyId);
     });
   }
 
-  Future<void> assignChecklist(ChecklistMemberAssignReqDto req) async {
+  Future<void> assignChecklist(ChecklistMemberAssignReqDto request) async {
     await runWithLoading(() async {
-      await apiService.assignChecklist(req);
-      await fetchChecklistsByStudyId(req.studyId); // 데이터 최신화
+      await apiService.assignChecklist(request);
+      await fetchChecklistsByStudyId(request.studyId);
     });
   }
 
-  Future<void> changeStatus(ChecklistMemberAssignReqDto req) async {
+  Future<void> changeChecklistStatus(ChecklistMemberAssignReqDto request) async {
     await runWithLoading(() async {
-      await apiService.changeChecklistStatus(req);
-      await fetchChecklistsByMemberId(req.memberId); // 개인 목록 갱신
+      await apiService.changeChecklistStatus(request);
+      await fetchChecklistsByMemberId(request.memberId);
     });
   }
 
-  Future<void> unassignChecklist(int checklistId, int memberId, int studyId) async {
+  Future<void> unassignChecklist({
+    required int checklistId,
+    required int memberId,
+    required int studyId,
+  }) async {
     await runWithLoading(() async {
       await apiService.unassignChecklist(checklistId, memberId);
-      await fetchChecklistsByStudyId(studyId); // 공용 화면 갱신
+      await fetchChecklistsByStudyId(studyId);
     });
   }
 
   void clear() {
-    _memberChecklists = [];
-    _studyChecklists = [];
+    _memberChecklistList = [];
+    _studyChecklistList = [];
     notifyListeners();
   }
 }
