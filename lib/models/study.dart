@@ -53,10 +53,12 @@ class StudyMemberResDto {
   final String userName;
   final String role;
 
+
   StudyMemberResDto({
     required this.id,
     required this.userName,
     required this.role,
+    DateTime? joinedAt,
   });
 
   factory StudyMemberResDto.fromJson(Map<String, dynamic> json) {
@@ -64,6 +66,7 @@ class StudyMemberResDto {
       id: json['id'],
       userName: json['userName'],
       role: json['role'],
+      joinedAt: json['joinedAt'] != null ? DateTime.parse(json['joinedAt']) : null,
     );
   }
 }

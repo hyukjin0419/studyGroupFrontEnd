@@ -13,12 +13,14 @@ class StudyMemberInviteReqDto {
 class StudyMemberInviteResDto extends BaseResDto {
   final int studyId;
   final int memberId;
+  final String userName;
   final String role;
   final DateTime joinedAt;
 
   StudyMemberInviteResDto({
     required this.studyId,
     required this.memberId,
+    required this.userName,
     required this.role,
     required this.joinedAt,
     DateTime? createdAt,
@@ -29,6 +31,7 @@ class StudyMemberInviteResDto extends BaseResDto {
     return StudyMemberInviteResDto(
       studyId: json['studyId'],
       memberId: json['memberId'],
+      userName: json['userName'],
       role: json['role'],
       joinedAt: DateTime.parse(json['joinedAt']),
       createdAt: json['createdAt'] != null ? DateTime.parse(json['createdAt']) : null,
