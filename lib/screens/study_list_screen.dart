@@ -91,8 +91,26 @@ class _StudyListScreenState extends State<StudyListScreen> {
                   title: Text(study.name),
                   subtitle: Text(study.description),
                   onTap: (){
-                    //일단 보류 -> 상세 페이지로 이동 혹은 checklist 화면으로 이동
+                    //일단 보류 -> 혹은 checklist 화면으로 이동
+                    // Navigator.push(
+                    //     context,
+                    //     MaterialPageRoute(
+                    //       // builder: (_) => ChecklistScreen(studyId: study.id),
+                    //     )
+                    // );
                   },
+                  trailing: IconButton(
+                    icon: const Icon(Icons.more_vert),
+                    onPressed: () {
+                      //일단 보류 -> 상세 페이지로 이동
+                      // Navigator.push(
+                      //   context,
+                      //   MaterialPageRoute(
+                      //     builder: (_) => StudyDetailScreen(studyId: study.id),
+                      //   )
+                      // );
+                    },
+                  ),
                 );
               },
             ),
