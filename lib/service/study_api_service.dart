@@ -34,6 +34,17 @@ class StudyApiService extends BaseApiService {
     }
   }
 
+  Future<List<StudyListResDto>> getStudiesByMemberId(int memberId) async {
+    final response = await httpClient.get(uri('/members/', '$memberId/studies'));
+
+    if (response.statusCode == 200) {
+      final List<dynamic> jsonList = decodeJson(response);
+      return jsonList.map((e) => StudyListResDto.fromJson(e)).toList();
+    } else {
+      throw Exception('create Study failed: ${response.statusCode}');
+    }
+  }
+
   Future<List<StudyListResDto>> getAllStudies() async {
     final response = await httpClient.get(uri(basePath, ''));
 

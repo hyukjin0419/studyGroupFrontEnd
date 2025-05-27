@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:study_group_front_end/models/member.dart';
 import 'package:study_group_front_end/providers/member_provider.dart';
-// import 'study_list_screen.dart'
+import 'package:study_group_front_end/screens/study_list_screen.dart';
 
 class LoginScreen extends StatefulWidget {
   const LoginScreen({super.key});
@@ -26,10 +26,10 @@ class _LoginScreenState extends State<LoginScreen> {
         password: _pwController.text,
       ));
 
-      // Navigator.pushReplacement(
-      //   context,
-      //   MaterialPageRoute(builder: (_) => const StudyListScreen()),
-      // );
+      Navigator.pushReplacement(
+        context,
+        MaterialPageRoute(builder: (_) => const StudyListScreen()),
+      );
       debugPrint("로그인 성공");
     }  catch(e) {
       setState(() {

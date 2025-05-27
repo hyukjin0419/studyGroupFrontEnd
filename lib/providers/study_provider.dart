@@ -15,9 +15,17 @@ class StudyProvider with ChangeNotifier, LoadingNotifier {
   List<StudyListResDto> get studies => _studies;
   StudyDetailResDto? get selectedStudy => _selectedStudy;
 
+
+  //memberId로 fetch하는거 추가해야겠네
   Future<void> fetchStudies() async {
     await runWithLoading(() async {
       _studies = await apiService.getAllStudies();
+    });
+  }
+
+  Future<void> fetchStudiesByMemberId(int memberId) async {
+    await runWithLoading(() async {
+      _studies = await apiService.getStudiesByMemberId(memberId);
     });
   }
 

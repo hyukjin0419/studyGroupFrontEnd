@@ -6,6 +6,7 @@ import 'package:study_group_front_end/screens/login_screen.dart';
 import 'package:study_group_front_end/screens/study_screen.dart';
 import 'package:provider/provider.dart';
 import 'package:study_group_front_end/service/member_api_service.dart';
+import 'package:study_group_front_end/service/study_api_service.dart';
 import 'package:study_group_front_end/test_screens/Member_test_screen.dart';
 
 void main() {
@@ -15,7 +16,13 @@ void main() {
           ChangeNotifierProvider(
             create: (_) => MemberProvider(
               apiService: MemberApiService(baseUrl: 'http://localhost:8080'),
-            )),
+            )
+          ),
+          ChangeNotifierProvider(
+            create: (_) => StudyProvider(
+              apiService: StudyApiService(baseUrl: 'http://localhost:8080'),
+            )
+          ),
       //     ),
       //     ChangeNotifierProvider(
       //       create: (_) => StudyProvider(),
