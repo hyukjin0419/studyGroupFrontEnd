@@ -3,6 +3,7 @@ import 'package:provider/provider.dart';
 import 'package:study_group_front_end/providers/study_provider.dart';
 import 'package:study_group_front_end/providers/member_provider.dart';
 import 'package:study_group_front_end/models/study.dart';
+import 'package:study_group_front_end/screens/study_detail_screen.dart';
 // import 'study_detail_screen.dart';
 
 class StudyListScreen extends StatefulWidget {
@@ -102,13 +103,13 @@ class _StudyListScreenState extends State<StudyListScreen> {
                   trailing: IconButton(
                     icon: const Icon(Icons.more_vert),
                     onPressed: () {
-                      //일단 보류 -> 상세 페이지로 이동
-                      // Navigator.push(
-                      //   context,
-                      //   MaterialPageRoute(
-                      //     builder: (_) => StudyDetailScreen(studyId: study.id),
-                      //   )
-                      // );
+                      //상세 페이지로 이동
+                      Navigator.push(
+                        context,
+                        MaterialPageRoute(
+                          builder: (_) => StudyDetailScreen(studyId: study.id),
+                        )
+                      );
                     },
                   ),
                 );

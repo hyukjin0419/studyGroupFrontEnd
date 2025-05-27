@@ -76,6 +76,7 @@ class StudyDetailResDto extends BaseResDto {
   final String name;
   final String description;
   final int leaderId;
+  final String leaderName;
   final List<StudyMemberResDto> members;
 
   StudyDetailResDto({
@@ -83,6 +84,7 @@ class StudyDetailResDto extends BaseResDto {
     required this.name,
     required this.description,
     required this.leaderId,
+    required this.leaderName,
     required this.members,
     DateTime? createdAt,
     DateTime? modifiedAt,
@@ -94,6 +96,7 @@ class StudyDetailResDto extends BaseResDto {
       name: json['name'],
       description: json['description'],
       leaderId: json['leaderId'],
+      leaderName: json['leaderName'],
       members: (json['members'] as List)
           .map((m) => StudyMemberResDto.fromJson(m))
           .toList(),
