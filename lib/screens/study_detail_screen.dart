@@ -82,6 +82,8 @@ class _StudyDetailScreenState extends State<StudyDetailScreen> {
                       leaderId: study.leaderId,
                       request: request
                   );
+                  await context.read<StudyProvider>().fetchStudyDetail(study.id);
+
                   _inviteController.clear();
                 },
                 icon:const Icon(Icons.send),
