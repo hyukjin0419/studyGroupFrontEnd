@@ -1,12 +1,14 @@
 import 'package:flutter/material.dart';
 import 'package:study_group_front_end/providers/checklist_provider.dart';
 import 'package:study_group_front_end/providers/member_provider.dart';
+import 'package:study_group_front_end/providers/study_member_provider.dart';
 import 'package:study_group_front_end/providers/study_provider.dart';
 import 'package:study_group_front_end/screens/login_screen.dart';
 import 'package:study_group_front_end/screens/study_screen.dart';
 import 'package:provider/provider.dart';
 import 'package:study_group_front_end/service/member_api_service.dart';
 import 'package:study_group_front_end/service/study_api_service.dart';
+import 'package:study_group_front_end/service/study_member_api_service.dart';
 import 'package:study_group_front_end/test_screens/Member_test_screen.dart';
 
 void main() {
@@ -22,6 +24,11 @@ void main() {
             create: (_) => StudyProvider(
               apiService: StudyApiService(baseUrl: 'http://localhost:8080'),
             )
+          ),
+          ChangeNotifierProvider(
+              create: (_) => StudyMemberProvider(
+                apiService: StudyMemberApiService(baseUrl: 'http://localhost:8080'),
+              )
           ),
       //     ),
       //     ChangeNotifierProvider(

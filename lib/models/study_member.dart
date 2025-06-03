@@ -1,12 +1,12 @@
 import 'base_res_dto.dart';
 
 class StudyMemberInviteReqDto {
-  final int memberId;
+  final String email;
 
-  StudyMemberInviteReqDto({required this.memberId});
+  StudyMemberInviteReqDto({required this.email});
 
   Map<String, dynamic> toJson() => {
-    'memberId': memberId,
+    'email': email,
   };
 }
 

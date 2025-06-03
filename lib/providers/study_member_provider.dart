@@ -26,6 +26,8 @@ class StudyMemberProvider with ChangeNotifier, LoadingNotifier {
     await runWithLoading(() async {
       final response = await apiService.inviteMember(studyId, leaderId, request);
 
+
+      //이 코드가 필요한가??
       _memberList.add(StudyMemberResDto(
         id: response.memberId,
         userName: response.userName,
