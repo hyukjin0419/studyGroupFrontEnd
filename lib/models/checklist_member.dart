@@ -26,9 +26,9 @@ class ChecklistMemberAssignResDto extends BaseResDto {
     required this.checklistId,
     required this.memberId,
     required this.assignedAt,
-    DateTime? createdAt,
-    DateTime? modifiedAt,
-  }) : super(createdAt: createdAt, modifiedAt: modifiedAt);
+    super.createdAt,
+    super.modifiedAt,
+  });
 
   factory ChecklistMemberAssignResDto.fromJson(Map<String, dynamic> json) {
     return ChecklistMemberAssignResDto(
@@ -40,7 +40,6 @@ class ChecklistMemberAssignResDto extends BaseResDto {
     );
   }
 
-  @override
   Map<String, dynamic> toJson() => {
     'checklistId': checklistId,
     'memberId': memberId,
@@ -77,9 +76,9 @@ class ChecklistMemberChangeStatusResDto extends BaseResDto {
     required this.memberId,
     required this.isCompleted,
     this.completedAt,
-    DateTime? createdAt,
-    DateTime? modifiedAt,
-  }) : super(createdAt: createdAt, modifiedAt: modifiedAt);
+    super.createdAt,
+    super.modifiedAt,
+  });
 
   factory ChecklistMemberChangeStatusResDto.fromJson(Map<String, dynamic> json) {
     return ChecklistMemberChangeStatusResDto(
@@ -91,7 +90,7 @@ class ChecklistMemberChangeStatusResDto extends BaseResDto {
       modifiedAt: json['modifiedAt'] != null ? DateTime.parse(json['modifiedAt']) : null,
     );
   }
-  @override
+
   Map<String, dynamic> toJson() => {
     'checklistId': checklistId,
     'memberId': memberId,
@@ -121,9 +120,9 @@ class ChecklistMemberResDto extends BaseResDto {
     this.assignedAt,
     this.personalOrderIndex,
     this.studyOrderIndex,
-    DateTime? createdAt,
-    DateTime? modifiedAt,
-  }) : super(createdAt: createdAt, modifiedAt: modifiedAt);
+    super.createdAt,
+    super.modifiedAt,
+  });
 
   factory ChecklistMemberResDto.fromJson(Map<String, dynamic> json) {
     return ChecklistMemberResDto(
@@ -139,7 +138,7 @@ class ChecklistMemberResDto extends BaseResDto {
       modifiedAt: json['modifiedAt'] != null ? DateTime.parse(json['modifiedAt']) : null,
     );
   }
-  @override
+
   Map<String, dynamic> toJson() => {
     'checklistId': checklistId,
     'content': content,
@@ -175,9 +174,9 @@ class StudyChecklistMemberResDto extends BaseResDto {
     this.completedAt,
     this.assignedAt,
     this.studyOrderIndex,
-    DateTime? createdAt,
-    DateTime? modifiedAt,
-  }) : super(createdAt: createdAt, modifiedAt: modifiedAt);
+    super.createdAt,
+    super.modifiedAt,
+  });
 
   factory StudyChecklistMemberResDto.fromJson(Map<String, dynamic> json) {
     return StudyChecklistMemberResDto(
@@ -194,7 +193,7 @@ class StudyChecklistMemberResDto extends BaseResDto {
       modifiedAt: json['modifiedAt'] != null ? DateTime.parse(json['modifiedAt']) : null,
     );
   }
-  @override
+
   Map<String, dynamic> toJson() => {
     'checklistId': checklistId,
     'content': content,

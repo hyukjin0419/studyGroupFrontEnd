@@ -23,9 +23,9 @@ class StudyMemberInviteResDto extends BaseResDto {
     required this.userName,
     required this.role,
     required this.joinedAt,
-    DateTime? createdAt,
-    DateTime? modifiedAt,
-  }) : super(createdAt: createdAt, modifiedAt: modifiedAt);
+    super.createdAt,
+    super.modifiedAt,
+  });
 
   factory StudyMemberInviteResDto.fromJson(Map<String, dynamic> json) {
     return StudyMemberInviteResDto(

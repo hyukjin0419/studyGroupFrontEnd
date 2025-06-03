@@ -31,9 +31,9 @@ class StudyCreateResDto extends BaseResDto {
     required this.description,
     required this.leaderId,
     required this.leaderName,
-    DateTime? createdAt,
-    DateTime? modifiedAt,
-  }) : super(createdAt: createdAt, modifiedAt: modifiedAt);
+    super.createdAt,
+    super.modifiedAt,
+  });
 
   factory StudyCreateResDto.fromJson(Map<String, dynamic> json) {
     return StudyCreateResDto(
@@ -117,9 +117,9 @@ class StudyListResDto extends BaseResDto {
     required this.name,
     required this.description,
     // required this.leaderId,
-    DateTime? createdAt,
-    DateTime? modifiedAt,
-  }) : super(createdAt: createdAt, modifiedAt: modifiedAt);
+    super.createdAt,
+    super.modifiedAt,
+  });
 
   factory StudyListResDto.fromJson(Map<String, dynamic> json) {
     return StudyListResDto(

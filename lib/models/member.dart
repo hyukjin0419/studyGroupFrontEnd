@@ -23,9 +23,9 @@ class MemberCreateResDto extends BaseResDto {
 
   MemberCreateResDto({
     required this.id,
-    DateTime? createdAt,
-    DateTime? modifiedAt,
-  }) : super(createdAt: createdAt, modifiedAt: modifiedAt);
+    super.createdAt,
+    super.modifiedAt,
+  });
 
   factory MemberCreateResDto.fromJson(Map<String, dynamic> json) {
     return MemberCreateResDto(
@@ -75,15 +75,14 @@ class MemberDetailResDto extends BaseResDto {
   final int id;
   final String userName;
   final String email;
-  //role 추가하자
 
   MemberDetailResDto({
     required this.id,
     required this.userName,
     required this.email,
-    DateTime? createdAt,
-    DateTime? modifiedAt,
-  }) : super(createdAt: createdAt, modifiedAt: modifiedAt);
+    super.createdAt,
+    super.modifiedAt,
+  });
 
   factory MemberDetailResDto.fromJson(Map<String, dynamic> json){
     return MemberDetailResDto(

@@ -65,9 +65,9 @@ class ChecklistDetailResDto extends BaseResDto {
     this.studyId,
     required this.content,
     this.dueDate,
-    DateTime? createdAt,
-    DateTime? modifiedAt,
-  }) : super(createdAt: createdAt, modifiedAt: modifiedAt);
+    super.createdAt,
+    super.modifiedAt,
+  });
 
   factory ChecklistDetailResDto.fromJson(Map<String, dynamic> json) {
     return ChecklistDetailResDto(
