@@ -110,13 +110,13 @@ class StudyListResDto extends BaseResDto {
   final int id;
   final String name;
   final String description;
-  final int leaderId;
+  // final int leaderId;
 
   StudyListResDto({
     required this.id,
     required this.name,
     required this.description,
-    required this.leaderId,
+    // required this.leaderId,
     DateTime? createdAt,
     DateTime? modifiedAt,
   }) : super(createdAt: createdAt, modifiedAt: modifiedAt);
@@ -126,7 +126,7 @@ class StudyListResDto extends BaseResDto {
       id: json['id'],
       name: json['name'],
       description: json['description'],
-      leaderId: json['leaderId'],
+      // leaderId: json['leaderId'],
       createdAt: json['createdAt'] != null ? DateTime.parse(json['createdAt']) : null,
       modifiedAt: json['modifiedAt'] != null ? DateTime.parse(json['modifiedAt']) : null,
     );
