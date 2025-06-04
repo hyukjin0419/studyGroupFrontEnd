@@ -148,6 +148,7 @@ class StudyUpdateReqDto {
   };
 }
 
+
 class StudyUpdateResDto extends StudyCreateResDto {
   StudyUpdateResDto({
     required super.id,
@@ -171,7 +172,6 @@ class StudyUpdateResDto extends StudyCreateResDto {
     );
   }
 }
-
 class StudyDeleteResDto {
   final String message;
 
