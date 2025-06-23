@@ -1,14 +1,4 @@
-import 'base_res_dto.dart';
-
-class StudyMemberInviteReqDto {
-  final String email;
-
-  StudyMemberInviteReqDto({required this.email});
-
-  Map<String, dynamic> toJson() => {
-    'email': email,
-  };
-}
+import 'package:study_group_front_end/dto/base_res_dto.dart';
 
 class StudyMemberInviteResDto extends BaseResDto {
   final int studyId;
@@ -40,22 +30,3 @@ class StudyMemberInviteResDto extends BaseResDto {
   }
 }
 
-class StudyMemberRemoveResDto {
-  final int studyId;
-  final int memberId;
-  final String message;
-
-  StudyMemberRemoveResDto({
-    required this.studyId,
-    required this.memberId,
-    required this.message,
-  });
-
-  factory StudyMemberRemoveResDto.fromJson(Map<String, dynamic> json) {
-    return StudyMemberRemoveResDto(
-      studyId: json['studyId'],
-      memberId: json['memberId'],
-      message: json['message'],
-    );
-  }
-}
