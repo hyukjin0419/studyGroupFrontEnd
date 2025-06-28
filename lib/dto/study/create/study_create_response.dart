@@ -1,13 +1,13 @@
 import 'package:study_group_front_end/dto/base_res_dto.dart';
 
-class StudyCreateResDto extends BaseResDto {
+class StudyCreateResponse extends BaseResDto {
   final int id;
   final String name;
   final String description;
   final int leaderId;
   final String leaderName;
 
-  StudyCreateResDto({
+  StudyCreateResponse({
     required this.id,
     required this.name,
     required this.description,
@@ -17,8 +17,8 @@ class StudyCreateResDto extends BaseResDto {
     super.modifiedAt,
   });
 
-  factory StudyCreateResDto.fromJson(Map<String, dynamic> json) {
-    return StudyCreateResDto(
+  factory StudyCreateResponse.fromJson(Map<String, dynamic> json) {
+    return StudyCreateResponse(
       id: json['id'],
       name: json['name'],
       description: json['description'],

@@ -1,13 +1,13 @@
 import 'package:study_group_front_end/dto/base_res_dto.dart';
 
-class StudyMemberInviteResDto extends BaseResDto {
+class StudyMemberInviteResponse extends BaseResDto {
   final int studyId;
   final int memberId;
   final String userName;
   final String role;
   final DateTime joinedAt;
 
-  StudyMemberInviteResDto({
+  StudyMemberInviteResponse({
     required this.studyId,
     required this.memberId,
     required this.userName,
@@ -17,8 +17,8 @@ class StudyMemberInviteResDto extends BaseResDto {
     super.modifiedAt,
   });
 
-  factory StudyMemberInviteResDto.fromJson(Map<String, dynamic> json) {
-    return StudyMemberInviteResDto(
+  factory StudyMemberInviteResponse.fromJson(Map<String, dynamic> json) {
+    return StudyMemberInviteResponse(
       studyId: json['studyId'],
       memberId: json['memberId'],
       userName: json['userName'],
