@@ -3,14 +3,17 @@ import 'package:study_group_front_end/dto/member/detail/member_detail_response.d
 import 'package:study_group_front_end/dto/member/login/member_login_request.dart';
 import 'package:study_group_front_end/dto/member/signup/member_create_request.dart';
 import 'package:study_group_front_end/dto/member/update/member_update_request.dart';
-
 import 'package:study_group_front_end/providers/loading_notifier.dart';
-import 'package:study_group_front_end/service/member_api_service.dart';
+import 'package:study_group_front_end/service/auth_api_service.dart';
+import 'package:study_group_front_end/service/Auth/token_manager.dart';
+import 'package:study_group_front_end/service/me_api_service.dart';
 
-class MemberProvider with ChangeNotifier,LoadingNotifier {
-  final MemberApiService apiService;
 
-  MemberProvider({required this.apiService});
+class MeProvider with ChangeNotifier,LoadingNotifier {
+  final AuthApiService authApiService;
+  final MeApiService meApiService;
+
+  MeProvider(this.authApiService, this.meApiService);
 
   MemberDetailResponse? _currentMember;
   List<MemberDetailResponse> _memberList = [];
@@ -20,51 +23,41 @@ class MemberProvider with ChangeNotifier,LoadingNotifier {
 
   Future<void> login(MemberLoginRequest request) async {
     await runWithLoading(() async {
-      final loginRes = await apiService.login(request);
-      final member = await apiService.getMemberById(loginRes.id);
-      _currentMember = member;
+      await authApiService.login(request);
+      _currentMember = await meApiService.getMyInfo();
+      notifyListeners();
     });
   }
 
   Future<void> create(MemberCreateRequest request) async {
     await runWithLoading(() async {
-      final created = await apiService.createMember(request);
-      final member = await apiService.getMemberById(created.id);
-      _currentMember = member;
-    });
-  }
-
-  Future<MemberDetailResponse> getMemberById(int id) async {
-    return await runWithLoading(() async {
-      final member = await apiService.getMemberById(id);
-      return member;
-    });
-  }
-
-  Future<void> getAllMembers() async {
-    await runWithLoading(() async {
-      _memberList = await apiService.getAllMembers();
+      await authApiService.createMember(request);
+      _currentMember = await meApiService.getMyInfo();
       notifyListeners();
     });
   }
 
-
   Future<void> update(MemberUpdateRequest request) async {
     await runWithLoading(() async {
-      final updated = await apiService.updateMember(request);
-      _currentMember = updated;
+      _currentMember = await meApiService.updateMyInfo(request);
+       notifyListeners();
     });
   }
 
   Future<void> delete(int id) async {
     await runWithLoading(() async {
-      await apiService.deleteMember(id);
+      await meApiService.deleteMyAccount();
       _currentMember = null;
+      notifyListeners();
     });
   }
 
-  void logout() {
-    _currentMember = null;
-    notifyListeners();
+  Future<void> logout() async {
+    await runWithLoading(() async{
+      await authApiService.logout();
+      await TokenManager.clearTokens();
+      _currentMember = null;
+      notifyListeners();
+    });
   }
 }

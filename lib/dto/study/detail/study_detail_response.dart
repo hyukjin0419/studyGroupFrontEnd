@@ -16,9 +16,9 @@ class StudyDetailResponse extends BaseResDto {
     required this.leaderId,
     required this.leaderName,
     required this.members,
-    DateTime? createdAt,
-    DateTime? modifiedAt,
-  }) : super(createdAt: createdAt, modifiedAt: modifiedAt);
+    super.createdAt,
+    super.modifiedAt,
+  });
 
   factory StudyDetailResponse.fromJson(Map<String, dynamic> json) {
     return StudyDetailResponse(
