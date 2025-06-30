@@ -1,89 +1,70 @@
 import 'dart:convert';
-import 'package:study_group_front_end/models/study.dart';
+import 'package:study_group_front_end/dto/study/create/study_create_request.dart';
+import 'package:study_group_front_end/dto/study/create/study_create_response.dart';
+import 'package:study_group_front_end/dto/study/delete/study_delete_response.dart';
+import 'package:study_group_front_end/dto/study/detail/study_detail_response.dart';
+import 'package:study_group_front_end/dto/study/detail/study_list_response.dart';
+import 'package:study_group_front_end/dto/study/update/study_update_request.dart';
 import 'package:study_group_front_end/service/base_api_service.dart';
 
 class StudyApiService extends BaseApiService {
   final String basePath = '/studies';
 
-  StudyApiService({
-    required super.baseUrl,
-    super.client,
-  });
-
-  Future<StudyCreateResDto> createStudy(StudyCreateReqDto request) async {
-    final response = await httpClient.post(
-      uri(basePath, ''),
-      headers: {'Content-Type': 'application/json'},
-      body: jsonEncode(request.toJson()),
+  Future<StudyCreateResponse> createStudy(StudyCreateRequest request) async {
+    final response = await post(
+      basePath,
+      request.toJson()
     );
 
     if (response.statusCode == 200) {
-      return StudyCreateResDto.fromJson(jsonDecode(response.body));
+      return StudyCreateResponse.fromJson(jsonDecode(response.body));
     } else {
       throw Exception('create Study failed: ${response.statusCode}');
     }
   }
 
-  Future<StudyDetailResDto> getStudyById(int id) async {
-    final response = await httpClient.get(uri(basePath, "/$id"));
-
-    if (response.statusCode == 200) {
-      return StudyDetailResDto.fromJson(jsonDecode(response.body));
-    } else {
-      throw Exception('create Study failed: ${response.statusCode}');
-    }
-  }
-
-  Future<List<StudyListResDto>> getStudiesByMemberId(int memberId) async {
-    final response = await httpClient.get(uri('/members/', '$memberId/studies'));
-
-    if (response.statusCode == 200) {
-      final List<dynamic> jsonList = decodeJson(response);
-      return jsonList.map((e) => StudyListResDto.fromJson(e)).toList();
-    } else {
-      throw Exception('create Study failed: ${response.statusCode}');
-    }
-  }
-
-  Future<List<StudyListResDto>> getAllStudies() async {
-    final response = await httpClient.get(uri(basePath, ''));
-
-    if (response.statusCode == 200) {
-      final List<dynamic> jsonList = decodeJson(response);
-      return jsonList.map((e) => StudyListResDto.fromJson(e)).toList();
-    } else {
-      throw Exception('create Study failed: ${response.statusCode}');
-    }
-  }
-
-  Future<StudyUpdateResDto> updateStudy(int studyId, int leaderId, StudyUpdateReqDto request) async {
-    final response = await httpClient.post(
-      uri(basePath, '/$studyId'),
-      headers: {
-        'Content-Type': 'application/json',
-        'X-Leader_id': leaderId.toString(),
-      },
-      body: jsonEncode(request.toJson()),
+  Future<StudyDetailResponse> updateStudy(int studyId, StudyUpdateRequest request) async {
+    final response = await post(
+      '$basePath/$studyId',
+      request.toJson()
     );
+
     if (response.statusCode == 200) {
-      return StudyUpdateResDto.fromJson(decodeJson(response));
+      return StudyDetailResponse.fromJson(jsonDecode(response.body));
     } else {
       throw Exception('update study failed: ${response.statusCode}');
     }
   }
 
-  Future<StudyDeleteResDto> deleteStudy(int studyId, int leaderId) async {
-    final response = await httpClient.delete(
-      uri(basePath, '/$studyId'),
-      headers: {
-        'X-Leader_Id': leaderId.toString(),
-      },
-    );
+  Future<StudyDeleteResponse> deleteStudy(int studyId) async {
+    final response = await delete('$basePath/$studyId');
 
     if (response.statusCode == 200) {
-      return StudyDeleteResDto.fromJson(decodeJson(response));
+      return StudyDeleteResponse.fromJson(jsonDecode(response.body));
     } else {
       throw Exception('delete study failed: ${response.statusCode}');
+    }
+  }
+
+  //------------------------관리자용 (일단 안씀)----------------------------------//
+  Future<StudyDetailResponse> getStudyById(int studyId) async {
+    final response = await get('basePath/$studyId');
+
+    if (response.statusCode == 200) {
+      return StudyDetailResponse.fromJson(jsonDecode(response.body));
+    } else {
+      throw Exception('get study failed: ${response.statusCode}');
+    }
+  }
+
+  Future<List<StudyListResponse>> getAllStudies() async {
+    final response = await get(basePath);
+
+    if (response.statusCode == 200) {
+      final List<dynamic> jsonList = jsonDecode(utf8.decode(response.bodyBytes));
+      return jsonList.map((e) => StudyListResponse.fromJson(e)).toList();
+    } else {
+      throw Exception('get all studies failed: ${response.statusCode}');
     }
   }
 }
