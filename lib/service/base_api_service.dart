@@ -5,7 +5,6 @@ import 'package:study_group_front_end/service/Auth/token_manager.dart';
 abstract class BaseApiService {
   final String _baseUrl = 'http://localhost:8080';
 
-
   Future<http.Response> get(String path, {bool authRequired = true}) async {
     return await _requestWithRetry(() async {
       final headers = await _buildHeaders(authRequired);
@@ -27,7 +26,7 @@ abstract class BaseApiService {
   Future<http.Response> delete(String path, {bool authRequired = true}) async {
     return await _requestWithRetry(() async {
       final headers = await _buildHeaders(authRequired);
-      return await http.delete(Uri.parse("$_baseUrl$path"), headers: headers)
+      return await http.delete(Uri.parse("$_baseUrl$path"), headers: headers);
     });
   }
 
@@ -48,7 +47,7 @@ abstract class BaseApiService {
     if (response.statusCode == 401) {
       final success = await _refreshAccessToken();
       if (success) {
-        final retryHeaders = await _buildHeaders(true);
+        await _buildHeaders(true);
         response = await request();
       } else {
         await TokenManager.clearTokens();
@@ -58,7 +57,7 @@ abstract class BaseApiService {
   }
 
   Future<bool> _refreshAccessToken() async {
-    final refreshToken = await TokenManager.getRefreshTokne();
+    final refreshToken = await TokenManager.getRefreshToken();
     if (refreshToken == null) return false;
 
     final response = await http.post(
@@ -80,35 +79,4 @@ abstract class BaseApiService {
     await TokenManager.clearTokens();
     return true;
   }
-  
-  
-  
-  
-  
-  
-  
-  
-  
-  
-  
-  
-  
-  
-  
-  
-  
-
-
-
-
-// BaseApiService({
-//   required this.baseUrl,
-//   http.Client? client,
-// }) : httpClient = client ?? http.Client();
-//
-// Uri uri(String basePath, String endpoint) => Uri.parse('$baseUrl$basePath$endpoint');
-//
-// dynamic decodeJson(http.Response response) {
-//   return jsonDecode(utf8.decode(response.bodyBytes));
-// } {
 }

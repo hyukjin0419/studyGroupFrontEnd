@@ -37,4 +37,15 @@ class AuthApiService extends BaseApiService {
       throw Exception('login failed: ${response.statusCode}');
     }
   }
+
+  Future<void> logout() async {
+    final response = await post(
+      'auth/logout',
+      null,
+    );
+
+    if (response.statusCode != 200) {
+      throw Exception('logout failed: ${response.statusCode}');
+    }
+  }
 }

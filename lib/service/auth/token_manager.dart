@@ -6,7 +6,7 @@ class TokenManager {
   static Future<String?> getAccessToken() =>
       _storage.read(key: 'accessToken');
 
-  static Future<String?> getRefreshTokne() =>
+  static Future<String?> getRefreshToken() =>
       _storage.read(key: 'refreshToken');
 
   static Future<void> setTokens(String accessToken, String refreshToken) async {

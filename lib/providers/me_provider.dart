@@ -1,5 +1,9 @@
 import 'package:flutter/material.dart';
-import 'package:study_group_front_end/models/member.dart';
+import 'package:study_group_front_end/dto/member/detail/member_detail_response.dart';
+import 'package:study_group_front_end/dto/member/login/member_login_request.dart';
+import 'package:study_group_front_end/dto/member/signup/member_create_request.dart';
+import 'package:study_group_front_end/dto/member/update/member_update_request.dart';
+
 import 'package:study_group_front_end/providers/loading_notifier.dart';
 import 'package:study_group_front_end/service/member_api_service.dart';
 
@@ -8,28 +12,13 @@ class MemberProvider with ChangeNotifier,LoadingNotifier {
 
   MemberProvider({required this.apiService});
 
-  MemberDetailResDto? _currentMember;
-  List<MemberDetailResDto> _memberList = [];
+  MemberDetailResponse? _currentMember;
+  List<MemberDetailResponse> _memberList = [];
 
-  MemberDetailResDto? get currentMember => _currentMember;
-  List<MemberDetailResDto> get memberList => _memberList;
+  MemberDetailResponse? get currentMember => _currentMember;
+  List<MemberDetailResponse> get memberList => _memberList;
 
-
-  //오리지널
-  // Future<void> login(MemberLoginReqDto request) async {
-  //   _setLoading(true);
-  //   try{
-  //     final loginRes = await apiService.login(request);
-  //     final member = await apiService.getMemberById(loginRes.id);
-  //     _currentMember = member;
-  //   } catch (e) {
-  //     rethrow;
-  //   } finally {
-  //     _setLoading(false);
-  //   }
-  // }
-
-  Future<void> login(MemberLoginReqDto request) async {
+  Future<void> login(MemberLoginRequest request) async {
     await runWithLoading(() async {
       final loginRes = await apiService.login(request);
       final member = await apiService.getMemberById(loginRes.id);
@@ -37,7 +26,7 @@ class MemberProvider with ChangeNotifier,LoadingNotifier {
     });
   }
 
-  Future<void> create(MemberCreateReqDto request) async {
+  Future<void> create(MemberCreateRequest request) async {
     await runWithLoading(() async {
       final created = await apiService.createMember(request);
       final member = await apiService.getMemberById(created.id);
@@ -45,7 +34,7 @@ class MemberProvider with ChangeNotifier,LoadingNotifier {
     });
   }
 
-  Future<MemberDetailResDto> getMemberById(int id) async {
+  Future<MemberDetailResponse> getMemberById(int id) async {
     return await runWithLoading(() async {
       final member = await apiService.getMemberById(id);
       return member;
@@ -60,7 +49,7 @@ class MemberProvider with ChangeNotifier,LoadingNotifier {
   }
 
 
-  Future<void> update(MemberUpdateReqDto request) async {
+  Future<void> update(MemberUpdateRequest request) async {
     await runWithLoading(() async {
       final updated = await apiService.updateMember(request);
       _currentMember = updated;
