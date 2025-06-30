@@ -24,6 +24,13 @@ abstract class BaseApiService {
     });
   }
 
+  Future<http.Response> delete(String path, {bool authRequired = true}) async {
+    return await _requestWithRetry(() async {
+      final headers = await _buildHeaders(authRequired);
+      return await http.delete(Uri.parse("$_baseUrl$path"), headers: headers)
+    });
+  }
+
   Future<Map<String, String>> _buildHeaders(bool authRequired) async {
     final headers = {'Content-Type': 'application/json'};
     if (authRequired) {

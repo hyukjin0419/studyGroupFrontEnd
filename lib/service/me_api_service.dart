@@ -29,7 +29,7 @@ class MeApiService extends BaseApiService {
   }
 
   Future<MemberDeleteResponse> deleteMyAccount() async {
-    final response = await post(basePath); // POST /me (바디 없음)
+    final response = await delete(basePath);
     if (response.statusCode == 200) {
       return MemberDeleteResponse.fromJson(jsonDecode(response.body));
     } else {
