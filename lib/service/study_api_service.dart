@@ -53,7 +53,7 @@ class StudyApiService extends BaseApiService {
     if (response.statusCode == 200) {
       return StudyDetailResponse.fromJson(jsonDecode(response.body));
     } else {
-      throw Exception('create Study failed: ${response.statusCode}');
+      throw Exception('get study failed: ${response.statusCode}');
     }
   }
 
@@ -64,7 +64,7 @@ class StudyApiService extends BaseApiService {
       final List<dynamic> jsonList = jsonDecode(utf8.decode(response.bodyBytes));
       return jsonList.map((e) => StudyListResponse.fromJson(e)).toList();
     } else {
-      throw Exception('create Study failed: ${response.statusCode}');
+      throw Exception('get all studies failed: ${response.statusCode}');
     }
   }
 }
