@@ -1,4 +1,8 @@
 import 'package:flutter/material.dart';
+import 'package:go_router/go_router.dart';
+import 'package:provider/provider.dart';
+import 'package:study_group_front_end/dto/member/login/member_login_request.dart';
+import 'package:study_group_front_end/providers/me_provider.dart';
 
 class LoginScreen extends StatefulWidget {
   const LoginScreen({super.key});
@@ -8,71 +12,76 @@ class LoginScreen extends StatefulWidget {
 }
 
 class _LoginScreenState extends State<LoginScreen> {
-  final TextEditingController _userNameController = TextEditingController();
-  final TextEditingController _passwordController = TextEditingController();
-
+  final _formKey = GlobalKey<FormState>();
+  String _userName = '';
+  String _password = '';
   bool _isLoading = false;
-  String? _errorMessage;
 
-  Future<void> _login() async {
-    setState(() {
-      _isLoading = true;
-      _errorMessage = null;
-    });
+  Future<void> _submit() async {
+    if (!_formKey.currentState!.validate()) return;
 
-    final dto = MemberLoginRequest(
-      userName: _userNameController.text.trim(),
-      password: _passwordController.text,
-    );
+    _formKey.currentState!.save();
 
-    final success = await AuthApiService().login(dto);
+    setState(() => _isLoading = true);
 
-    setState(() {
-      _isLoading = false;
-    });
+    try {
+      final meProvider = context.read<MeProvider>();
+      await meProvider.login(
+        MemberLoginRequest(userName: _userName, password: _password),
+      );
 
-    if (success) {
       if (mounted) {
-        Navigator.pushReplacementNamed(context, '/home'); // 홈화면 라우트
+        context.go('/studies');
       }
-    } else {
-      setState(() {
-        _errorMessage = '로그인에 실패했습니다. 다시 시도해주세요.';
-      });
+    } catch (e) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text("로그인 실패: ${e.toString()}")),
+      );
+    } finally {
+      if (mounted) setState(() => _isLoading = false);
     }
   }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(title: const Text('로그인')),
-      body: Padding(
-        padding: const EdgeInsets.all(16.0),
-        child: Column(
-          children: [
-            TextField(
-              controller: _userNameController,
-              decoration: const InputDecoration(labelText: '아이디'),
-            ),
-            TextField(
-              controller: _passwordController,
-              obscureText: true,
-              decoration: const InputDecoration(labelText: '비밀번호'),
-            ),
-            const SizedBox(height: 16),
-            if (_errorMessage != null) ...[
-              Text(_errorMessage!, style: const TextStyle(color: Colors.red)),
-              const SizedBox(height: 8),
-            ],
-            _isLoading
-                ? const CircularProgressIndicator()
-                : ElevatedButton(
-              onPressed: _login,
-              child: const Text('로그인'),
-            ),
-          ],
-        ),
-      ),
+        appBar: AppBar(title: const Text('로그인')),
+        body: Padding(
+            padding: const EdgeInsets.all(20),
+            child: Form(
+              child: Column(
+                children: [
+                  TextFormField(
+                    decoration: const InputDecoration(labelText: "아이디"),
+                    onSaved: (val) => _userName = val!.trim(),
+                    validator: (val) =>
+                    (val == null || val.isEmpty)
+                        ? '아이디를 입력하세요'
+                        : null,
+                  ),
+                  const SizedBox(height: 12),
+                  TextFormField(
+                    decoration: const InputDecoration(labelText: "비밀번호"),
+                    obscureText: true,
+                    onSaved: (val) => _userName = val!.trim(),
+                    validator: (val) =>
+                    (val == null || val.isEmpty)
+                        ? '비밀번호를 입력하세요'
+                        : null,
+                  ),
+                  const SizedBox(height: 12),
+                  _isLoading
+                      ? const CircularProgressIndicator()
+                      : ElevatedButton(
+                      onPressed: _submit, child: const Text("로그인")),
+                  TextButton(
+                    onPressed: () => context.go('/signup'),
+                    child: const Text('회원가입'),
+                  ),
+                ],
+              ),
+            )
+        )
     );
   }
 }

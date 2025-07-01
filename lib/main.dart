@@ -20,10 +20,6 @@ void main() {
               apiService: StudyApiService(baseUrl: 'http://localhost:8080'),
             )
           ),
-      //     ),
-      //     ChangeNotifierProvider(
-      //       create: (_) => StudyProvider(),
-      //     ),
         ],
         child: MyApp(),
       )

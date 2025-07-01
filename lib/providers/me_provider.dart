@@ -16,10 +16,10 @@ class MeProvider with ChangeNotifier,LoadingNotifier {
   MeProvider(this.authApiService, this.meApiService);
 
   MemberDetailResponse? _currentMember;
-  List<MemberDetailResponse> _memberList = [];
+  // List<MemberDetailResponse> _memberList = [];
 
   MemberDetailResponse? get currentMember => _currentMember;
-  List<MemberDetailResponse> get memberList => _memberList;
+  // List<MemberDetailResponse> get memberList => _memberList;
 
   Future<void> login(MemberLoginRequest request) async {
     await runWithLoading(() async {
