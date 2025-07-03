@@ -18,9 +18,9 @@ class _LoginScreenState extends State<LoginScreen> {
   bool _isLoading = false;
 
   Future<void> _submit() async {
-    if (!_formKey.currentState!.validate()) return;
-
-    _formKey.currentState!.save();
+    final currentForm = _formKey.currentState;
+    if(currentForm == null || !currentForm.validate()) return;
+    currentForm.save();
 
     setState(() => _isLoading = true);
 
@@ -49,11 +49,12 @@ class _LoginScreenState extends State<LoginScreen> {
         body: Padding(
             padding: const EdgeInsets.all(20),
             child: Form(
+              key: _formKey,
               child: Column(
                 children: [
                   TextFormField(
                     decoration: const InputDecoration(labelText: "아이디"),
-                    onSaved: (val) => _userName = val!.trim(),
+                    onSaved: (val) => _userName = val?.trim() ?? '',
                     validator: (val) =>
                     (val == null || val.isEmpty)
                         ? '아이디를 입력하세요'
@@ -63,7 +64,7 @@ class _LoginScreenState extends State<LoginScreen> {
                   TextFormField(
                     decoration: const InputDecoration(labelText: "비밀번호"),
                     obscureText: true,
-                    onSaved: (val) => _userName = val!.trim(),
+                    onSaved: (val) => _password = val?.trim() ?? '',
                     validator: (val) =>
                     (val == null || val.isEmpty)
                         ? '비밀번호를 입력하세요'

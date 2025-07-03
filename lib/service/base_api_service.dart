@@ -1,4 +1,5 @@
 import 'dart:convert';
+import 'package:flutter/cupertino.dart';
 import 'package:http/http.dart' as http;
 import 'package:study_group_front_end/service/Auth/token_manager.dart';
 
@@ -8,7 +9,21 @@ abstract class BaseApiService {
   Future<http.Response> get(String path, {bool authRequired = true}) async {
     return await _requestWithRetry(() async {
       final headers = await _buildHeaders(authRequired);
-      return await http.get(Uri.parse('$_baseUrl$path'), headers: headers);
+      final uri = Uri.parse('$_baseUrl$path');
+
+      //요청 로그
+      debugPrint('[Get 요청]');
+      debugPrint('URL: $uri');
+      debugPrint('Headers: $headers');
+
+      final response = await http.get(Uri.parse('$_baseUrl$path'), headers: headers);
+
+      //응답 로그 출력
+      debugPrint('[응답]');
+      debugPrint('Status Code: ${response.statusCode}');
+      debugPrint('Response Body: ${response.body}');
+
+      return response;
     });
   }
 

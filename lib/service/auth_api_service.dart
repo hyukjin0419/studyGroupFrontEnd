@@ -11,7 +11,7 @@ class AuthApiService extends BaseApiService {
 
   Future<MemberCreateResponse> createMember(MemberCreateRequest request) async {
     final response = await post(
-      basePath,
+      '$basePath/create_member',
       request.toJson(),
       authRequired: false,
     );
@@ -22,7 +22,6 @@ class AuthApiService extends BaseApiService {
       throw Exception('회원 가입 실패: ${response.statusCode}');
     }
   }
-
 
   Future<MemberLoginResponse> login(MemberLoginRequest request) async {
     final response = await post(

@@ -2,7 +2,9 @@ import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import 'package:provider/provider.dart';
 import 'package:study_group_front_end/providers/me_provider.dart';
-import 'package:study_group_front_end/screens/LoginScreen.dart';
+import 'package:study_group_front_end/screens/login_screen.dart';
+import 'package:study_group_front_end/screens/sign_up_screen.dart';
+import 'package:study_group_front_end/screens/study_screen.dart';
 
 final GoRouter router = GoRouter(
   initialLocation: '/login',
@@ -27,13 +29,13 @@ final GoRouter router = GoRouter(
       path: '/login',
       builder: (context, state) => const LoginScreen(),
     ),
-    // GoRoute(
-    //   path: '/signup',
-    //   builder: (context, state) => const LoginScreen(),
-    // ),
-    // GoRoute(
-    //   path: '/studies',
-    //   builder: (context, state) => const LoginScreen(),
-    // )
+    GoRoute(
+      path: '/signup',
+      builder: (context, state) => const SignUpScreen(),
+    ),
+    GoRoute(
+      path: '/studies',
+      builder: (context, state) => const StudyScreen(),
+    )
   ],
 );

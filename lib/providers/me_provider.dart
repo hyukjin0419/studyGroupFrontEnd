@@ -23,7 +23,13 @@ class MeProvider with ChangeNotifier,LoadingNotifier {
 
   Future<void> login(MemberLoginRequest request) async {
     await runWithLoading(() async {
-      await authApiService.login(request);
+      final response = await authApiService.login(request);
+
+      await TokenManager.setTokens(
+        response.accessToken,
+        response.refreshToken,
+      );
+
       _currentMember = await meApiService.getMyInfo();
       notifyListeners();
     });
@@ -32,7 +38,6 @@ class MeProvider with ChangeNotifier,LoadingNotifier {
   Future<void> create(MemberCreateRequest request) async {
     await runWithLoading(() async {
       await authApiService.createMember(request);
-      _currentMember = await meApiService.getMyInfo();
       notifyListeners();
     });
   }
