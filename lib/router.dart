@@ -4,7 +4,7 @@ import 'package:provider/provider.dart';
 import 'package:study_group_front_end/providers/me_provider.dart';
 import 'package:study_group_front_end/screens/login_screen.dart';
 import 'package:study_group_front_end/screens/sign_up_screen.dart';
-import 'package:study_group_front_end/screens/study_screen.dart';
+import 'package:study_group_front_end/screens/study/study_screen.dart';
 
 final GoRouter router = GoRouter(
   initialLocation: '/login',

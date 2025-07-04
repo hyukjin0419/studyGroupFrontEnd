@@ -1,17 +1,22 @@
 class StudyCreateRequest {
   final String name;
   final String description;
-  final int leaderId;
+  final String color;
+  final DateTime? dueDate;
 
   StudyCreateRequest({
     required this.name,
     required this.description,
-    required this.leaderId,
+    required this.color,
+    this.dueDate,
   });
 
-  Map<String, dynamic> toJson() => {
-    'name': name,
-    'description': description,
-    'leaderId': leaderId,
-  };
+  Map<String, dynamic> toJson() {
+    return {
+      'name': name,
+      'description': description,
+      'color': color,
+      'dueDate': dueDate?.toIso8601String(),
+    };
+  }
 }

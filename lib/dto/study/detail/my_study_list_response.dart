@@ -5,12 +5,14 @@ class MyStudyListResponse extends BaseResDto{
   final String name;
   final String description;
   final int personalOrderIndex;
+  final String personalColor;
 
   MyStudyListResponse({
     required this.studyId,
     required this.name,
     required this.description,
     required this.personalOrderIndex,
+    required this.personalColor,
     super.createdAt,
     super.modifiedAt,
   });
@@ -21,6 +23,7 @@ class MyStudyListResponse extends BaseResDto{
       name: json['name'],
       description: json['description'],
       personalOrderIndex: json['personalOrderIndex'],
+      personalColor: json['personalColor'],
       createdAt: DateTime.parse(json['createdAt']),
       modifiedAt: DateTime.parse(json['modifiedAt']),
     );

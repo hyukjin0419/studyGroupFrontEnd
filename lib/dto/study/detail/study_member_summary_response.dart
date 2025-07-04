@@ -2,12 +2,13 @@ class StudyMemberSummaryResponse {
   final int id;
   final String userName;
   final String role;
-
+  final String personalColor;
 
   StudyMemberSummaryResponse({
     required this.id,
     required this.userName,
     required this.role,
+    required this.personalColor,
     DateTime? joinedAt,
   });
 
@@ -16,6 +17,7 @@ class StudyMemberSummaryResponse {
       id: json['id'],
       userName: json['userName'],
       role: json['role'],
+      personalColor: json['personalColor'],
       joinedAt: json['joinedAt'] != null ? DateTime.parse(json['joinedAt']) : null,
     );
   }
