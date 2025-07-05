@@ -33,6 +33,7 @@ class StudyScreen extends StatelessWidget {
           crossAxisCount: 2,
           crossAxisSpacing: 12,
           mainAxisSpacing: 12,
+          childAspectRatio: 10 / 9,
           children: studies.map((study) => StudyCard(study: study)).toList(),
         ),
       ),
