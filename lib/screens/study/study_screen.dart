@@ -1,22 +1,27 @@
 import 'package:flutter/material.dart';
-import 'package:go_router/go_router.dart';
 import 'package:provider/provider.dart';
-import 'package:study_group_front_end/dto/study/create/study_create_request.dart';
-
-import 'package:study_group_front_end/providers/me_provider.dart';
-import 'package:study_group_front_end/screens/sign_up_screen.dart';
-import 'package:study_group_front_end/screens/study/models/dummy_study.dart';
+import 'package:study_group_front_end/providers/study_provider.dart';
 import 'package:study_group_front_end/screens/study/widgets/create_study_dialog.dart';
 import 'package:study_group_front_end/screens/study/widgets/study_card.dart';
-import 'package:study_group_front_end/service/study_api_service.dart';
 
-class StudyScreen extends StatelessWidget {
+class StudyScreen extends StatefulWidget {
   const StudyScreen({super.key});
 
   @override
-  Widget build(BuildContext context) {
-    final studies = dummyStudyList;
+  State<StudyScreen> createState() => _StudyScreenState();
+}
 
+class _StudyScreenState extends State<StudyScreen> {
+
+  @override
+  void initState() {
+    super.initState();
+    Future.microtask(() =>
+        Provider.of<StudyProvider>(context, listen: false).getMyStudies());
+  }
+
+  @override
+  Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
         title: const Row(
@@ -29,12 +34,22 @@ class StudyScreen extends StatelessWidget {
       ),
       body: Padding(
         padding: const EdgeInsets.all(12),
-        child: GridView.count(
-          crossAxisCount: 2,
-          crossAxisSpacing: 12,
-          mainAxisSpacing: 12,
-          childAspectRatio: 10 / 9,
-          children: studies.map((study) => StudyCard(study: study)).toList(),
+        child: Consumer<StudyProvider> (
+          builder: (context, provider, child) {
+            if (provider.isLoading) {
+              return const Center(child: CircularProgressIndicator());
+            }
+
+            final studies = provider.studies;
+
+            return GridView.count(
+              crossAxisCount: 2,
+              crossAxisSpacing: 12,
+              mainAxisSpacing: 12,
+              childAspectRatio: 10 / 9,
+              children: studies.map((study) => StudyCard(study: study)).toList(),
+            );
+          }
         ),
       ),
       floatingActionButton: FloatingActionButton(

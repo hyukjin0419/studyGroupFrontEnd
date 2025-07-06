@@ -1,28 +1,29 @@
 // study/widgets/study_card.dart
 import 'package:flutter/material.dart';
-import '../models/dummy_study.dart';
+import 'package:study_group_front_end/dto/study/detail/study_detail_response.dart';
+import 'package:study_group_front_end/util/color_converters.dart';
 
 class StudyCard extends StatelessWidget {
-  final Study study;
+  final StudyDetailResponse study;
 
   const StudyCard({super.key, required this.study});
 
   @override
   Widget build(BuildContext context) {
     return Card(
-      color: study.color,
+      color: hexToColor(study.personalColor),
       child: Padding(
         padding: const EdgeInsets.all(12),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            Text(study.title, style: const TextStyle(fontSize: 16, fontWeight: FontWeight.bold, color: Colors.white), maxLines: 1),
+            Text(study.name, style: const TextStyle(fontSize: 16, fontWeight: FontWeight.bold, color: Colors.white), maxLines: 1),
             const SizedBox(height: 8),
             LinearProgressIndicator(value: study.progress, backgroundColor: Colors.white38, color: Colors.white),
             const SizedBox(height: 4),
             Text('${(study.progress * 100).round()}%', style: const TextStyle(color: Colors.white, fontSize: 12)),
             const Spacer(),
-            Text(study.dDay, style: const TextStyle(color: Colors.white, fontWeight: FontWeight.w600)),
+            Text(study.dueDate.toString(), style: const TextStyle(color: Colors.white, fontWeight: FontWeight.w600)),
             Text(study.status, style: const TextStyle(color: Colors.white)),
           ],
         ),

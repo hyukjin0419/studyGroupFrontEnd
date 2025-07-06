@@ -10,23 +10,25 @@ import 'package:study_group_front_end/service/study_api_service.dart';
 class StudyProvider with ChangeNotifier, LoadingNotifier {
   final StudyApiService studyApiService;
 
-  StudyProvider({required this.studyApiService});
+  StudyProvider(this.studyApiService);
 
-  List<MyStudyListResponse> _studies = [];
+  List<StudyDetailResponse> _studies = [];
   StudyDetailResponse? _selectedStudy;
 
 
-  List<MyStudyListResponse> get studies => _studies;
+  List<StudyDetailResponse> get studies => _studies;
   StudyDetailResponse? get selectedStudy => _selectedStudy;
 
   Future<void> createStudy(StudyCreateRequest request) async {
+    debugPrint("createStudy");
     await runWithLoading(() async {
-      final response = await studyApiService.createStudy(request);
+      await studyApiService.createStudy(request);
       await getMyStudies();
     });
   }
 
   Future<void> getMyStudies() async {
+    debugPrint("getMyStudies");
     await runWithLoading(() async {
       _studies = await studyApiService.getMyStudies();
     });
@@ -46,7 +48,8 @@ class StudyProvider with ChangeNotifier, LoadingNotifier {
 
   Future<void> updateStudiesOrder(List<StudyOrderUpdateListRequest> request) async {
     await runWithLoading(() async {
-      _studies = await studyApiService.updateStudiesOrder(request);
+      await studyApiService.updateStudiesOrder(request);
+      await getMyStudies();
     });
   }
 

@@ -3,7 +3,6 @@ import 'dart:convert';
 import 'package:study_group_front_end/dto/study/create/study_create_request.dart';
 import 'package:study_group_front_end/dto/study/create/study_create_response.dart';
 import 'package:study_group_front_end/dto/study/delete/study_delete_response.dart';
-import 'package:study_group_front_end/dto/study/detail/my_study_list_response.dart';
 import 'package:study_group_front_end/dto/study/detail/study_detail_response.dart';
 import 'package:study_group_front_end/dto/study/update/study_order_update_request.dart';
 import 'package:study_group_front_end/dto/study/update/study_update_request.dart';
@@ -25,12 +24,12 @@ class StudyApiService extends BaseApiService {
     }
   }
 
-  Future<List<MyStudyListResponse>> getMyStudies() async {
+  Future<List<StudyDetailResponse>> getMyStudies() async {
     final response = await get(basePath);
 
       if (response.statusCode == 200) {
         final List<dynamic> jsonList = jsonDecode(utf8.decode(response.bodyBytes));
-        return jsonList.map((e) => MyStudyListResponse.fromJson(e)).toList();
+        return jsonList.map((e) => StudyDetailResponse.fromJson(e)).toList();
       } else {
         throw Exception('[USER] STUDY_API getMyStudies_본인이 속한 스터디 리스트 조회 실패: ${response.statusCode}');
       }
@@ -61,7 +60,7 @@ class StudyApiService extends BaseApiService {
     }
   }
 
-  Future<List<MyStudyListResponse>> updateStudiesOrder(List<StudyOrderUpdateListRequest> request) async {
+  Future<void> updateStudiesOrder(List<StudyOrderUpdateListRequest> request) async {
     final body = request.map((e) => e.toJson()).toList();
 
     final response = await post(
@@ -69,11 +68,10 @@ class StudyApiService extends BaseApiService {
       body
     );
 
-    if (response.statusCode == 200) {
-      final List<dynamic> jsonList = jsonDecode(response.body);
-      return jsonList.map((json) => MyStudyListResponse.fromJson(json)).toList();
-    } else {
-      throw Exception('[USER] STUDY_API updateStudiesOrder_본인 속한 스터디 순서 업데이트 (Drag & Drop) 실패: ${response.statusCode}');
+    if (response.statusCode != 200) {
+      throw Exception(
+          '[USER] STUDY_API updateStudiesOrder_본인 속한 스터디 순서 업데이트 (Drag & Drop) 실패: ${response
+              .statusCode}');
     }
   }
 
