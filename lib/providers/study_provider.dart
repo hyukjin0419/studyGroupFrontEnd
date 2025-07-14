@@ -46,16 +46,36 @@ class StudyProvider with ChangeNotifier, LoadingNotifier {
     });
   }
 
-  Future<void> updateStudiesOrder(List<StudyOrderUpdateListRequest> request) async {
-    await runWithLoading(() async {
-      await studyApiService.updateStudiesOrder(request);
-      await getMyStudies();
-    });
-  }
-
   Future<void> deleteStudy(int studyId) async {
     await runWithLoading(() async {
       await studyApiService.deleteStudy(studyId);
     });
+  }
+
+  //--------------------스터디 drag & drop ------------------------------------//
+  void reorderStudies(int oldIndex, int newIndex) {
+    debugPrint("reorderStudies");
+
+    //if (oldIndex < newIndex) newIndex -= 1;
+    final item = _studies.removeAt(oldIndex);
+    _studies.insert(newIndex, item);
+    notifyListeners();
+  }
+
+  Future<void> updateStudiesOrder() async {
+    final request = _studies
+      .asMap()
+      .entries
+      .map((study) => StudyOrderUpdateRequest(
+        studyId: study.value.id, personalOrderIndex: study.key
+    )).toList();
+
+    try {
+      await studyApiService.updateStudiesOrder(request);
+      _studies= await studyApiService.getMyStudies();
+      notifyListeners();
+    } catch (e) {
+      debugPrint("[Provider] updateStudiesOrder 실패: $e");
+    }
   }
 }

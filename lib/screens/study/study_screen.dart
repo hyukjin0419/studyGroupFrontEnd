@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
+import 'package:reorderable_grid_view/reorderable_grid_view.dart';
 import 'package:study_group_front_end/providers/study_provider.dart';
 import 'package:study_group_front_end/screens/study/widgets/create_study_dialog.dart';
 import 'package:study_group_front_end/screens/study/widgets/study_card.dart';
@@ -16,8 +17,8 @@ class _StudyScreenState extends State<StudyScreen> {
   @override
   void initState() {
     super.initState();
-    Future.microtask(() =>
-        Provider.of<StudyProvider>(context, listen: false).getMyStudies());
+    Future.microtask(
+            () => Provider.of<StudyProvider>(context, listen: false).getMyStudies());
   }
 
   @override
@@ -35,19 +36,42 @@ class _StudyScreenState extends State<StudyScreen> {
       body: Padding(
         padding: const EdgeInsets.all(12),
         child: Consumer<StudyProvider> (
-          builder: (context, provider, child) {
+          builder: (context, provider, _) {
             if (provider.isLoading) {
               return const Center(child: CircularProgressIndicator());
             }
 
             final studies = provider.studies;
 
-            return GridView.count(
-              crossAxisCount: 2,
-              crossAxisSpacing: 12,
-              mainAxisSpacing: 12,
-              childAspectRatio: 10 / 9,
-              children: studies.map((study) => StudyCard(study: study)).toList(),
+            return ReorderableGridView.builder(
+              gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
+                crossAxisCount: 2,
+                crossAxisSpacing: 12,
+                mainAxisSpacing: 12,
+                childAspectRatio: 10 / 9,
+              ),
+              itemCount: studies.length,
+              itemBuilder: (context, index) {
+                final study = studies[index];
+                return StudyCard(
+                    key: ValueKey(study.id),
+                    study: study
+                );
+              },
+              onReorder: (oldIndex, newIndex) {
+                provider.reorderStudies(oldIndex, newIndex);
+                provider.updateStudiesOrder();
+              },
+
+              dragWidgetBuilder: (index, child) {
+                return Material(
+                  type: MaterialType.transparency,
+                  elevation: 6,
+                  borderRadius: BorderRadius.circular(12),
+                  clipBehavior: Clip.hardEdge,
+                  child: child,
+                );
+              },
             );
           }
         ),

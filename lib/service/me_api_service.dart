@@ -38,24 +38,4 @@ class MeApiService extends BaseApiService {
       throw Exception('내 회원 탈퇴 실패');
     }
   }
-
-  Future<List<MyStudyListResponse>> getMyStudyList() async {
-    final response = await get('$basePath/my-studies');
-    if (response.statusCode == 200) {
-      final List<dynamic> jsonList = jsonDecode(utf8.decode(response.bodyBytes));
-      return jsonList.map((e) => MyStudyListResponse.fromJson(e)).toList();
-    } else {
-      throw Exception("내 스터디 목록 조회 실패");
-    }
-  }
-
-  Future<void> updateMyStudyOrder(StudyOrderUpdateListRequest request) async {
-    final response = await post(
-      '$basePath/my-studies/order-update',
-      request.toJson(),
-    );
-    if (response.statusCode != 200) {
-      throw Exception('내 스터디 순서 변경 실패');
-    }
-  }
 }

@@ -11,7 +11,12 @@ class StudyCard extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Card(
+      // margin: EdgeInsets.zero,
+      // elevation: 0,
       color: hexToColor(study.personalColor),
+      // shape: RoundedRectangleBorder(
+      //   borderRadius: BorderRadius.circular(12),
+      // ),
       child: Padding(
         padding: const EdgeInsets.all(12),
         child: Column(

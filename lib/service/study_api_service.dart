@@ -60,7 +60,7 @@ class StudyApiService extends BaseApiService {
     }
   }
 
-  Future<void> updateStudiesOrder(List<StudyOrderUpdateListRequest> request) async {
+  Future<void> updateStudiesOrder(List<StudyOrderUpdateRequest> request) async {
     final body = request.map((e) => e.toJson()).toList();
 
     final response = await post(

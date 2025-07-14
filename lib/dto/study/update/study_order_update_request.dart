@@ -1,11 +1,16 @@
-class StudyOrderUpdateListRequest {
-  final List<StudyOrderUpdateListRequest> orderList;
+class StudyOrderUpdateRequest {
+  final int studyId;
+  final int personalOrderIndex;
 
-  StudyOrderUpdateListRequest({required this.orderList});
+  StudyOrderUpdateRequest({
+    required this.studyId,
+    required this.personalOrderIndex,
+  });
 
   Map<String, dynamic> toJson() {
     return {
-      'orderList': orderList.map((e) => e.toJson()).toList(),
+      'studyId': studyId,
+      'personalOrderIndex': personalOrderIndex,
     };
   }
 }

@@ -30,6 +30,12 @@ abstract class BaseApiService {
   Future<http.Response> post(String path, dynamic body, {bool authRequired = true}) async {
     return await _requestWithRetry(() async {
       final headers = await _buildHeaders(authRequired);
+      final uri = Uri.parse('$_baseUrl$path');
+
+      debugPrint('[Post 요청]');
+      debugPrint('URL: $uri');
+      debugPrint('Headers: $headers');
+
       return await http.post(
           Uri.parse('$_baseUrl$path'),
           headers: headers,
