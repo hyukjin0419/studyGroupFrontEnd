@@ -16,7 +16,7 @@ class BottomSheetItem {
   });
 }
 
-void showBottomSheet(BuildContext context, List<BottomSheetItem> items) {
+void showCommonBottomSheet(BuildContext context, List<BottomSheetItem> items) {
   showModalBottomSheet(
       context: context,
       isScrollControlled: false,

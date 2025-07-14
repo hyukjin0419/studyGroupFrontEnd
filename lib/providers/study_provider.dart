@@ -53,6 +53,7 @@ class StudyProvider with ChangeNotifier, LoadingNotifier {
   }
 
   //--------------------스터디 drag & drop ------------------------------------//
+  //화면에서 먼저 업데이트
   void reorderStudies(int oldIndex, int newIndex) {
     debugPrint("reorderStudies");
 
@@ -62,6 +63,7 @@ class StudyProvider with ChangeNotifier, LoadingNotifier {
     notifyListeners();
   }
 
+  //이후 백쪽에 반영
   Future<void> updateStudiesOrder() async {
     final request = _studies
       .asMap()
