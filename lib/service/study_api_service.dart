@@ -76,9 +76,8 @@ class StudyApiService extends BaseApiService {
   }
 
   Future<StudyDeleteResponse> deleteStudy(int studyId) async {
-    final response = await post(
-      '$basePath/$studyId',
-      null
+    final response = await delete(
+      '$basePath/delete/$studyId',
     );
 
     if (response.statusCode == 200) {

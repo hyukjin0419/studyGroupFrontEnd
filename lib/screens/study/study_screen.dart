@@ -48,7 +48,7 @@ class _StudyScreenState extends State<StudyScreen> {
                 crossAxisCount: 2,
                 crossAxisSpacing: 12,
                 mainAxisSpacing: 12,
-                // childAspectRatio: 10 / ,
+                childAspectRatio: 10 / 10,
               ),
               itemCount: studies.length,
               itemBuilder: (context, index) {

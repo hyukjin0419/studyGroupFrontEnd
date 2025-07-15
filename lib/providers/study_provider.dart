@@ -43,12 +43,14 @@ class StudyProvider with ChangeNotifier, LoadingNotifier {
   Future<void> updateStudy(StudyUpdateRequest request) async {
     await runWithLoading(() async{
       _selectedStudy = await studyApiService.updateStudy(request);
+      await getMyStudies();
     });
   }
 
   Future<void> deleteStudy(int studyId) async {
     await runWithLoading(() async {
       await studyApiService.deleteStudy(studyId);
+      await getMyStudies();
     });
   }
 

@@ -1,7 +1,11 @@
 import 'dart:developer';
 
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
+import 'package:study_group_front_end/providers/study_provider.dart';
 import 'package:study_group_front_end/dto/study/detail/study_detail_response.dart';
+import 'package:study_group_front_end/dto/study/update/study_update_request.dart';
+import 'package:study_group_front_end/screens/study/widgets/update_study_dialog.dart';
 import 'package:study_group_front_end/util/color_converters.dart';
 import 'package:study_group_front_end/widgets/common_bottom_sheet.dart';
 
@@ -79,6 +83,19 @@ class StudyCard extends StatelessWidget {
             text: '수정',
             onTap: () {
               log('수정 클릭',name: 'StudyCard');
+              showDialog(
+                context: context,
+                builder: (_) => UpdateStudyDialog(
+                  // studyId: study.id,
+                  initialData: StudyUpdateRequest(
+                    studyId: study.id,
+                    name: study.name,
+                    description: study.description,
+                    personalColor: study.personalColor,
+                    dueDate: study.dueDate,
+                  ),
+                ),
+              );
             }
         ),
         BottomSheetItem(
@@ -86,8 +103,40 @@ class StudyCard extends StatelessWidget {
             text: '삭제',
             iconColor: Colors.red,
             textColor: Colors.red,
-            onTap: () {
+            onTap: () async {
               log('삭제 클릭',name: 'StudyCard');
+              final confirmed = await showDialog<bool>(
+                context: context,
+                builder: (_) => AlertDialog(
+                  title: const Text('삭제 확인'),
+                  content: const Text('정말 이 스터디를 삭제하시겠습니까?'),
+                  actions: [
+                    TextButton(
+                      onPressed: () => Navigator.pop(context, false),
+                      child: const Text('취소'),
+                    ),
+                    ElevatedButton(
+                      onPressed: () => Navigator.pop(context, true),
+                      child: const Text('삭제'),
+                    ),
+                  ],
+                ),
+              );
+
+              if (confirmed != true) return;
+
+              try {
+                await context.read<StudyProvider>().deleteStudy(study.id);
+                if (context.mounted) {
+                  ScaffoldMessenger.of(context).showSnackBar(
+                    const SnackBar(content: Text('스터디가 삭제되었습니다.')),
+                  );
+                }
+              } catch (e) {
+                ScaffoldMessenger.of(context).showSnackBar(
+                  SnackBar(content: Text('삭제 실패: $e')),
+                );
+              }
             }
         ),
       ]
