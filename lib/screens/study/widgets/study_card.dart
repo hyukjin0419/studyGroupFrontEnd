@@ -1,6 +1,7 @@
 import 'dart:developer';
 
 import 'package:flutter/material.dart';
+import 'package:go_router/go_router.dart';
 import 'package:provider/provider.dart';
 import 'package:study_group_front_end/providers/study_provider.dart';
 import 'package:study_group_front_end/dto/study/detail/study_detail_response.dart';
@@ -76,6 +77,7 @@ class StudyCard extends StatelessWidget {
             text: '정보 보기',
             onTap: () {
               log('정보보기 클릭',name: 'StudyCard');
+              context.push('/studies/${study.id}');
             }
         ),
         BottomSheetItem(

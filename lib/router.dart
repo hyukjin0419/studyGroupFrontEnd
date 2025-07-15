@@ -4,7 +4,8 @@ import 'package:provider/provider.dart';
 import 'package:study_group_front_end/providers/me_provider.dart';
 import 'package:study_group_front_end/screens/login_screen.dart';
 import 'package:study_group_front_end/screens/sign_up_screen.dart';
-import 'package:study_group_front_end/screens/study/study_screen.dart';
+import 'package:study_group_front_end/screens/study/studies_screen.dart';
+import 'package:study_group_front_end/screens/study/study_detail_screen.dart';
 
 final GoRouter router = GoRouter(
   initialLocation: '/login',
@@ -35,7 +36,14 @@ final GoRouter router = GoRouter(
     ),
     GoRoute(
       path: '/studies',
-      builder: (context, state) => const StudyScreen(),
-    )
+      builder: (context, state) => const StudiesScreen(),
+    ),
+    GoRoute(
+      path: '/studies/:id',
+      builder: (context, state) {
+        final studyId = int.parse(state.pathParameters['id']!);
+        return StudyDetailScreen(studyId: studyId);
+      }
+    ),
   ],
 );

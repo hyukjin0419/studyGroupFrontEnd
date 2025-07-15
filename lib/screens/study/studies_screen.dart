@@ -5,14 +5,14 @@ import 'package:study_group_front_end/providers/study_provider.dart';
 import 'package:study_group_front_end/screens/study/widgets/create_study_dialog.dart';
 import 'package:study_group_front_end/screens/study/widgets/study_card.dart';
 
-class StudyScreen extends StatefulWidget {
-  const StudyScreen({super.key});
+class StudiesScreen extends StatefulWidget {
+  const StudiesScreen({super.key});
 
   @override
-  State<StudyScreen> createState() => _StudyScreenState();
+  State<StudiesScreen> createState() => _StudyScreenState();
 }
 
-class _StudyScreenState extends State<StudyScreen> {
+class _StudyScreenState extends State<StudiesScreen> {
 
   @override
   void initState() {
