@@ -16,7 +16,7 @@ void main() {
             create: (_) => MeProvider(AuthApiService(), MeApiService()),
           ),
           ChangeNotifierProvider(
-            create: (_) => StudyProvider(StudyApiService()), // ✅ 추가!
+            create: (_) => StudyProvider(StudyApiService()),
           ),
         ],
         child: MaterialApp.router(
