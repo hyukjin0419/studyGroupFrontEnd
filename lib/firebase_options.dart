@@ -59,11 +59,11 @@ class DefaultFirebaseOptions {
 
   static const FirebaseOptions ios = FirebaseOptions(
     apiKey: 'AIzaSyCdHQCKjWXr5UhJPJHUvFjBGZEf751-PSo',
-    appId: '1:1028737417039:ios:c75fba04f73db7ed178f3a',
+    appId: '1:1028737417039:ios:565085c20d6aa93f178f3a',
     messagingSenderId: '1028737417039',
     projectId: 'sync-study-92005',
     storageBucket: 'sync-study-92005.firebasestorage.app',
-    iosBundleId: 'com.studyGroup.studyGroupFrontEnd',
+    iosBundleId: 'com.redtruth.syncmate',
   );
 
   static const FirebaseOptions macos = FirebaseOptions(
