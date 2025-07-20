@@ -40,7 +40,7 @@ void main() async {
             create: (_) => MeProvider(AuthApiService(), MeApiService()),
           ),
           ChangeNotifierProvider(
-            create: (_) => StudyProvider(StudyApiService()),
+            create: (_) => StudyProvider(StudyApiService()), // ✅ 추가!
           ),
         ],
         child: MaterialApp.router(
