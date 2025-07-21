@@ -17,7 +17,10 @@ import 'package:flutter/foundation.dart'
 class DefaultFirebaseOptions {
   static FirebaseOptions get currentPlatform {
     if (kIsWeb) {
-      return web;
+      throw UnsupportedError(
+        'DefaultFirebaseOptions have not been configured for web - '
+        'you can reconfigure this by running the FlutterFire CLI again.',
+      );
     }
     switch (defaultTargetPlatform) {
       case TargetPlatform.android:
@@ -25,9 +28,15 @@ class DefaultFirebaseOptions {
       case TargetPlatform.iOS:
         return ios;
       case TargetPlatform.macOS:
-        return macos;
+        throw UnsupportedError(
+          'DefaultFirebaseOptions have not been configured for macos - '
+          'you can reconfigure this by running the FlutterFire CLI again.',
+        );
       case TargetPlatform.windows:
-        return windows;
+        throw UnsupportedError(
+          'DefaultFirebaseOptions have not been configured for windows - '
+          'you can reconfigure this by running the FlutterFire CLI again.',
+        );
       case TargetPlatform.linux:
         throw UnsupportedError(
           'DefaultFirebaseOptions have not been configured for linux - '
@@ -40,47 +49,20 @@ class DefaultFirebaseOptions {
     }
   }
 
-  static const FirebaseOptions web = FirebaseOptions(
-    apiKey: 'AIzaSyCC--JM4xQZNNe8vr-5zfNQZz-NtLGB0Eo',
-    appId: '1:1028737417039:web:5b664d620589c795178f3a',
-    messagingSenderId: '1028737417039',
-    projectId: 'sync-study-92005',
-    authDomain: 'sync-study-92005.firebaseapp.com',
-    storageBucket: 'sync-study-92005.firebasestorage.app',
-  );
-
   static const FirebaseOptions android = FirebaseOptions(
-    apiKey: 'AIzaSyCMCnste5t59xU8Hs-QLH1aamw10VDohmE',
-    appId: '1:1028737417039:android:e719b4a925d72f4b178f3a',
-    messagingSenderId: '1028737417039',
-    projectId: 'sync-study-92005',
-    storageBucket: 'sync-study-92005.firebasestorage.app',
+    apiKey: 'AIzaSyAuE_Gl6hr7bYB8ruC-EtvYFfmKj8DcN2U',
+    appId: '1:14275897427:android:ee80ee4b4849c63d15fea6',
+    messagingSenderId: '14275897427',
+    projectId: 'sync-mate-fcm',
+    storageBucket: 'sync-mate-fcm.firebasestorage.app',
   );
 
   static const FirebaseOptions ios = FirebaseOptions(
-    apiKey: 'AIzaSyCdHQCKjWXr5UhJPJHUvFjBGZEf751-PSo',
-    appId: '1:1028737417039:ios:565085c20d6aa93f178f3a',
-    messagingSenderId: '1028737417039',
-    projectId: 'sync-study-92005',
-    storageBucket: 'sync-study-92005.firebasestorage.app',
+    apiKey: 'AIzaSyBKwKDgMh6DNDmjynAj5VgLVDYkfdzYug8',
+    appId: '1:14275897427:ios:23c057567669524a15fea6',
+    messagingSenderId: '14275897427',
+    projectId: 'sync-mate-fcm',
+    storageBucket: 'sync-mate-fcm.firebasestorage.app',
     iosBundleId: 'com.redtruth.syncmate',
-  );
-
-  static const FirebaseOptions macos = FirebaseOptions(
-    apiKey: 'AIzaSyCdHQCKjWXr5UhJPJHUvFjBGZEf751-PSo',
-    appId: '1:1028737417039:ios:c75fba04f73db7ed178f3a',
-    messagingSenderId: '1028737417039',
-    projectId: 'sync-study-92005',
-    storageBucket: 'sync-study-92005.firebasestorage.app',
-    iosBundleId: 'com.studyGroup.studyGroupFrontEnd',
-  );
-
-  static const FirebaseOptions windows = FirebaseOptions(
-    apiKey: 'AIzaSyCC--JM4xQZNNe8vr-5zfNQZz-NtLGB0Eo',
-    appId: '1:1028737417039:web:eb40117d167caf46178f3a',
-    messagingSenderId: '1028737417039',
-    projectId: 'sync-study-92005',
-    authDomain: 'sync-study-92005.firebaseapp.com',
-    storageBucket: 'sync-study-92005.firebasestorage.app',
   );
 }

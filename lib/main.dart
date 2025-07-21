@@ -3,6 +3,8 @@ import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:study_group_front_end/firebase_options.dart';
+import 'package:study_group_front_end/notification_service/firebase_messaginig_service.dart';
+import 'package:study_group_front_end/notification_service/local_notifications_service.dart';
 import 'package:study_group_front_end/providers/me_provider.dart';
 import 'package:study_group_front_end/providers/study_provider.dart';
 import 'package:study_group_front_end/router.dart';
@@ -10,28 +12,16 @@ import 'package:study_group_front_end/service/auth_api_service.dart';
 import 'package:study_group_front_end/service/me_api_service.dart';
 import 'package:study_group_front_end/service/study_api_service.dart';
 
-@pragma('vm:entry-point')
-Future<void> _firebaseMessagingBackgroundHandler(RemoteMessage message) async {
-  await Firebase.initializeApp(options: DefaultFirebaseOptions.currentPlatform);
-  print('백그라운드 메시지 수신: ${message.messageId}');
-}
-
-
-void main() async {
-
+Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
-  await Firebase.initializeApp(
-    options: DefaultFirebaseOptions.currentPlatform,
-  );
 
-  FirebaseMessaging.onBackgroundMessage(_firebaseMessagingBackgroundHandler);
+  await Firebase.initializeApp(options: DefaultFirebaseOptions.currentPlatform);
 
-  NotificationSettings settings = await FirebaseMessaging.instance.requestPermission();
-  print('알림 권한 상태: ${settings.authorizationStatus}');
+  final localNotificationsService = LocalNotificationsService.instance();
+  await localNotificationsService.init();
 
-  // FCM 토큰 요청
-  String? token = await FirebaseMessaging.instance.getToken();
-  print('📮 FCM 토큰: $token');
+  final firebaseMessagingService = FirebaseMessagingService.instance();
+  await firebaseMessagingService.init(localNotificationsService: localNotificationsService);
 
   runApp(
       MultiProvider(
