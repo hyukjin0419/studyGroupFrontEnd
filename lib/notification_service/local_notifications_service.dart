@@ -69,7 +69,7 @@ class LocalNotificationsService {
     );
 
     // Initialize plugin with settings and callback for notification taps
-    //onDidReceiveNotificationResponse는 하나밖에 설정 안되고 -> response.payload를 체크해서 다르게 설정해야 함!
+    /// onDidReceiveNotificationResponse는 하나밖에 설정 안되고 -> response.payload를 체크해서 다르게 설정해야 함!
     await _flutterLocalNotificationsPlugin.initialize(initializationSettings,
         onDidReceiveNotificationResponse: (NotificationResponse response) {
           // Handle notification tap in foreground
