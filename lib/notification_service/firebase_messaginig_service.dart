@@ -64,13 +64,6 @@ class FirebaseMessagingService {
     // TODO: Add navigation or specific handling based on message data
   }
 
-  /// Background message handler (must be top-level function or static)
-  /// Handles messages when the app is fully terminated
-  @pragma('vm:entry-point')
-  Future<void> _firebaseMessagingBackgroundHandler(RemoteMessage message) async {
-    print('Background message received: ${message.data.toString()}');
-  }
-
   /// Initialize Firebase Messaging and sets up all message listeners
   Future<void> init({required LocalNotificationsService localNotificationsService}) async {
     // Init local notifications service
@@ -99,4 +92,13 @@ class FirebaseMessagingService {
       _onMessageOpenedApp(initialMessage);
     }
   }
+}
+
+/// Background message handler (must be top-level function or static)
+/// Handles messages when the app is fully terminated
+/// Tree Shaking으로 인한 컴파일 대상에서 제외되는 것을 막아줌
+/// 즉 네이티브로 컴파일 되어 바로 사용 가능할 수 있게 컴파일에 포함시키라는 설정
+@pragma('vm:entry-point')
+Future<void> _firebaseMessagingBackgroundHandler(RemoteMessage message) async {
+  print('Background message received: ${message.data.toString()}');
 }

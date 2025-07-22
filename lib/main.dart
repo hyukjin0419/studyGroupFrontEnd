@@ -13,6 +13,7 @@ import 'package:study_group_front_end/service/me_api_service.dart';
 import 'package:study_group_front_end/service/study_api_service.dart';
 
 Future<void> main() async {
+  //비동기 작업 전에 Flutter 프레임워크 초기화 보장 -> 원래는 runApp에서 자동 초기화 되는데, 그 전에 초기화 해주어야해서
   WidgetsFlutterBinding.ensureInitialized();
 
   await Firebase.initializeApp(options: DefaultFirebaseOptions.currentPlatform);
@@ -30,7 +31,7 @@ Future<void> main() async {
             create: (_) => MeProvider(AuthApiService(), MeApiService()),
           ),
           ChangeNotifierProvider(
-            create: (_) => StudyProvider(StudyApiService()), // ✅ 추가!
+            create: (_) => StudyProvider(StudyApiService()),
           ),
         ],
         child: MaterialApp.router(
