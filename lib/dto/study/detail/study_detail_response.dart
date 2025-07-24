@@ -7,6 +7,7 @@ class StudyDetailResponse extends BaseResDto {
   final String description;
   final int leaderId;
   final String leaderName;
+  final String joinCode;
   final String personalColor;
   final DateTime dueDate;
   final double progress;
@@ -19,6 +20,7 @@ class StudyDetailResponse extends BaseResDto {
     required this.description,
     required this.leaderId,
     required this.leaderName,
+    required this.joinCode,
     required this.personalColor,
     required this.dueDate,
     required this.progress,
@@ -35,6 +37,7 @@ class StudyDetailResponse extends BaseResDto {
       description: json['description'],
       leaderId: json['leaderId'],
       leaderName: json['leaderName'],
+      joinCode: json['joinCode'],
       personalColor: json['personalColor'],
       dueDate: DateTime.parse(json['dueDate']),
       progress: (json['progress'] as num).toDouble(),

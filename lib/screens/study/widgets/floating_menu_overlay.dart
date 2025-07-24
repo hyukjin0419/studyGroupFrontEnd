@@ -1,7 +1,5 @@
-import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:study_group_front_end/screens/study/widgets/create_study_dialog.dart';
-import 'package:study_group_front_end/screens/widgets/custom_bottom_navigation_bar.dart';
 
 class FloatingMenuOverlay extends StatelessWidget {
   const FloatingMenuOverlay({super.key});

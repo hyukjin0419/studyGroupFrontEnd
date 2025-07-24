@@ -1,4 +1,4 @@
-import 'package:study_group_front_end/dto/base_res_dto.dart';
+
 
 class MemberLoginRequest{
   final String userName;

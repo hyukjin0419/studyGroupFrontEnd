@@ -49,7 +49,7 @@ class _StudyDetailScreenState extends State<StudyDetailScreen> {
           ),
           title: Text('${study?.name}')),
       body: _isloading
-        ? const Center(child: const Text("스터디 상세"))
+        ? const Center(child: Text("스터디 상세"))
         : study == null
           ? const Center(child: Text("스터디 정보를 불러오지 못했습니다."))
           : Padding(

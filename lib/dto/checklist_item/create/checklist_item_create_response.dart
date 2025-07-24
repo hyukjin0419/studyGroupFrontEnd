@@ -5,9 +5,9 @@ class ChecklistItemCreateResponse extends BaseResDto {
 
   ChecklistItemCreateResponse({
     required this.checklistItemId,
-    DateTime? createdAt,
-    DateTime? modifiedAt,
-  }) : super(createdAt: createdAt, modifiedAt: modifiedAt);
+    super.createdAt,
+    super.modifiedAt,
+  });
 
   factory ChecklistItemCreateResponse.fromJson(Map<String, dynamic> json) {
     return ChecklistItemCreateResponse(
