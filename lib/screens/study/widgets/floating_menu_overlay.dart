@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:go_router/go_router.dart';
 import 'package:study_group_front_end/screens/study/widgets/create_study_dialog.dart';
 
 class FloatingMenuOverlay extends StatelessWidget {
@@ -51,7 +52,7 @@ class FloatingMenuOverlay extends StatelessWidget {
                   label: const Text("팀 참여하기"),
                   onPressed: () {
                     Navigator.of(context).pop();
-                    // TODO: 참여 다이얼로그 띄우기
+                    context.push('/studies/join');
                   },
                 ),
                 const SizedBox(height: 8),

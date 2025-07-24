@@ -6,6 +6,7 @@ import 'package:study_group_front_end/screens/login_screen.dart';
 import 'package:study_group_front_end/screens/sign_up_screen.dart';
 import 'package:study_group_front_end/screens/study/studies_screen.dart';
 import 'package:study_group_front_end/screens/study/study_detail_screen.dart';
+import 'package:study_group_front_end/screens/study/study_join_screen_with_qr.dart';
 
 final GoRouter router = GoRouter(
   initialLocation: '/login',
@@ -33,6 +34,10 @@ final GoRouter router = GoRouter(
     GoRoute(
       path: '/signup',
       builder: (context, state) => const SignUpScreen(),
+    ),
+    GoRoute(
+      path: '/studies/join',
+      builder: (context, state) => const StudyJoinScreenWithQr(),
     ),
     GoRoute(
       path: '/studies',
