@@ -2,7 +2,7 @@ import 'dart:convert';
 import 'package:study_group_front_end/dto/study_member/study_member_invite_request.dart';
 import 'package:study_group_front_end/dto/study_member/study_member_invite_response.dart';
 import 'package:study_group_front_end/dto/study_member/study_member_remove_response.dart';
-import 'package:study_group_front_end/service/base_api_service.dart';
+import 'package:study_group_front_end/api_service/base_api_service.dart';
 
 class StudyMemberApiService extends BaseApiService {
   final String basePath = "/studies";

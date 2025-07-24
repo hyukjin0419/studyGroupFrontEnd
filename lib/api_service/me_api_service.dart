@@ -6,7 +6,7 @@ import 'package:study_group_front_end/dto/member/detail/member_detail_response.d
 import 'package:study_group_front_end/dto/member/update/member_update_request.dart';
 import 'package:study_group_front_end/dto/study/detail/my_study_list_response.dart';
 import 'package:study_group_front_end/dto/study/update/study_order_update_request.dart';
-import 'package:study_group_front_end/service/base_api_service.dart';
+import 'package:study_group_front_end/api_service/base_api_service.dart';
 
 class MeApiService extends BaseApiService {
   final String basePath = "/me";

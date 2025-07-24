@@ -6,7 +6,7 @@ import 'package:study_group_front_end/dto/study/delete/study_delete_response.dar
 import 'package:study_group_front_end/dto/study/detail/study_detail_response.dart';
 import 'package:study_group_front_end/dto/study/update/study_order_update_request.dart';
 import 'package:study_group_front_end/dto/study/update/study_update_request.dart';
-import 'package:study_group_front_end/service/base_api_service.dart';
+import 'package:study_group_front_end/api_service/base_api_service.dart';
 
 class StudyApiService extends BaseApiService {
   final String basePath = '/studies';
