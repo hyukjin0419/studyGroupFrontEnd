@@ -1,7 +1,7 @@
 import 'dart:convert';
 import 'package:flutter/cupertino.dart';
 import 'package:http/http.dart' as http;
-import 'package:study_group_front_end/service/Auth/token_manager.dart';
+import 'package:study_group_front_end/api_service/Auth/token_manager.dart';
 
 abstract class BaseApiService {
   final String _baseUrl = 'http://localhost:8080';
