@@ -36,7 +36,13 @@ Future<void> main() async {
         ],
         child: MaterialApp.router(
           routerConfig: router,
-          theme: ThemeData(useMaterial3: true),
+          theme: ThemeData(
+            colorScheme: ColorScheme.fromSeed(
+              seedColor: Color(0xFF73B4E3),
+              brightness: Brightness.light,
+            ),
+            useMaterial3: true,
+          ),
         )
       )
   );
