@@ -21,7 +21,9 @@ class _StudyDetailScreenState extends State<StudyDetailScreen> {
   @override
   void initState() {
     super.initState();
-    _loadStudy();
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      _loadStudy();
+    });
   }
 
   Future<void> _loadStudy() async {
