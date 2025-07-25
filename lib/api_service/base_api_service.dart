@@ -1,4 +1,5 @@
 import 'dart:convert';
+import 'dart:developer';
 import 'package:flutter/cupertino.dart';
 import 'package:http/http.dart' as http;
 import 'package:study_group_front_end/api_service/Auth/token_manager.dart';
@@ -80,25 +81,27 @@ abstract class BaseApiService {
 
   Future<bool> _refreshAccessToken() async {
     final refreshToken = await TokenManager.getRefreshToken();
-    if (refreshToken == null) return false;
+
+    if (refreshToken == null) {
+      log("refresh token 호출 실패", name: "base_api_service");
+      return false;
+    }
 
     final response = await http.post(
-      Uri.parse('$_baseUrl/reissue/access_token'),
+      Uri.parse('$_baseUrl/auth/reissue/access_token'),
       headers: {'Content-Type': 'application/json'},
       body: jsonEncode({'refreshToken': refreshToken}),
     );
 
     if (response.statusCode == 200) {
       final json = jsonDecode(response.body);
-
       final newAccessToken = json['accessToken'];
-      final newRefreshToken = json.containsKey('refreshToken') ? json['refreshToken'] : refreshToken;
 
-      await TokenManager.setTokens(newAccessToken, newRefreshToken);
+      await TokenManager.setTokens(newAccessToken, refreshToken);
+
       return true;
     }
 
-    await TokenManager.clearTokens();
-    return true;
+    return false;
   }
 }

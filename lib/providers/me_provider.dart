@@ -1,3 +1,5 @@
+import 'dart:developer';
+
 import 'package:flutter/material.dart';
 import 'package:study_group_front_end/dto/member/detail/member_detail_response.dart';
 import 'package:study_group_front_end/dto/member/login/member_login_request.dart';
@@ -29,6 +31,10 @@ class MeProvider with ChangeNotifier,LoadingNotifier {
         response.accessToken,
         response.refreshToken,
       );
+
+      log("accesstoken = ${await TokenManager.getAccessToken()}", name: "me_provider");
+      log("refreshtoken = ${await TokenManager.getRefreshToken()}", name: "me_provider");
+
 
       _currentMember = await meApiService.getMyInfo();
       notifyListeners();
