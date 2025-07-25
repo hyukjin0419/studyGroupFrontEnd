@@ -64,6 +64,10 @@ class _StudyDetailScreenState extends State<StudyDetailScreen> {
                   Text("D-Day: ${study!.dueDate?.difference(DateTime.now()).inDays ?? '알 수 없음'}일 남음"),
                   const SizedBox(height: 8),
                   Text("색상: ${study!.personalColor}"),
+                  const SizedBox(height: 16),
+                  Text("스터디 멤버", style: Theme.of(context).textTheme.titleMedium),
+                  const SizedBox(height: 8),
+                  ...study!.members.map((member) => Text("- ${member.userName}")).toList(),
                 ],
               ),
             )

@@ -4,10 +4,12 @@ import 'package:provider/provider.dart';
 import 'package:study_group_front_end/api_service/auth_api_service.dart';
 import 'package:study_group_front_end/api_service/me_api_service.dart';
 import 'package:study_group_front_end/api_service/study_api_service.dart';
+import 'package:study_group_front_end/api_service/study_join_api_service.dart';
 import 'package:study_group_front_end/firebase_options.dart';
 import 'package:study_group_front_end/notification_service/firebase_messaginig_service.dart';
 import 'package:study_group_front_end/notification_service/local_notifications_service.dart';
 import 'package:study_group_front_end/providers/me_provider.dart';
+import 'package:study_group_front_end/providers/study_join_provider.dart';
 import 'package:study_group_front_end/providers/study_provider.dart';
 import 'package:study_group_front_end/router.dart';
 
@@ -32,6 +34,9 @@ Future<void> main() async {
           ChangeNotifierProvider(
             create: (_) => StudyProvider(StudyApiService()),
           ),
+          ChangeNotifierProvider(
+              create: (_) => StudyJoinProvider(StudyJoinApiService()),
+          )
         ],
         child: MaterialApp.router(
           routerConfig: router,

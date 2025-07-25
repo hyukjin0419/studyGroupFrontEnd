@@ -4,7 +4,8 @@ import 'package:http/http.dart' as http;
 import 'package:study_group_front_end/api_service/Auth/token_manager.dart';
 
 abstract class BaseApiService {
-  final String _baseUrl = 'http://localhost:8080';
+  // final String _baseUrl = 'http://localhost:8080';
+  final String _baseUrl = 'http://192.168.0.90:8080';
 
   Future<http.Response> get(String path, {bool authRequired = true}) async {
     return await _requestWithRetry(() async {

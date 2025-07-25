@@ -3,6 +3,8 @@ import 'package:go_router/go_router.dart';
 import 'package:provider/provider.dart';
 import 'package:study_group_front_end/dto/study_member/fellower/study_join_request.dart';
 import 'package:study_group_front_end/providers/study_join_provider.dart';
+import 'package:study_group_front_end/providers/study_provider.dart';
+import 'package:study_group_front_end/util/qr_scanner.dart';
 
 class StudyJoinScreenWithQr extends StatefulWidget {
   const StudyJoinScreenWithQr({super.key});
@@ -27,11 +29,11 @@ class _StudyJoinScreenWithQrState extends State<StudyJoinScreenWithQr>{
             TextField(
               controller: _codeController,
               decoration: InputDecoration(
-                hintText: "참여코드 12자리를 입력해주세요.",
+                hintText: "참여코드를 입력해주세요.",
                 suffixIcon: IconButton(
                   icon: const Icon(Icons.qr_code_scanner),
                   onPressed: (){
-                    ///TODO: QR 스캔 기능 연결
+                    _scanAndFillCode();
                   },
                 ),
                 border: const OutlineInputBorder(),
@@ -52,25 +54,32 @@ class _StudyJoinScreenWithQrState extends State<StudyJoinScreenWithQr>{
     );
   }
 
+  void _scanAndFillCode() async {
+    final code = await scanQrCode(context);
+    if (code != null) {
+      setState(() {
+        _codeController.text = code;
+      });
+    }
+  }
+
   void _submitJoinCode() async {
     final code = _codeController.text.trim();
 
-    if(code.length != 12){
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text("참여코드는 12자리여야 합니다.")),
-      );
-      return;
-    }
-
     try {
       await context.read<StudyJoinProvider>().join(StudyJoinRequest(joinCode: code));
-      if (context.mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(content: Text("스터디에 참여했습니다.")),
-        );
-        context.pop();
-      }
+      if (!mounted) return;
+      await context.read<StudyProvider>().getMyStudies();
+      if (!mounted) return;
+
+
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text("스터디에 참여했습니다.")),
+      );
+
+      context.go('/studies');
     } catch (e) {
+      if (!mounted) return;
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(content: Text("참여 실패: $e")),
       );
