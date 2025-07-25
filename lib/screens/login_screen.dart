@@ -1,6 +1,9 @@
+import 'dart:io';
+import 'package:flutter/foundation.dart' show kIsWeb;
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import 'package:provider/provider.dart';
+import 'package:study_group_front_end/api_service/Auth/token_manager.dart';
 import 'package:study_group_front_end/dto/member/login/member_login_request.dart';
 import 'package:study_group_front_end/providers/me_provider.dart';
 
@@ -27,7 +30,12 @@ class _LoginScreenState extends State<LoginScreen> {
     try {
       final meProvider = context.read<MeProvider>();
       await meProvider.login(
-        MemberLoginRequest(userName: _userName, password: _password),
+        MemberLoginRequest(
+          userName: _userName,
+          password: _password,
+          deviceToken: await TokenManager.getFcmToken(),
+          deviceType: getDeviceType(),
+        ),
       );
 
       if (mounted) {
@@ -85,4 +93,14 @@ class _LoginScreenState extends State<LoginScreen> {
         )
     );
   }
+}
+
+String getDeviceType() {
+  if(kIsWeb) return "WEB";
+  if(Platform.isAndroid) return "ANDROID";
+  if(Platform.isIOS) return "IOS";
+  if(Platform.isMacOS) return "MACOS";
+  if(Platform.isWindows) return "WINDOWS";
+  if(Platform.isLinux) return "LINUX";
+  return "UNKOWN";
 }

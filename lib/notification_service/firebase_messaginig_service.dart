@@ -1,4 +1,5 @@
 import 'package:firebase_messaging/firebase_messaging.dart';
+import 'package:study_group_front_end/api_service/Auth/token_manager.dart';
 import 'package:study_group_front_end/notification_service/local_notifications_service.dart';
 
 class FirebaseMessagingService {
@@ -19,14 +20,18 @@ class FirebaseMessagingService {
   /// Retrieves and manages the FCM token for push notifications
   Future<void> _handlePushNotificationsToken() async {
     // Get the FCM token for the device
-    final token = await FirebaseMessaging.instance.getToken();
-    print('Push notifications token: $token');
-    // TODO: 토큰 발행시 여기서 서버에 저장
+    final fcmToken = await FirebaseMessaging.instance.getToken();
+
+    print('Push notifications token: $fcmToken');
+
+    if(fcmToken != null){
+      await TokenManager.setFcmToken(fcmToken);
+    }
 
     // Listen for token refresh events
-    FirebaseMessaging.instance.onTokenRefresh.listen((fcmToken) {
+    FirebaseMessaging.instance.onTokenRefresh.listen((fcmToken) async {
       print('FCM token refreshed: $fcmToken');
-      // TODO: 여기서 갱신된 토큰을 서버에 업데ㅣ트
+      await TokenManager.setFcmToken(fcmToken);
     }).onError((error) {
       // Handle errors during token refresh
       print('Error refreshing FCM token: $error');
