@@ -1,11 +1,6 @@
-/*
-Todo 이미 초대한 멤버는 검색 안되게 해야함!!
- */
 import 'dart:async';
-import 'dart:developer';
+
 import 'package:flutter/material.dart';
-import 'package:go_router/go_router.dart';
-import 'package:provider/provider.dart';
 import 'package:study_group_front_end/api_service/member_api_service.dart';
 import 'package:study_group_front_end/api_service/study_join_api_service.dart';
 import 'package:study_group_front_end/dto/member/search/member_search_request.dart';
@@ -26,7 +21,7 @@ class _StudyInvitationScreenState extends State<StudyInvitationScreen> {
   final StudyJoinApiService _studyJoinApiService = StudyJoinApiService();
 
   List<MemberSearchResponse> _searchResults = [];
-  Set<MemberSearchResponse> _selectedMembers = {}; ///이게 만나용? 몰라용!
+  Set<MemberSearchResponse> _selectedMembers = {};
 
   Timer? _debounce;
 
