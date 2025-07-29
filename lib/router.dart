@@ -6,6 +6,7 @@ import 'package:study_group_front_end/screens/login_screen.dart';
 import 'package:study_group_front_end/screens/sign_up_screen.dart';
 import 'package:study_group_front_end/screens/study/studies_screen.dart';
 import 'package:study_group_front_end/screens/study/study_detail_screen.dart';
+import 'package:study_group_front_end/screens/study/study_invitation_screen.dart';
 import 'package:study_group_front_end/screens/study/study_join_screen_with_qr.dart';
 
 final GoRouter router = GoRouter(
@@ -49,6 +50,13 @@ final GoRouter router = GoRouter(
         final studyId = int.parse(state.pathParameters['id']!);
         return StudyDetailScreen(studyId: studyId);
       }
+    ),
+    GoRoute(
+        path: '/studies/invitation/:id',
+        builder: (context, state) {
+          final studyId = int.parse(state.pathParameters['id']!);
+          return StudyInvitationScreen(studyId: studyId);
+        }
     ),
   ],
 );

@@ -87,7 +87,7 @@ class StudyCard extends StatelessWidget {
         ),
         if(isLeader)
           BottomSheetItem(
-              icon: Icons.person_add,
+              icon: Icons.qr_code_scanner,
               text: "스터디 코드 제공하기",
               onTap: (){
                 log('스터디 코드 제공하기 클릭',name: 'StudyCard');
@@ -95,6 +95,15 @@ class StudyCard extends StatelessWidget {
                     context: context,
                     builder: (_) => StudyJoinCodeToQrDialog(joinCode: study.joinCode)
                 );
+              }
+          ),
+        if(isLeader)
+          BottomSheetItem(
+              icon: Icons.person_add,
+              text: "스터디 멤버 초대하기",
+              onTap: (){
+                log('스터디 멤버 초대하기 클릭',name: 'StudyCard');
+                context.push('/studies/invitation/${study.id}');
               }
           ),
         if(isLeader)
@@ -118,6 +127,7 @@ class StudyCard extends StatelessWidget {
                 );
               }
           ),
+        if(isLeader)
         BottomSheetItem(
             icon: Icons.delete,
             text: '삭제',
