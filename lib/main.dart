@@ -12,6 +12,7 @@ import 'package:study_group_front_end/providers/me_provider.dart';
 import 'package:study_group_front_end/providers/study_join_provider.dart';
 import 'package:study_group_front_end/providers/study_provider.dart';
 import 'package:study_group_front_end/router.dart';
+import 'package:study_group_front_end/util/navigator_key.dart';
 
 Future<void> main() async {
   //비동기 작업 전에 Flutter 프레임워크 초기화 보장 -> 원래는 runApp에서 자동 초기화 되는데, 그 전에 초기화 해주어야해서

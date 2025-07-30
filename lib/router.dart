@@ -8,8 +8,10 @@ import 'package:study_group_front_end/screens/study/studies_screen.dart';
 import 'package:study_group_front_end/screens/study/study_detail_screen.dart';
 import 'package:study_group_front_end/screens/study/study_invitation_screen.dart';
 import 'package:study_group_front_end/screens/study/study_join_screen_with_qr.dart';
+import 'package:study_group_front_end/util/navigator_key.dart';
 
 final GoRouter router = GoRouter(
+  navigatorKey: navigatorKey,
   initialLocation: '/login',
 
   redirect: (BuildContext context, GoRouterState state) {

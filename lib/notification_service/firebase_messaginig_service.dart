@@ -1,6 +1,11 @@
+import 'dart:developer';
+
 import 'package:firebase_messaging/firebase_messaging.dart';
+import 'package:flutter/material.dart';
 import 'package:study_group_front_end/api_service/Auth/token_manager.dart';
 import 'package:study_group_front_end/notification_service/local_notifications_service.dart';
+import 'package:study_group_front_end/screens/study/widgets/study_invitation_dialog.dart';
+import 'package:study_group_front_end/util/navigator_key.dart';
 
 class FirebaseMessagingService {
   // Private constructor for singleton pattern
@@ -22,7 +27,7 @@ class FirebaseMessagingService {
     // Get the FCM token for the device
     final fcmToken = await FirebaseMessaging.instance.getToken();
 
-    print('Push notifications token: $fcmToken');
+    log('Push notifications token: $fcmToken', name: "_handlePushNotificationsToken");
 
     if(fcmToken != null){
       await TokenManager.setFcmToken(fcmToken);
@@ -34,7 +39,7 @@ class FirebaseMessagingService {
       await TokenManager.setFcmToken(fcmToken);
     }).onError((error) {
       // Handle errors during token refresh
-      print('Error refreshing FCM token: $error');
+      log('Error refreshing FCM token: $error', name: "FirebaseMessaging.instance.onTokenRefresh.listen");
     });
   }
 
@@ -48,13 +53,14 @@ class FirebaseMessagingService {
     );
 
     // Log the user's permission decision
-    print('User granted permission: ${result.authorizationStatus}');
+    log('User granted permission: ${result.authorizationStatus}', name: "_requestPermission");
   }
 
   /// Handles messages received while the app is in the foreground
   //RemoteMessage는 push 알림 전체 데이터를 담은 객체
   void _onForegroundMessage(RemoteMessage message) {
-    print('Foreground message received: ${message.data.toString()}');
+    _handleFcmMessage(message);
+
     final notificationData = message.notification;
     if (notificationData != null) {
       // Display a local notification using the service
@@ -65,8 +71,58 @@ class FirebaseMessagingService {
 
   /// Handles notification taps when app is opened from the background or terminated state
   void _onMessageOpenedApp(RemoteMessage message) {
-    print('Notification caused the app to open: ${message.data.toString()}');
-    // TODO: Add navigation or specific handling based on message data
+    _handleFcmMessage(message);
+  }
+
+  void _handleFcmMessage(RemoteMessage message) {
+    final data = message.data;
+    final type = data['type'];
+
+    log(data.toString(), name: "Data in RemoteMessage");
+
+    switch(type) {
+      case 'STUDY_INVITATION':
+        _handleInvitationMessage(data);
+        break;
+
+      default:
+        log("알 수 없는 FCM message type", name: "_handleFcmMessgae");
+    }
+  }
+
+  void _handleInvitationMessage(Map<String, dynamic> data) {
+    try {
+      final invitationId = int.parse(data['invitationId']);
+      final title = data['title'];
+      final body = data['body'];
+
+      final context = navigatorKey.currentState?.overlay?.context;
+
+      if (context == null) {
+        log("context가 null입니다. Dialog를 띄울 수 없습니다.");
+        return;
+      }
+
+      if (ModalRoute
+          .of(context)
+          ?.isCurrent == false) {
+        log("중복 Dialog 생성 방지");
+        return;
+      }
+
+      showDialog(
+          context: context,
+          barrierDismissible: false,
+          builder: (_) =>
+              InvitationDialog(
+                invitationId: invitationId,
+                title: title,
+                body: body,
+              )
+      );
+    } catch (e) {
+      log("handleInvitationMessage 처리 중 오류: $e");
+    }
   }
 
   /// Initialize Firebase Messaging and sets up all message listeners
