@@ -1,18 +1,22 @@
 import 'dart:developer';
 
 import 'package:flutter/material.dart';
-import 'package:provider/provider.dart';
+import 'package:go_router/go_router.dart';
+import 'package:study_group_front_end/api_service/study_join_api_service.dart';
+import 'package:study_group_front_end/providers/study_provider.dart';
 
 class InvitationDialog extends StatelessWidget {
   final int invitationId;
   final String title;
   final String body;
+  final StudyProvider studyProvider;
 
   const InvitationDialog({
     super.key,
     required this.invitationId,
     required this.title,
-    required this.body
+    required this.body,
+    required this.studyProvider
   });
 
   @override
@@ -34,20 +38,36 @@ class InvitationDialog extends StatelessWidget {
   }
 
   void _accept(BuildContext context) async {
-  //   // TODO: invitationId로 수락 API 호출
-  //   await InvitationApiService().accept(invitationId);
-  //   Navigator.of(context).pop();
-  //   // Optional: 해당 스터디 화면으로 이동
-  //   context.go("/studies/$invitationId");
-    log("pressed accept");
+    try{
+      final studyId = await StudyJoinApiService().acceptInvitation(invitationId);
 
-    Navigator.of(context).pop();
+      log("studyId: $studyId");
+
+      await studyProvider.getMyStudies();
+
+      log("pressed accept");
+
+      Navigator.of(context).pop();
+      context.push("/studies/$studyId");
+    } catch (e) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text("수락에 실패했습니다. 다시 시도해쥇요. $e")),
+      );
+    }
   }
-  //
+
   void _decline(BuildContext context) async {
-  //   // TODO: invitationId로 거절 API 호출
-  //   await InvitationApiService().decline(invitationId);
-    log("pressed decline");
-    Navigator.of(context).pop();
+    try{
+      // await StudyJoinApiService().decline(invitationId);
+
+      log("pressed decline");
+
+      Navigator.of(context).pop();
+
+    } catch (e) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text("거절에 실패했습니다. 다시 시도해쥇요. $e")),
+      );
+    }
   }
 }

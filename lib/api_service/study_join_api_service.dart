@@ -1,11 +1,15 @@
+import 'dart:convert';
+import 'dart:ffi';
+
 import 'package:study_group_front_end/api_service/base_api_service.dart';
+import 'package:study_group_front_end/dto/study_member/fellower/study_invitation_accept_response.dart';
 import 'package:study_group_front_end/dto/study_member/fellower/study_join_request.dart';
 import 'package:study_group_front_end/dto/study_member/leader/study_member_invitation_request.dart';
 
 class StudyJoinApiService extends BaseApiService {
   final String basePath = "/studies";
 
-  Future<void> join (StudyJoinRequest request) async{
+  Future<void> join (StudyJoinRequest request) async {
     final response = await post(
       '$basePath/join',
       request.toJson()
@@ -18,7 +22,7 @@ class StudyJoinApiService extends BaseApiService {
     }
   }
 
-  Future<void> inviteMember (int studyId, List<StudyMemberInvitationRequest> requestList) async {
+  Future <void> inviteMember (int studyId, List<StudyMemberInvitationRequest> requestList) async {
     final response = await post(
       '$basePath/$studyId/invite',
       requestList.map((r) => r.toJson()).toList(),
@@ -29,5 +33,22 @@ class StudyJoinApiService extends BaseApiService {
           '[StudyJoin] Invite Member fcm 발송 실패: ${response.statusCode}'
       );
     }
+  }
+
+  Future<int> acceptInvitation(int invitationId) async {
+    final response = await post(
+      '$basePath/$invitationId/accept',
+      null
+    );
+
+    if (response.statusCode != 200) {
+      throw Exception('[StudyJoin] Invitation 수락 실패: ${response.statusCode}');
+    }
+
+    final data = (jsonDecode(response.body));
+    final studyId = (data['studyId'] as num).toInt();
+
+    return studyId;
+
   }
 }

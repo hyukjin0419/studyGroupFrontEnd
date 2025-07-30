@@ -1,6 +1,8 @@
 import 'dart:developer';
 
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
+import 'package:study_group_front_end/providers/study_provider.dart';
 import 'package:study_group_front_end/screens/study/widgets/study_invitation_dialog.dart';
 import 'package:study_group_front_end/util/navigator_key.dart';
 
@@ -18,6 +20,8 @@ class StudyInvitationHandler{
         return;
       }
 
+      final studyProvider = context.read<StudyProvider>();
+
       if (ModalRoute
           .of(context)
           ?.isCurrent == false) {
@@ -28,11 +32,12 @@ class StudyInvitationHandler{
       showDialog(
           context: context,
           barrierDismissible: false,
-          builder: (_) =>
+          builder: (dialogContext) =>
               InvitationDialog(
                 invitationId: invitationId,
                 title: title,
                 body: body,
+                studyProvider: studyProvider
               )
       );
     } catch (e) {
