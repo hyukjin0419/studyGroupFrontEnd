@@ -1,3 +1,5 @@
+import 'dart:developer';
+
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
@@ -20,13 +22,11 @@ class InvitationDialog extends StatelessWidget {
       content: Text(body),
       actions: [
         TextButton(
-          onPressed: () => {},
-    // _decline(context),
+          onPressed: () => _decline(context),
           child: const Text("거절"),
         ),
         ElevatedButton(
-          onPressed: () => {},
-          // _accept(context),
+          onPressed: () => _accept(context),
           child: const Text("수락"),
         ),
       ],
@@ -39,12 +39,15 @@ class InvitationDialog extends StatelessWidget {
   //   Navigator.of(context).pop();
   //   // Optional: 해당 스터디 화면으로 이동
   //   context.go("/studies/$invitationId");
+    log("pressed accept");
+
     Navigator.of(context).pop();
   }
   //
   void _decline(BuildContext context) async {
   //   // TODO: invitationId로 거절 API 호출
   //   await InvitationApiService().decline(invitationId);
+    log("pressed decline");
     Navigator.of(context).pop();
   }
 }

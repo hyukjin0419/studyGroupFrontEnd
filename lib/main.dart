@@ -6,6 +6,7 @@ import 'package:study_group_front_end/api_service/me_api_service.dart';
 import 'package:study_group_front_end/api_service/study_api_service.dart';
 import 'package:study_group_front_end/api_service/study_join_api_service.dart';
 import 'package:study_group_front_end/firebase_options.dart';
+import 'package:study_group_front_end/notification_service/fcm_initializer.dart';
 import 'package:study_group_front_end/notification_service/firebase_messaginig_service.dart';
 import 'package:study_group_front_end/notification_service/local_notifications_service.dart';
 import 'package:study_group_front_end/providers/me_provider.dart';
@@ -23,8 +24,7 @@ Future<void> main() async {
   final localNotificationsService = LocalNotificationsService.instance();
   await localNotificationsService.init();
 
-  final firebaseMessagingService = FirebaseMessagingService.instance();
-  await firebaseMessagingService.init(localNotificationsService: localNotificationsService);
+  await FcmInitializer.init(localNotificationsService: localNotificationsService);
 
   runApp(
       MultiProvider(
