@@ -2,8 +2,8 @@ import 'dart:developer';
 
 import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:study_group_front_end/api_service/Auth/token_manager.dart';
-import 'package:study_group_front_end/notification_service/fcm_handler.dart';
-import 'package:study_group_front_end/notification_service/local_notifications_service.dart';
+import 'package:study_group_front_end/notification_service/fcm/fcm_handler.dart';
+import 'package:study_group_front_end/notification_service/local/local_notifications_service.dart';
 
 class FcmInitializer
 {

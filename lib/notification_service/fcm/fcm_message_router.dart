@@ -1,7 +1,7 @@
 import 'dart:developer';
 
 import 'package:firebase_messaging/firebase_messaging.dart';
-import 'package:study_group_front_end/notification_service/study_invitation_handler.dart';
+import 'package:study_group_front_end/notification_service/fcm/study_invitation_handler.dart';
 
 class FcmMessageRouter {
   static void route(RemoteMessage message) {

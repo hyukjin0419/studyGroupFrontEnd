@@ -1,6 +1,6 @@
 import 'package:firebase_messaging/firebase_messaging.dart';
-import 'package:study_group_front_end/notification_service/fcm_message_router.dart';
-import 'package:study_group_front_end/notification_service/local_notifications_service.dart';
+import 'package:study_group_front_end/notification_service/fcm/fcm_message_router.dart';
+import 'package:study_group_front_end/notification_service/local/local_notifications_service.dart';
 
 class FcmHandler {
   static LocalNotificationsService? localNotificationsService;
