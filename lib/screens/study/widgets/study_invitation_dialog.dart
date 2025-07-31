@@ -58,7 +58,7 @@ class InvitationDialog extends StatelessWidget {
 
   void _decline(BuildContext context) async {
     try{
-      // await StudyJoinApiService().decline(invitationId);
+      await StudyJoinApiService().declineInvitation(invitationId);
 
       log("pressed decline");
 

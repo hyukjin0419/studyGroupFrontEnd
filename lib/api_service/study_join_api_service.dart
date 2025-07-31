@@ -49,6 +49,16 @@ class StudyJoinApiService extends BaseApiService {
     final studyId = (data['studyId'] as num).toInt();
 
     return studyId;
+  }
 
+  Future<void> declineInvitation(int invitationId) async{
+    final response = await post(
+        '$basePath/$invitationId/decline',
+        null
+    );
+
+    if (response.statusCode != 200) {
+      throw Exception('[StudyJoin] Invitation 거절 실패: ${response.statusCode}');
+    }
   }
 }
