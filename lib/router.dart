@@ -6,8 +6,12 @@ import 'package:study_group_front_end/screens/login_screen.dart';
 import 'package:study_group_front_end/screens/sign_up_screen.dart';
 import 'package:study_group_front_end/screens/study/studies_screen.dart';
 import 'package:study_group_front_end/screens/study/study_detail_screen.dart';
+import 'package:study_group_front_end/screens/study/study_invitation_screen.dart';
+import 'package:study_group_front_end/screens/study/study_join_screen_with_qr.dart';
+import 'package:study_group_front_end/util/navigator_key.dart';
 
 final GoRouter router = GoRouter(
+  navigatorKey: navigatorKey,
   initialLocation: '/login',
 
   redirect: (BuildContext context, GoRouterState state) {
@@ -35,6 +39,10 @@ final GoRouter router = GoRouter(
       builder: (context, state) => const SignUpScreen(),
     ),
     GoRoute(
+      path: '/studies/join',
+      builder: (context, state) => const StudyJoinScreenWithQr(),
+    ),
+    GoRoute(
       path: '/studies',
       builder: (context, state) => const StudiesScreen(),
     ),
@@ -44,6 +52,13 @@ final GoRouter router = GoRouter(
         final studyId = int.parse(state.pathParameters['id']!);
         return StudyDetailScreen(studyId: studyId);
       }
+    ),
+    GoRoute(
+        path: '/studies/invitation/:id',
+        builder: (context, state) {
+          final studyId = int.parse(state.pathParameters['id']!);
+          return StudyInvitationScreen(studyId: studyId);
+        }
     ),
   ],
 );

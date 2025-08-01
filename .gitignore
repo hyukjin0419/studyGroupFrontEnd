@@ -53,3 +53,20 @@ ios/Flutter/ephemeral/
 
 
 macos/Flutter/ephemeral/
+
+#Firebase 관련
+ios/Runner/GoogleService-Info.plist
+android/app/google-services.json
+.firebase/
+.firebaserc
+firebase.json
+
+#CocoaPods 관련 항목
+ios/Pods/
+ios/Podfile.lock
+macos/Pods/
+macos/Podfile.lock
+
+#Gradle 캐시 및 키스토어
+android/gradle/
+android/app/*.keystore

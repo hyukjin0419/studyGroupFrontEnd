@@ -1,37 +1,28 @@
 import 'package:firebase_core/firebase_core.dart';
-import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
+import 'package:study_group_front_end/api_service/auth_api_service.dart';
+import 'package:study_group_front_end/api_service/me_api_service.dart';
+import 'package:study_group_front_end/api_service/study_api_service.dart';
+import 'package:study_group_front_end/api_service/study_join_api_service.dart';
 import 'package:study_group_front_end/firebase_options.dart';
+import 'package:study_group_front_end/notification_service/fcm/fcm_initializer.dart';
+import 'package:study_group_front_end/notification_service/local/local_notifications_service.dart';
 import 'package:study_group_front_end/providers/me_provider.dart';
+import 'package:study_group_front_end/providers/study_join_provider.dart';
 import 'package:study_group_front_end/providers/study_provider.dart';
 import 'package:study_group_front_end/router.dart';
-import 'package:study_group_front_end/service/auth_api_service.dart';
-import 'package:study_group_front_end/service/me_api_service.dart';
-import 'package:study_group_front_end/service/study_api_service.dart';
 
-@pragma('vm:entry-point')
-Future<void> _firebaseMessagingBackgroundHandler(RemoteMessage message) async {
-  await Firebase.initializeApp(options: DefaultFirebaseOptions.currentPlatform);
-  print('백그라운드 메시지 수신: ${message.messageId}');
-}
-
-
-void main() async {
-
+Future<void> main() async {
+  //비동기 작업 전에 Flutter 프레임워크 초기화 보장 -> 원래는 runApp에서 자동 초기화 되는데, 그 전에 초기화 해주어야해서
   WidgetsFlutterBinding.ensureInitialized();
-  await Firebase.initializeApp(
-    options: DefaultFirebaseOptions.currentPlatform,
-  );
 
-  FirebaseMessaging.onBackgroundMessage(_firebaseMessagingBackgroundHandler);
+  await Firebase.initializeApp(options: DefaultFirebaseOptions.currentPlatform);
 
-  NotificationSettings settings = await FirebaseMessaging.instance.requestPermission();
-  print('알림 권한 상태: ${settings.authorizationStatus}');
+  final localNotificationsService = LocalNotificationsService.instance();
+  await localNotificationsService.init();
 
-  // FCM 토큰 요청
-  String? token = await FirebaseMessaging.instance.getToken();
-  print('📮 FCM 토큰: $token');
+  await FcmInitializer.init(localNotificationsService: localNotificationsService);
 
   runApp(
       MultiProvider(
@@ -40,12 +31,21 @@ void main() async {
             create: (_) => MeProvider(AuthApiService(), MeApiService()),
           ),
           ChangeNotifierProvider(
-            create: (_) => StudyProvider(StudyApiService()), // ✅ 추가!
+            create: (_) => StudyProvider(StudyApiService()),
           ),
+          ChangeNotifierProvider(
+              create: (_) => StudyJoinProvider(StudyJoinApiService()),
+          )
         ],
         child: MaterialApp.router(
           routerConfig: router,
-          theme: ThemeData(useMaterial3: true),
+          theme: ThemeData(
+            colorScheme: ColorScheme.fromSeed(
+              seedColor: Color(0xFF73B4E3),
+              brightness: Brightness.light,
+            ),
+            useMaterial3: true,
+          ),
         )
       )
   );

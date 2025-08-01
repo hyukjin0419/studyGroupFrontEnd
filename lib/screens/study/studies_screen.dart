@@ -2,8 +2,9 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:reorderable_grid_view/reorderable_grid_view.dart';
 import 'package:study_group_front_end/providers/study_provider.dart';
-import 'package:study_group_front_end/screens/study/widgets/create_study_dialog.dart';
+import 'package:study_group_front_end/screens/study/widgets/floating_menu_overlay.dart';
 import 'package:study_group_front_end/screens/study/widgets/study_card.dart';
+import 'package:study_group_front_end/screens/widgets/custom_bottom_navigation_bar.dart';
 
 class StudiesScreen extends StatefulWidget {
   const StudiesScreen({super.key});
@@ -17,8 +18,9 @@ class _StudyScreenState extends State<StudiesScreen> {
   @override
   void initState() {
     super.initState();
-    Future.microtask(
-            () => Provider.of<StudyProvider>(context, listen: false).getMyStudies());
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      Provider.of<StudyProvider>(context, listen: false).getMyStudies();
+    });
   }
 
   @override
@@ -79,18 +81,12 @@ class _StudyScreenState extends State<StudiesScreen> {
       floatingActionButton: FloatingActionButton(
         onPressed: () => showDialog(
           context: context,
-          builder: (_) => const CreateStudyDialog(),
+          builder: (_) => const FloatingMenuOverlay(),
         ),
         child: const Icon(Icons.add),
       ),
       //skin
-      bottomNavigationBar: NavigationBar(
-        destinations: const [
-          NavigationDestination(icon: Icon(Icons.person), label: '개인'),
-          NavigationDestination(icon: Icon(Icons.groups), label: '팀'),
-          NavigationDestination(icon: Icon(Icons.calendar_today), label: '시간표'),
-          NavigationDestination(icon: Icon(Icons.settings), label: '설정'),
-        ],
+      bottomNavigationBar: CustomBottomNavigationBar(
         selectedIndex: 0,
       ),
     );

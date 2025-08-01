@@ -3,9 +3,11 @@ import 'dart:developer';
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import 'package:provider/provider.dart';
+import 'package:study_group_front_end/providers/me_provider.dart';
 import 'package:study_group_front_end/providers/study_provider.dart';
 import 'package:study_group_front_end/dto/study/detail/study_detail_response.dart';
 import 'package:study_group_front_end/dto/study/update/study_update_request.dart';
+import 'package:study_group_front_end/screens/study/widgets/study_join_code_qr_dialog.dart';
 import 'package:study_group_front_end/screens/study/widgets/update_study_dialog.dart';
 import 'package:study_group_front_end/util/color_converters.dart';
 import 'package:study_group_front_end/widgets/common_bottom_sheet.dart';
@@ -70,6 +72,9 @@ class StudyCard extends StatelessWidget {
   }
 
   void _showCustomizedModal(BuildContext context) {
+    final currentUserId = context.read<MeProvider>().currentMember?.id;
+    final isLeader = currentUserId == study.leaderId;
+    
     showCommonBottomSheet(context,
       [
         BottomSheetItem(
@@ -80,26 +85,49 @@ class StudyCard extends StatelessWidget {
               context.push('/studies/${study.id}');
             }
         ),
-        BottomSheetItem(
-            icon: Icons.edit,
-            text: '수정',
-            onTap: () {
-              log('수정 클릭',name: 'StudyCard');
-              showDialog(
-                context: context,
-                builder: (_) => UpdateStudyDialog(
-                  // studyId: study.id,
-                  initialData: StudyUpdateRequest(
-                    studyId: study.id,
-                    name: study.name,
-                    description: study.description,
-                    personalColor: study.personalColor,
-                    dueDate: study.dueDate,
+        if(isLeader)
+          BottomSheetItem(
+              icon: Icons.qr_code_scanner,
+              text: "스터디 코드 제공하기",
+              onTap: (){
+                log('스터디 코드 제공하기 클릭',name: 'StudyCard');
+                showDialog(
+                    context: context,
+                    builder: (_) => StudyJoinCodeToQrDialog(joinCode: study.joinCode)
+                );
+              }
+          ),
+        if(isLeader)
+          BottomSheetItem(
+              icon: Icons.person_add,
+              text: "스터디 멤버 초대하기",
+              onTap: (){
+                log('스터디 멤버 초대하기 클릭',name: 'StudyCard');
+                context.push('/studies/invitation/${study.id}');
+              }
+          ),
+        if(isLeader)
+          BottomSheetItem(
+              icon: Icons.edit,
+              text: '수정',
+              onTap: () {
+                log('수정 클릭',name: 'StudyCard');
+                showDialog(
+                  context: context,
+                  builder: (_) => UpdateStudyDialog(
+                    // studyId: study.id,
+                    initialData: StudyUpdateRequest(
+                      studyId: study.id,
+                      name: study.name,
+                      description: study.description,
+                      personalColor: study.personalColor,
+                      dueDate: study.dueDate,
+                    ),
                   ),
-                ),
-              );
-            }
-        ),
+                );
+              }
+          ),
+        if(isLeader)
         BottomSheetItem(
             icon: Icons.delete,
             text: '삭제',

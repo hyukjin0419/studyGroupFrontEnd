@@ -4,7 +4,7 @@ import 'package:study_group_front_end/dto/member/login/member_login_request.dart
 import 'package:study_group_front_end/dto/member/login/member_login_response.dart';
 import 'package:study_group_front_end/dto/member/signup/member_create_request.dart';
 import 'package:study_group_front_end/dto/member/signup/member_create_response.dart';
-import 'package:study_group_front_end/service/base_api_service.dart';
+import 'package:study_group_front_end/api_service/base_api_service.dart';
 
 class AuthApiService extends BaseApiService {
   final String basePath = "/auth";

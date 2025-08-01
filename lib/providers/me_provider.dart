@@ -1,12 +1,14 @@
+import 'dart:developer';
+
 import 'package:flutter/material.dart';
 import 'package:study_group_front_end/dto/member/detail/member_detail_response.dart';
 import 'package:study_group_front_end/dto/member/login/member_login_request.dart';
 import 'package:study_group_front_end/dto/member/signup/member_create_request.dart';
 import 'package:study_group_front_end/dto/member/update/member_update_request.dart';
 import 'package:study_group_front_end/providers/loading_notifier.dart';
-import 'package:study_group_front_end/service/auth_api_service.dart';
-import 'package:study_group_front_end/service/Auth/token_manager.dart';
-import 'package:study_group_front_end/service/me_api_service.dart';
+import 'package:study_group_front_end/api_service/auth_api_service.dart';
+import 'package:study_group_front_end/api_service/Auth/token_manager.dart';
+import 'package:study_group_front_end/api_service/me_api_service.dart';
 
 
 class MeProvider with ChangeNotifier,LoadingNotifier {
@@ -16,10 +18,8 @@ class MeProvider with ChangeNotifier,LoadingNotifier {
   MeProvider(this.authApiService, this.meApiService);
 
   MemberDetailResponse? _currentMember;
-  // List<MemberDetailResponse> _memberList = [];
 
   MemberDetailResponse? get currentMember => _currentMember;
-  // List<MemberDetailResponse> get memberList => _memberList;
 
   Future<void> login(MemberLoginRequest request) async {
     await runWithLoading(() async {
@@ -29,6 +29,10 @@ class MeProvider with ChangeNotifier,LoadingNotifier {
         response.accessToken,
         response.refreshToken,
       );
+
+      log("accesstoken = ${await TokenManager.getAccessToken()}", name: "me_provider");
+      log("refreshtoken = ${await TokenManager.getRefreshToken()}", name: "me_provider");
+
 
       _currentMember = await meApiService.getMyInfo();
       notifyListeners();

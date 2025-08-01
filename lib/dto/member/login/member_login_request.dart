@@ -1,16 +1,21 @@
-import 'package:study_group_front_end/dto/base_res_dto.dart';
+
 
 class MemberLoginRequest{
   final String userName;
   final String password;
+  final String? deviceToken;
+  final String? deviceType;
 
   MemberLoginRequest({
     required this.userName,
     required this.password,
+    this.deviceToken,
+    this.deviceType,
   });
 
   Map<String, dynamic> toJson() => {
     'userName': userName,
     'password': password,
+    if(deviceToken != null) 'deviceToken': deviceToken,
   };
 }

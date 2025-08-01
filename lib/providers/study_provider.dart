@@ -1,11 +1,10 @@
 import 'package:flutter/material.dart';
+import 'package:study_group_front_end/api_service/study_api_service.dart';
 import 'package:study_group_front_end/dto/study/create/study_create_request.dart';
-import 'package:study_group_front_end/dto/study/detail/my_study_list_response.dart';
 import 'package:study_group_front_end/dto/study/detail/study_detail_response.dart';
 import 'package:study_group_front_end/dto/study/update/study_order_update_request.dart';
 import 'package:study_group_front_end/dto/study/update/study_update_request.dart';
 import 'package:study_group_front_end/providers/loading_notifier.dart';
-import 'package:study_group_front_end/service/study_api_service.dart';
 
 class StudyProvider with ChangeNotifier, LoadingNotifier {
   final StudyApiService studyApiService;
