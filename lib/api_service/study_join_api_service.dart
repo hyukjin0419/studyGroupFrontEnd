@@ -1,8 +1,6 @@
 import 'dart:convert';
-import 'dart:ffi';
 
 import 'package:study_group_front_end/api_service/base_api_service.dart';
-import 'package:study_group_front_end/dto/study_member/fellower/study_invitation_accept_response.dart';
 import 'package:study_group_front_end/dto/study_member/fellower/study_join_request.dart';
 import 'package:study_group_front_end/dto/study_member/leader/study_member_invitation_request.dart';
 
