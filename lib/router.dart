@@ -1,7 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import 'package:provider/provider.dart';
+import 'package:study_group_front_end/dto/study/detail/study_detail_response.dart';
 import 'package:study_group_front_end/providers/me_provider.dart';
+import 'package:study_group_front_end/screens/checklist/checklist_screen.dart';
 import 'package:study_group_front_end/screens/login_screen.dart';
 import 'package:study_group_front_end/screens/sign_up_screen.dart';
 import 'package:study_group_front_end/screens/study/studies_screen.dart';
@@ -58,6 +60,13 @@ final GoRouter router = GoRouter(
         builder: (context, state) {
           final studyId = int.parse(state.pathParameters['id']!);
           return StudyInvitationScreen(studyId: studyId);
+        }
+    ),
+    GoRoute(
+        path: '/studies/:id/checklists',
+        builder: (context, state) {
+          final study = state.extra as StudyDetailResponse;
+          return ChecklistScreen(study: study);
         }
     ),
   ],

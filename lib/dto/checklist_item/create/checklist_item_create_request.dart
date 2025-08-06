@@ -1,17 +1,17 @@
 class ChecklistItemCreateRequest {
-  final int? studyId;
   final String content;
-  final DateTime? dueDate;
+  final int assigneeId;
+  final String type;
 
   ChecklistItemCreateRequest({
-    this.studyId,
     required this.content,
-    this.dueDate,
+    required this.assigneeId,
+    required this.type
   });
 
   Map<String, dynamic> toJson() => {
-    'studyId': studyId,
     'content': content,
-    'dueDate': dueDate?.toIso8601String(),
+    'assigneeId': assigneeId,
+    'type': type,
   };
 }

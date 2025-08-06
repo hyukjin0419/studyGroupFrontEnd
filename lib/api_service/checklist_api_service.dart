@@ -1,7 +1,27 @@
-// import 'dart:convert';
+import 'dart:convert';
+
+import 'package:study_group_front_end/api_service/base_api_service.dart';
+
+import 'package:study_group_front_end/dto/checklist_item/create/checklist_item_create_request.dart';
 // import 'package:study_group_front_end/models/checklist.dart';
 // import 'package:study_group_front_end/service/base_api_service.dart';
 //
+class ChecklistItemApiService extends BaseApiService {
+  final String basePath = '/studies';
+
+  Future<void> createChecklistItemOfStudy(ChecklistItemCreateRequest request, int studyId) async {
+    final response = await post(
+      '$basePath/$studyId/checklistItem/create',
+      request.toJson()
+    );
+
+    if (response.statusCode != 200) {
+      throw Exception(
+          '[Checklist_Item_API_Service] createChecklistItemOfStudy 실패: ${response.statusCode}'
+      );
+    }
+  }
+}
 // class ChecklistApiService extends BaseApiService {
 //   final String basePath = '/checklist';
 //

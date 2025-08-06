@@ -40,6 +40,10 @@ Future<void> main() async {
         child: MaterialApp.router(
           routerConfig: router,
           theme: ThemeData(
+            appBarTheme: const AppBarTheme(
+              backgroundColor: Colors.white,
+            ),
+            scaffoldBackgroundColor: Colors.white,
             colorScheme: ColorScheme.fromSeed(
               seedColor: Color(0xFF73B4E3),
               brightness: Brightness.light,

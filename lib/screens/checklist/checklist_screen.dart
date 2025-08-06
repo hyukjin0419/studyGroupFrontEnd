@@ -1,7 +1,11 @@
 import 'package:flutter/material.dart';
+import 'package:study_group_front_end/dto/study/detail/study_detail_response.dart';
+import 'package:study_group_front_end/screens/checklist/study_header_card.dart';
 
 class ChecklistScreen extends StatefulWidget {
-  const ChecklistScreen({super.key});
+  final StudyDetailResponse study;
+
+  const ChecklistScreen({super.key, required this.study});
 
   @override
   State<ChecklistScreen> createState() => _ChecklistScreenState();
@@ -20,27 +24,27 @@ class _ChecklistScreenState extends State<ChecklistScreen> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: const Text('캡스톤시각디자인1'),
+        title: const Text('캡스톤시각디자인2'),
         leading: const BackButton(),
       ),
       body: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          const StudyHeaderCard(),     // 🧾 스터디 카드
-          CalendarWidget(
-            selectedDate: selectedDate,
-            onDateChanged: updateSelectedDate,
-          ),     // 📅 날짜 선택
+          StudyHeaderCard(study: widget.study),     // 🧾 스터디 카드
+          // CalendarWidget(
+          //   selectedDate: selectedDate,
+          //   onDateChanged: updateSelectedDate,
+          // ),     // 📅 날짜 선택
           const SizedBox(height: 12),
-          Expanded(
-            child: ListView(
-              padding: const EdgeInsets.symmetric(horizontal: 16),
-              children: const [
-                MemberChecklistGroupView(memberName: "최혁진"),
-                MemberChecklistGroupView(memberName: "정재훈"),
-              ],
-            ),
-          ),
+          // Expanded(
+          //   child: ListView(
+          //     padding: const EdgeInsets.symmetric(horizontal: 16),
+          //     children: const [
+          //       MemberChecklistGroupView(memberName: "최혁진"),
+          //       MemberChecklistGroupView(memberName: "정재훈"),
+          //     ],
+          //   ),
+          // ),
         ],
       ),
     );

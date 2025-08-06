@@ -19,11 +19,18 @@ class StudyCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Card(
+    return GestureDetector(
+      onTap:(){
+        context.push(
+          '/studies/${study.id}/checklists',
+          extra: study,
+        );
+      },
+      child: Card(
       color: hexToColor(study.personalColor),
-      child: Stack(
-        children: [
-          Positioned(
+        child: Stack(
+          children: [
+            Positioned(
               top: 2,
               right: -8,
               child: IconButton(
@@ -36,37 +43,38 @@ class StudyCard extends StatelessWidget {
                   _showCustomizedModal(context);
                 },
               )
-          ),
-          // const SizedBox(height: 16),
-          // const Spacer(),
-          Padding(
-            padding: const EdgeInsets.all(15),
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Text(study.name, style: const TextStyle(fontSize: 16, fontWeight: FontWeight.bold, color: Colors.white), maxLines: 1),
-                const SizedBox(height: 8),
-                ClipRRect(
-                  borderRadius: BorderRadius.circular(8),
-                  child: SizedBox(
-                    height: 6,
-                    child:
-                    LinearProgressIndicator(
-                      value: study.progress,
-                      backgroundColor: Colors.white38,
-                      color: Colors.white
+            ),
+            // const SizedBox(height: 16),
+            // const Spacer(),
+            Padding(
+              padding: const EdgeInsets.all(15),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text(study.name, style: const TextStyle(fontSize: 16, fontWeight: FontWeight.bold, color: Colors.white), maxLines: 1),
+                  const SizedBox(height: 8),
+                  ClipRRect(
+                    borderRadius: BorderRadius.circular(8),
+                    child: SizedBox(
+                      height: 6,
+                      child:
+                      LinearProgressIndicator(
+                        value: study.progress,
+                        backgroundColor: Colors.white38,
+                        color: Colors.white
+                      ),
                     ),
                   ),
-                ),
-                const SizedBox(height: 4),
-                Text('${(study.progress * 100).round()}%', style: const TextStyle(color: Colors.white, fontSize: 12)),
-                const Spacer(),
-                Text(study.dueDate.toString(), style: const TextStyle(color: Colors.white, fontWeight: FontWeight.w600)),
-                Text(study.status, style: const TextStyle(color: Colors.white)),
-              ],
+                  const SizedBox(height: 4),
+                  Text('${(study.progress * 100).round()}%', style: const TextStyle(color: Colors.white, fontSize: 12)),
+                  const Spacer(),
+                  Text(study.dueDate.toString(), style: const TextStyle(color: Colors.white, fontWeight: FontWeight.w600)),
+                  Text(study.status, style: const TextStyle(color: Colors.white)),
+                ],
+              ),
             ),
-          ),
-        ],
+          ],
+        ),
       ),
     );
   }

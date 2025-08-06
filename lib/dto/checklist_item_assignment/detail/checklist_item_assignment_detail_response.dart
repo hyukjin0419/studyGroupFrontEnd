@@ -1,42 +1,33 @@
 import 'package:study_group_front_end/dto/base_res_dto.dart';
 
-class StudyChecklistItemDetailResponse extends BaseResDto {
+class ChecklistItemAssignmentDetailResponse extends BaseResDto {
   final int checklistId;
   final String content;
+  final bool completed;
   final int memberId;
   final String memberName;
-  final bool isCompleted;
-  final DateTime? dueDate;
-  final DateTime? completedAt;
-  final DateTime? assignedAt;
   final int? personalOrderIndex;
   final int? studyOrderIndex;
 
-  StudyChecklistItemDetailResponse({
+  ChecklistItemAssignmentDetailResponse({
     required this.checklistId,
     required this.content,
+    required this.completed,
     required this.memberId,
     required this.memberName,
-    required this.isCompleted,
-    this.dueDate,
-    this.completedAt,
-    this.assignedAt,
     this.personalOrderIndex,
     this.studyOrderIndex,
     super.createdAt,
     super.modifiedAt,
   });
 
-  factory StudyChecklistItemDetailResponse.fromJson(Map<String, dynamic> json) {
-    return StudyChecklistItemDetailResponse(
+  factory ChecklistItemAssignmentDetailResponse.fromJson(Map<String, dynamic> json) {
+    return ChecklistItemAssignmentDetailResponse(
       checklistId: json['checklistId'],
       content: json['content'],
+      completed: json['completed'],
       memberId: json['memberId'],
-      memberName: json['memberName'],
-      isCompleted: json['isCompleted'],
-      dueDate: json['dueDate'] != null ? DateTime.parse(json['dueDate']) : null,
-      completedAt: json['completedAt'] != null ? DateTime.parse(json['completedAt']) : null,
-      assignedAt: json['assignedAt'] != null ? DateTime.parse(json['assignedAt']) : null,
+      memberName: json['assignedAt'],
       personalOrderIndex: json['personalOrderIndex'],
       studyOrderIndex: json['studyOrderIndex'],
       createdAt: json['createdAt'] != null ? DateTime.parse(json['createdAt']) : null,
