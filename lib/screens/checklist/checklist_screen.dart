@@ -1,6 +1,9 @@
+import 'dart:developer';
+
 import 'package:flutter/material.dart';
 import 'package:study_group_front_end/dto/study/detail/study_detail_response.dart';
-import 'package:study_group_front_end/screens/checklist/study_header_card.dart';
+import 'package:study_group_front_end/screens/checklist/widget/study_header_card.dart';
+import 'package:study_group_front_end/screens/checklist/widget/weekly_calendar.dart';
 
 class ChecklistScreen extends StatefulWidget {
   final StudyDetailResponse study;
@@ -31,6 +34,13 @@ class _ChecklistScreenState extends State<ChecklistScreen> {
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           StudyHeaderCard(study: widget.study),     // 🧾 스터디 카드
+          WeeklyCalendar(
+            study: widget.study,
+            initialSelectedDay: DateTime.now(),
+            onDaySelected: (date) {
+              log("선택된 날짜: $date");
+            },
+          ),
           // CalendarWidget(
           //   selectedDate: selectedDate,
           //   onDateChanged: updateSelectedDate,

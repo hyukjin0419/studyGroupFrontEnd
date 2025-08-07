@@ -1,5 +1,6 @@
 import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/material.dart';
+import 'package:intl/date_symbol_data_local.dart';
 import 'package:provider/provider.dart';
 import 'package:study_group_front_end/api_service/auth_api_service.dart';
 import 'package:study_group_front_end/api_service/me_api_service.dart';
@@ -23,6 +24,9 @@ Future<void> main() async {
   await localNotificationsService.init();
 
   await FcmInitializer.init(localNotificationsService: localNotificationsService);
+
+  await initializeDateFormatting();
+
 
   runApp(
       MultiProvider(
