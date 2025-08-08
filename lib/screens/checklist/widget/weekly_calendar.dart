@@ -94,7 +94,7 @@ class _WeeklyCalendarState extends State<WeeklyCalendar> {
               ElevatedButton(
                 style: ElevatedButton.styleFrom(
                   minimumSize: const Size(5,5),
-                  padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 5), // 내부 여백
+                  padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 5),
                   backgroundColor: _color,
                   foregroundColor: Colors.white,
                   shape: RoundedRectangleBorder(
@@ -117,6 +117,7 @@ class _WeeklyCalendarState extends State<WeeklyCalendar> {
 
   Widget _buildCalendar() {
     return TableCalendar(
+      rowHeight: 50,
       locale: 'ko_KR',
       firstDay: DateTime.utc(2020, 1, 1),
       lastDay: DateTime.utc(2050, 12, 31),
@@ -139,13 +140,16 @@ class _WeeklyCalendarState extends State<WeeklyCalendar> {
       headerVisible: false,
       startingDayOfWeek: StartingDayOfWeek.monday,
       calendarStyle: CalendarStyle(
+        cellMargin: const EdgeInsets.fromLTRB(15, 10, 15, 10),
         todayDecoration: BoxDecoration(
-          border: Border.all(color: Colors.redAccent),
+          border: Border.all(color: _color),
           shape: BoxShape.circle,
         ),
-        selectedDecoration: BoxDecoration(
-          color: Colors.redAccent,
-          borderRadius: BorderRadius.circular(8),
+        selectedDecoration:
+          BoxDecoration(
+          color: _color,
+
+          borderRadius: BorderRadius.circular(3),
         ),
         selectedTextStyle: const TextStyle(color: Colors.white),
         defaultTextStyle: const TextStyle(color: Colors.black),
