@@ -145,11 +145,13 @@ class _WeeklyCalendarState extends State<WeeklyCalendar> {
           border: Border.all(color: _color),
           shape: BoxShape.circle,
         ),
+        todayTextStyle: const TextStyle(
+          color: Colors.black
+        ),
         selectedDecoration:
           BoxDecoration(
-          color: _color,
-
-          borderRadius: BorderRadius.circular(3),
+            shape: BoxShape.circle,
+            color: _color,
         ),
         selectedTextStyle: const TextStyle(color: Colors.white),
         defaultTextStyle: const TextStyle(color: Colors.black),
