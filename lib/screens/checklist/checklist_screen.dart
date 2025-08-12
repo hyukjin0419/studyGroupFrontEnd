@@ -2,6 +2,7 @@ import 'dart:developer';
 
 import 'package:flutter/material.dart';
 import 'package:study_group_front_end/dto/study/detail/study_detail_response.dart';
+import 'package:study_group_front_end/screens/checklist/widget/member_check_list_group_view.dart';
 import 'package:study_group_front_end/screens/checklist/widget/study_header_card.dart';
 import 'package:study_group_front_end/screens/checklist/widget/weekly_calendar.dart';
 
@@ -41,20 +42,27 @@ class _ChecklistScreenState extends State<ChecklistScreen> {
               log("선택된 날짜: $date");
             },
           ),
-          // CalendarWidget(
-          //   selectedDate: selectedDate,
-          //   onDateChanged: updateSelectedDate,
-          // ),     // 📅 날짜 선택
           const SizedBox(height: 12),
-          // Expanded(
-          //   child: ListView(
-          //     padding: const EdgeInsets.symmetric(horizontal: 16),
-          //     children: const [
-          //       MemberChecklistGroupView(memberName: "최혁진"),
-          //       MemberChecklistGroupView(memberName: "정재훈"),
-          //     ],
-          //   ),
-          // ),
+          Expanded(
+            child: MemberChecklistGroupView(
+                study: widget.study,
+                groups: [
+              MemberChecklistGroupVM(
+                memberName: '최혁진',
+                items: const [
+                  MemberChecklistItemVM(title: '사용자 관련 자료조사사용자 관련 자료조사사용자 관련 자료조사사용자 관련 자료조사사용자 관련 자료조사', completed: true),
+                  MemberChecklistItemVM(title: '로그 수집 포맷 정의', completed: false),
+                ],
+              ),
+              MemberChecklistGroupVM(
+                memberName: '정재윤',
+                items: const [
+                  MemberChecklistItemVM(title: '온보딩 체크리스트 정리', completed: false),
+                  MemberChecklistItemVM(title: '캘린더 스크롤 최적화', completed: false),
+                ],
+              ),
+            ]),
+          )
         ],
       ),
     );
