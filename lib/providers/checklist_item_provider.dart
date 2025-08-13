@@ -1,14 +1,10 @@
 import 'package:flutter/material.dart';
-import 'package:study_group_front_end/api_service/checklist_api_service.dart';
-import 'package:study_group_front_end/dto/checklist_item_assignment/detail/checklist_item_assignment_detail_response.dart';
+import 'package:study_group_front_end/api_service/checklist_item_api_service.dart';
 import 'package:study_group_front_end/providers/loading_notifier.dart';
 
 class ChecklistProvider with ChangeNotifier, LoadingNotifier {
   final ChecklistItemApiService _checklistItemApiService = ChecklistItemApiService();
   // final ChecklistItemAssignmentApiService _checklistItemAssignmentApiService = ChecklistItemAssignmentApiService();
-
-  List<ChecklistItemAssignmentDetailResponse> _checklists = [];
-  List<ChecklistItemAssignmentDetailResponse> get checklists => _checklists;
 
   Future<void> loadChecklists(int studyId) async {
   //
@@ -19,7 +15,7 @@ class ChecklistProvider with ChangeNotifier, LoadingNotifier {
 /*
 import 'package:flutter/material.dart';
 import 'package:study_group_front_end/dto/checklist/checklist_item_assignment.dart';
-import 'package:study_group_front_end/services/api/checklist_api_service.dart';
+import 'package:study_group_front_end/services/api/checklist_item_api_service.dart';
 
 class ChecklistProvider with ChangeNotifier {
   final ChecklistApiService _apiService = ChecklistApiService();

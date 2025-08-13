@@ -5,18 +5,17 @@ import 'package:flutter/material.dart';
 class MemberHeaderChip extends StatelessWidget {
   final String name;
   final Color color;
-  // final VoidCallBack onAddPressed;
+  final VoidCallback onAddPressed;
   
   const MemberHeaderChip({
     super.key,
     required this.name,
     required this.color,
-    // required this.onAddPressed,
+    required this.onAddPressed,
   });
   
   @override
   Widget build(BuildContext context) {
-    final cs = Theme.of(context).colorScheme;
     return Container(
       decoration: BoxDecoration(
         color: color,
@@ -27,6 +26,7 @@ class MemberHeaderChip extends StatelessWidget {
         onTap: (){
           ///Todo
           log("여기서 checklistItem추가하는 로직 있어야함");
+          onAddPressed;
         },
         child: Row(
           mainAxisSize: MainAxisSize.min,

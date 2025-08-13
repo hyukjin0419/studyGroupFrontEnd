@@ -19,6 +19,17 @@ class MemberChecklistGroupView extends StatefulWidget {
 }
 
 class _MemberChecklistGroupViewState extends State<MemberChecklistGroupView> {
+  int? editingMemberId;
+  final TextEditingController _controller = TextEditingController();
+  final FocusNode _focusNode = FocusNode();
+
+  @override
+  void dispose() {
+    _controller.dispose();
+    _focusNode.dispose();
+    super.dispose();
+  }
+
   @override
   Widget build(BuildContext context) {
     return ListView.separated(
@@ -30,7 +41,18 @@ class _MemberChecklistGroupViewState extends State<MemberChecklistGroupView> {
         return Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            MemberHeaderChip(name: g.memberName, color: hexToColor(widget.study.personalColor)),
+            MemberHeaderChip(
+              name: g.memberName,
+              color: hexToColor(widget.study.personalColor),
+              onAddPressed: (){
+                setState(() {
+                  editingMemberId = g.memberId;
+                  _controller.text = "";
+                  Future.delayed(Duration.zero, () => _focusNode.requestFocus());
+
+                });
+              },
+            ),
             const SizedBox(height: 10),
             ...g.items.map((it) =>
               ChecklistItemTile(
@@ -39,6 +61,7 @@ class _MemberChecklistGroupViewState extends State<MemberChecklistGroupView> {
                 color: hexToColor(widget.study.personalColor),
                 onMore:() {}
               ),
+
             )
           ],
         );
@@ -50,9 +73,11 @@ class _MemberChecklistGroupViewState extends State<MemberChecklistGroupView> {
 
 
 class MemberChecklistGroupVM{
+  final int memberId;
   final String memberName;
   final List<MemberChecklistItemVM> items;
   const MemberChecklistGroupVM({
+    required this.memberId,
     required this.memberName,
     required this.items
   });
