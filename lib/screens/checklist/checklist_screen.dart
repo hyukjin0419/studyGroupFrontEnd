@@ -4,7 +4,6 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:study_group_front_end/api_service/checklist_item_api_service.dart';
 import 'package:study_group_front_end/dto/checklist_item/detail/checklist_item_detail_response.dart';
-import 'package:study_group_front_end/dto/member/detail/member_detail_response.dart';
 import 'package:study_group_front_end/dto/study/detail/study_detail_response.dart';
 import 'package:study_group_front_end/dto/study/detail/study_member_summary_response.dart';
 import 'package:study_group_front_end/providers/checklist_item_provider.dart';
@@ -25,39 +24,25 @@ class ChecklistScreen extends StatefulWidget {
 
 class _ChecklistScreenState extends State<ChecklistScreen> {
   DateTime selectedDate = DateTime.now();
-  List<ChecklistItemDetailResponse> items = [];
-  bool isLoading = true;
-  final ChecklistItemApiService checklistItemApiService = ChecklistItemApiService();
-
-  void updateSelectedDate(DateTime newDate) {
-    setState(() {
-      selectedDate = newDate;
-      _loadChecklists();
-    });
-  }
+  late final int _studyId;
+  late ChecklistItemProvider _checklistItemProvider;
 
   @override
   void initState() {
     super.initState();
-    _loadChecklists();
+    _studyId = widget.study.id;
+
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      _checklistItemProvider = context.read<ChecklistItemProvider>();
+      _checklistItemProvider.getChecklists(_studyId, selectedDate);
+    });
   }
 
-  //TODO 지금은 전체 불러오고 있는데, 나중에는 targetDate로 필터링 해서 불러와야 함
-  Future<void> _loadChecklists() async {
-    setState(() => isLoading = true);
-    try {
-      final result = await checklistItemApiService.getChecklistItemsOfStudy(
-          widget.study.id,
-          selectedDate
-      );
-      setState(() {
-        items = result;
-        isLoading = false;
-      });
-    } catch (e) {
-      setState(() => isLoading = false);
-      log("체크리스트 로딩 실패: $e");
-    }
+  void updateSelectedDate(DateTime newDate) {
+    setState(() {
+      selectedDate = newDate;
+      _checklistItemProvider.getChecklists(_studyId, selectedDate);
+    });
   }
 
   List<MemberChecklistGroupVM> _groupChecklistItemsByMember(
@@ -95,6 +80,7 @@ class _ChecklistScreenState extends State<ChecklistScreen> {
 
   @override
   Widget build(BuildContext context) {
+    final provider = context.watch<ChecklistItemProvider>();
     return Scaffold(
       appBar: AppBar(
         title: const Text('캡스톤시각디자인2'),
@@ -106,19 +92,24 @@ class _ChecklistScreenState extends State<ChecklistScreen> {
           StudyHeaderCard(study: widget.study),     // 🧾 스터디 카드
           WeeklyCalendar(                           // 달력
             study: widget.study,
-            initialSelectedDay: DateTime.now(),
+            initialSelectedDay: selectedDate,
             onDaySelected: (date) {
               log("선택된 날짜: $date");
-              _loadChecklists();
+              updateSelectedDate(date);
             },
           ),
           const SizedBox(height: 12),
 
           Expanded(                                 //체크리스트 부분
             child: MemberChecklistGroupView(
-                study: widget.study,
-                selectedDate: selectedDate,
-                groups: _groupChecklistItemsByMember(items, widget.study.members),
+              study: widget.study,
+              selectedDate: selectedDate,
+              groups: _groupChecklistItemsByMember(
+                  provider.checklists, widget.study.members),
+              onChecklistCreated: () {
+                provider.getChecklists(_studyId, selectedDate);
+              }
+              // _loadChecklists,
             ),
           ),
         ],

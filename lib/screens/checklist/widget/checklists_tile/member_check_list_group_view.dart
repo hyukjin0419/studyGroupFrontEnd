@@ -14,12 +14,14 @@ class MemberChecklistGroupView extends StatefulWidget {
   final List<MemberChecklistGroupVM> groups;
   final StudyDetailResponse study;
   final DateTime selectedDate;
+  final void Function()? onChecklistCreated;
 
   const MemberChecklistGroupView({
     super.key,
     required this.groups,
     required this.study,
     required this.selectedDate,
+    this.onChecklistCreated,
   });
 
   @override
@@ -29,88 +31,129 @@ class MemberChecklistGroupView extends StatefulWidget {
 class _MemberChecklistGroupViewState extends State<MemberChecklistGroupView> {
   int? editingMemberId;
   final TextEditingController _controller = TextEditingController();
+  final ScrollController _scrollController = ScrollController();
   final FocusNode _focusNode = FocusNode();
+  late VoidCallback _focusListener;
+
+  @override
+  void initState() {
+    super.initState();
+
+    _focusListener = () {
+      if (!_focusNode.hasFocus) {
+        setState(() {
+          editingMemberId = null;
+          _controller.clear();
+        });
+      }
+    };
+
+    _focusNode.addListener(_focusListener);
+  }
 
   @override
   void dispose() {
-    _controller.dispose();
+    _focusNode.removeListener(_focusListener);
     _focusNode.dispose();
+    _controller.dispose();
+    _scrollController.dispose();
     super.dispose();
   }
 
   @override
   Widget build(BuildContext context) {
-    return ListView.separated(
-      padding: const EdgeInsets.fromLTRB(22, 8, 16, 24),
-      itemCount: widget.groups.length,
-      separatorBuilder: (_, __) => const SizedBox.shrink(),
-      itemBuilder: (context, i) {
-        final g = widget.groups[i];
-        final isEditing = editingMemberId == g.studyMemberId;
+    return GestureDetector(
+      behavior: HitTestBehavior.translucent,
+      onTap: () {
+        FocusScope.of(context).unfocus();
+      },
+      child: ListView.separated(
+        controller: _scrollController,
+        padding: const EdgeInsets.fromLTRB(22, 8, 16, 24),
+        itemCount: widget.groups.length,
+        separatorBuilder: (_, __) => const SizedBox.shrink(),
+        itemBuilder: (context, i) {
+          final g = widget.groups[i];
+          final isEditing = editingMemberId == g.studyMemberId;
 
-        return Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            MemberHeaderChip(
-              name: g.memberName,
-              color: hexToColor(widget.study.personalColor),
-              onAddPressed: (){
-                log("working");
-                setState(() {
-                  editingMemberId = g.studyMemberId;
-                  _controller.text = "";
-                  Future.delayed(Duration.zero, () => _focusNode.requestFocus());
-                });
-              },
-            ),
-            const SizedBox(height: 10),
-            ...g.items.map((it) =>
-              ChecklistItemTile(
-                title: it.content,
-                completed: it.completed,
+          return Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              MemberHeaderChip(
+                name: g.memberName,
                 color: hexToColor(widget.study.personalColor),
-                onMore:() {}
+                onAddPressed: (){
+                  log("working");
+                  setState(() {
+                    editingMemberId = g.studyMemberId;
+                    _controller.text = "";
+                    _scrollToInputField();
+                  });
+                },
               ),
-            ),
-
-            if(isEditing)
-              ChecklistItemInputField(
+              const SizedBox(height: 10),
+              ...g.items.map((it) =>
+                ChecklistItemTile(
+                  title: it.content,
+                  completed: it.completed,
                   color: hexToColor(widget.study.personalColor),
-                  controller: _controller,
-                  focusNode: _focusNode,
-                  onDone: () {
-                    setState(() {
-                      editingMemberId = null;
-                      _controller.clear();
-                      _focusNode.unfocus();
-                    });
-                  },
-                  onSubmitted: (value) async {
-                    log("생성할 항목: $value, 대상 멤버 ID: ${g.studyMemberId}");
-                    log("orderIndex: ${g.items.length}");
-                    //TODO: API 호출
-                    try {
-                      final request = ChecklistItemCreateRequest(
-                          content: value,
-                          assigneeId: g.studyMemberId,
-                          type: "STUDY",
-                          targetDate: widget.selectedDate,
-                          orderIndex: g.items.length,
-                      );
+                  onMore:() {}
+                ),
+              ),
 
-                      final provider = context.read<ChecklistItemProvider>();
-                      await provider.createChecklistItem(request, widget.study.id);
-                    } catch (e) {
-                      ScaffoldMessenger.of(context).showSnackBar(
-                        SnackBar(content: Text("체크리스트 아이템 생성 실패: $e")),
-                      );
-                      log("체크리스트 아이템 생성 실패: $e");
+              if(isEditing)
+                ChecklistItemInputField(
+                    color: hexToColor(widget.study.personalColor),
+                    controller: _controller,
+                    focusNode: _focusNode,
+                    onDone: () {
+                      setState(() {
+                        _controller.clear();
+                        _focusNode
+                          ..unfocus()
+                          ..requestFocus();
+                        _scrollToInputField();
+                      });
+                    },
+                    onSubmitted: (value) async {
+                      log("생성할 항목: $value, 대상 멤버 ID: ${g.studyMemberId}");
+                      log("orderIndex: ${g.items.length}");
+                      //TODO: API 호출
+                      try {
+                        final request = ChecklistItemCreateRequest(
+                            content: value,
+                            assigneeId: g.studyMemberId,
+                            type: "STUDY",
+                            targetDate: widget.selectedDate,
+                            orderIndex: g.items.length,
+                        );
+
+                        final provider = context.read<ChecklistItemProvider>();
+                        await provider.createChecklistItem(request, widget.study.id);
+                        widget.onChecklistCreated?.call();
+                      } catch (e) {
+                        ScaffoldMessenger.of(context).showSnackBar(
+                          SnackBar(content: Text("체크리스트 아이템 생성 실패: $e")),
+                        );
+                        log("체크리스트 아이템 생성 실패: $e");
+                      }
                     }
-                  }
-              )
-          ],
-        );
-      }
+                )
+            ],
+          );
+        }
+      ),
     );
+  }
+
+  void _scrollToInputField() {
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      _focusNode.requestFocus();
+      _scrollController.animateTo(
+        _scrollController.position.maxScrollExtent,
+        duration: const Duration(milliseconds: 300),
+        curve: Curves.easeOut,
+      );
+    });
   }
 }
