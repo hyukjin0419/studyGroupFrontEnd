@@ -65,38 +65,32 @@ class _ChecklistScreenState extends State<ChecklistScreen> {
       List<StudyMemberSummaryResponse> studyMembers
   ) {
 
-    final Map<int, String> memberNamesByStudyMemberId = {
-      for (var sm in studyMembers) sm.studyMemberId : sm.userName
+    final Map<int, MemberChecklistGroupVM> groupMap = {
+      for (var sm in studyMembers)
+        sm.studyMemberId: MemberChecklistGroupVM(
+          studyMemberId: sm.studyMemberId,
+          memberName: sm.userName,
+          items: []
+        )
     };
-
-    final Map<int, List<MemberChecklistItemVM>> grouped = {};
 
     for (final item in items) {
       final studyMemberId = item.studyMemberId;
 
-      if(!grouped.containsKey(studyMemberId)){
-        grouped[studyMemberId] = [];
+      if(groupMap.containsKey(studyMemberId)) {
+        groupMap[studyMemberId]!.items.add(MemberChecklistItemVM(
+          id: item.id,
+          studyMemberId: studyMemberId,
+          content: item.content,
+          completed: item.completed,
+          orderIndex: item.orderIndex,
+        ));
+      } else {
+        log("Warning: checklist item의 studyMemberId가 members에 없음: $studyMemberId");
       }
-
-      grouped[studyMemberId]!.add(MemberChecklistItemVM(
-        id: item.id,
-        studyMemberId: studyMemberId,
-        content: item.content,
-        completed: item.completed,
-        orderIndex: item.orderIndex,
-      ));
     }
 
-    return grouped.entries.map((entry) {
-      final studyMemberId = entry.key;
-      final items = entry.value;
-
-      return MemberChecklistGroupVM(
-        studyMemberId: studyMemberId,
-        memberName: memberNamesByStudyMemberId[studyMemberId] ?? "Unknown (그럴 일은 없겠지만)",
-        items: items,
-      );
-    }).toList();
+    return groupMap.values.toList();
   }
 
   @override

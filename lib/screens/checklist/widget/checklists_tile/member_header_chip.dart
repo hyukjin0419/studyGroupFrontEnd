@@ -24,9 +24,8 @@ class MemberHeaderChip extends StatelessWidget {
       padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 1),
       child: InkWell(
         onTap: (){
-          ///Todo
-          log("여기서 checklistItem추가하는 로직 있어야함");
-          onAddPressed;
+          // log("hello");
+          onAddPressed();
         },
         child: Row(
           mainAxisSize: MainAxisSize.min,

@@ -3,9 +3,9 @@ import 'dart:convert';
 import 'package:study_group_front_end/api_service/base_api_service.dart';
 
 import 'package:study_group_front_end/dto/checklist_item/create/checklist_item_create_request.dart';
-// import 'package:study_group_front_end/models/checklist.dart';
-// import 'package:study_group_front_end/service/base_api_service.dart';
-//
+import 'package:study_group_front_end/dto/checklist_item/detail/checklist_item_detail_response.dart';
+import 'package:study_group_front_end/dto/study/detail/study_detail_response.dart';
+
 class ChecklistItemApiService extends BaseApiService {
   final String basePath = '/studies';
 
@@ -21,6 +21,23 @@ class ChecklistItemApiService extends BaseApiService {
       );
     }
   }
+
+  Future<List<ChecklistItemDetailResponse>> getChecklistItemsOfStudy(int studyId, DateTime targetDate) async{
+    final formattedDate = targetDate.toIso8601String().split("T").first;
+
+    final response = await get(
+      '$basePath/$studyId/checklists?targetDate=$formattedDate'
+    );
+
+    if (response.statusCode == 200) {
+      final List<dynamic> jsonList = jsonDecode(utf8.decode(response.bodyBytes));
+      return jsonList.map((e) => ChecklistItemDetailResponse.fromJson(e)).toList();
+    } else{
+      throw Exception('[Checklist_Item_API_Service] getChecklistItemsOfStudy 실패: ${response.statusCode}');
+    }
+  }
+
+
 }
 // class ChecklistApiService extends BaseApiService {
 //   final String basePath = '/checklist';

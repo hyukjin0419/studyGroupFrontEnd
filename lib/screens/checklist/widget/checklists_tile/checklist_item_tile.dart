@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:study_group_front_end/screens/checklist/widget/checklists_tile/customized_check_box.dart';
 import 'package:study_group_front_end/util/color_converters.dart';
 
 class ChecklistItemTile extends StatefulWidget {
@@ -44,7 +45,7 @@ class _ChecklistItemTileState extends State<ChecklistItemTile> {
           InkWell(
             borderRadius: BorderRadius.circular(4),
             onTap: _toggleCompleted,
-            child: _CustomizedCheckBox(
+            child: CustomizedCheckBox(
               color: widget.color,
               completed: _completed
             ),
@@ -62,32 +63,6 @@ class _ChecklistItemTileState extends State<ChecklistItemTile> {
           IconButton(icon: const Icon(Icons.more_horiz), onPressed: widget.onMore),
         ],
       ),
-    );
-  }
-}
-
-class _CustomizedCheckBox extends StatelessWidget {
-  final Color color;
-  final bool completed;
-  const _CustomizedCheckBox({
-    required this.completed,
-    required this.color,
-  });
-
-  @override
-  Widget build(BuildContext context) {
-    return Container(
-      width: 20,
-      height: 20,
-      decoration: BoxDecoration(
-        borderRadius: BorderRadius.circular(2),
-        color: completed ?  color : hexToColor("0xFFD9D9D9"),
-      ),
-      child: completed ? const Icon(
-        Icons.check,
-        size: 20,
-        color: Colors.white,
-      ) : null,
     );
   }
 }
