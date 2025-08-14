@@ -42,8 +42,8 @@ class _MemberChecklistGroupViewState extends State<MemberChecklistGroupView> {
     _focusListener = () {
       if (!_focusNode.hasFocus) {
         setState(() {
-          editingMemberId = null;
           _controller.clear();
+          editingMemberId = null;
         });
       }
     };
@@ -74,7 +74,7 @@ class _MemberChecklistGroupViewState extends State<MemberChecklistGroupView> {
         separatorBuilder: (_, __) => const SizedBox.shrink(),
         itemBuilder: (context, i) {
           final g = widget.groups[i];
-          final isEditing = editingMemberId == g.studyMemberId;
+          final isEditing = (editingMemberId == g.studyMemberId);
 
           return Column(
             crossAxisAlignment: CrossAxisAlignment.start,
@@ -97,7 +97,10 @@ class _MemberChecklistGroupViewState extends State<MemberChecklistGroupView> {
                   title: it.content,
                   completed: it.completed,
                   color: hexToColor(widget.study.personalColor),
-                  onMore:() {}
+                  onMore:() {
+                    //TODO 삭제 및
+
+                  }
                 ),
               ),
 
