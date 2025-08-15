@@ -4,7 +4,7 @@ import 'package:study_group_front_end/api_service/base_api_service.dart';
 
 import 'package:study_group_front_end/dto/checklist_item/create/checklist_item_create_request.dart';
 import 'package:study_group_front_end/dto/checklist_item/detail/checklist_item_detail_response.dart';
-import 'package:study_group_front_end/dto/study/detail/study_detail_response.dart';
+import 'package:study_group_front_end/dto/checklist_item/update/checklist_item_content_update_request.dart';
 
 class ChecklistItemApiService extends BaseApiService {
   final String basePath = '/studies';
@@ -37,7 +37,18 @@ class ChecklistItemApiService extends BaseApiService {
     }
   }
 
+  Future<void> updateChecklistItemContent(int checklistItemId, ChecklistItemContentUpdateRequest request) async {
+    final response = await post(
+        '/checklistItem/$checklistItemId',
+        request.toJson()
+    );
 
+    if (response.statusCode != 200) {
+      throw Exception(
+          '[Checklist_Item_API_Service] updateChecklistItemContent 실패: ${response.statusCode}'
+      );
+    }
+  }
 }
 // class ChecklistApiService extends BaseApiService {
 //   final String basePath = '/checklist';

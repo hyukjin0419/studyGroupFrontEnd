@@ -34,7 +34,7 @@ void showChecklistItemOptionsBottomSheet({
                         icon: Icons.edit,
                         label: '수정',
                         onTap:() {
-                          Navigator.pop(context);
+                          onEdit();
                         }
                       ),
                       _ActionButton(
@@ -42,7 +42,7 @@ void showChecklistItemOptionsBottomSheet({
                         label: '삭제',
                         color: Colors.red,
                         onTap:() {
-                          Navigator.pop(context);
+                          onDelete();
                         }
                       ),
                     ],

@@ -5,7 +5,7 @@ class MemberChecklistGroupVM{
   final String memberName;
   final List<MemberChecklistItemVM> items;
 
-  const MemberChecklistGroupVM({
+  MemberChecklistGroupVM({
     required this.studyMemberId,
     required this.memberName,
     required this.items

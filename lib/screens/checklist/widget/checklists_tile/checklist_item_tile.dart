@@ -1,6 +1,7 @@
+import 'dart:developer';
+
 import 'package:flutter/material.dart';
 import 'package:study_group_front_end/screens/checklist/widget/checklists_tile/customized_check_box.dart';
-import 'package:study_group_front_end/util/color_converters.dart';
 
 class ChecklistItemTile extends StatefulWidget {
   final String title;
@@ -22,11 +23,14 @@ class ChecklistItemTile extends StatefulWidget {
 
 class _ChecklistItemTileState extends State<ChecklistItemTile> {
   late bool _completed;
+  late String _title;
 
   @override
   void initState() {
     super.initState();
     _completed = widget.completed;
+    _title = widget.title;
+    log("들어왔고 title: $_title");
   }
 
   void _toggleCompleted() {
@@ -53,7 +57,7 @@ class _ChecklistItemTileState extends State<ChecklistItemTile> {
           const SizedBox(width: 12),
           Expanded(
             child: Text(
-              widget.title,
+              _title,
               maxLines: 2,
               overflow: TextOverflow.ellipsis,
               style: Theme.of(context).textTheme.titleMedium?.copyWith(),

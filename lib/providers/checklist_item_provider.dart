@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:study_group_front_end/api_service/checklist_item_api_service.dart';
 import 'package:study_group_front_end/dto/checklist_item/create/checklist_item_create_request.dart';
 import 'package:study_group_front_end/dto/checklist_item/detail/checklist_item_detail_response.dart';
+import 'package:study_group_front_end/dto/checklist_item/update/checklist_item_content_update_request.dart';
 import 'package:study_group_front_end/providers/loading_notifier.dart';
 
 class ChecklistItemProvider with ChangeNotifier, LoadingNotifier {
@@ -10,10 +11,8 @@ class ChecklistItemProvider with ChangeNotifier, LoadingNotifier {
   ChecklistItemProvider(this.checklistItemApiService);
 
   List<ChecklistItemDetailResponse> _checklists = [];
-  ChecklistItemDetailResponse? _selectedChecklistItem;
 
   List<ChecklistItemDetailResponse> get checklists => _checklists;
-  ChecklistItemDetailResponse? get selectedChecklistItem => _selectedChecklistItem;
 
 
   Future<void> createChecklistItem(ChecklistItemCreateRequest request, studyId) async {
@@ -26,6 +25,10 @@ class ChecklistItemProvider with ChangeNotifier, LoadingNotifier {
     await runWithLoading(() async {
       _checklists = await checklistItemApiService.getChecklistItemsOfStudy(studyId, targetDate);
     });
+  }
+
+  Future<void> updateChecklistItemContent(int checklistItemId, ChecklistItemContentUpdateRequest request) async {
+    await checklistItemApiService.updateChecklistItemContent(checklistItemId, request);
   }
 
   void clearItems() {

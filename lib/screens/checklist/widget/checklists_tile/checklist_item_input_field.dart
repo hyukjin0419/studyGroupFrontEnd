@@ -7,6 +7,7 @@ class ChecklistItemInputField extends StatelessWidget {
   final FocusNode focusNode;
   final VoidCallback onDone; //final void Function() onDone;
   final void Function(String) onSubmitted;
+  final ValueChanged<String>? onChanged;
 
   const ChecklistItemInputField({
     super.key,
@@ -15,6 +16,7 @@ class ChecklistItemInputField extends StatelessWidget {
     required this.focusNode,
     required this.onDone,
     required this.onSubmitted,
+    this.onChanged,
   });
 
   @override
@@ -34,6 +36,7 @@ class ChecklistItemInputField extends StatelessWidget {
               cursorHeight: 15,
               controller: controller,
               focusNode: focusNode,
+              onChanged: onChanged,
               autofocus: true,
               style: Theme.of(context).textTheme.titleMedium,
               decoration: InputDecoration(
