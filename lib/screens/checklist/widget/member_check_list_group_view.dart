@@ -104,7 +104,7 @@ class _MemberChecklistGroupViewState extends State<MemberChecklistGroupView> {
               ...g.items.map((it) =>
               _editingItemId == it.id ?
                 ChecklistItemInputField(
-                  // key: ValueKey('title-${it.id}'),
+                  key: ValueKey('title-${it.id}'),
                   color: hexToColor(widget.study.personalColor),
                   controller: _controller,
                   focusNode: _focusNode,
@@ -144,7 +144,7 @@ class _MemberChecklistGroupViewState extends State<MemberChecklistGroupView> {
                 )
                 :
                 ChecklistItemTile(
-                  // key: ValueKey('title-${it.id}'),
+                  key: ValueKey('title-${it.id}'),
                   title: it.content,
                   completed: it.completed,
                   color: hexToColor(widget.study.personalColor),

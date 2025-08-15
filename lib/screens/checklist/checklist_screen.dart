@@ -48,7 +48,6 @@ class _ChecklistScreenState extends State<ChecklistScreen> {
       List<ChecklistItemDetailResponse> items,
       List<StudyMemberSummaryResponse> studyMembers
   ) {
-
     final Map<int, MemberChecklistGroupVM> groupMap = {
       for (var sm in studyMembers)
         sm.studyMemberId: MemberChecklistGroupVM(
@@ -108,7 +107,6 @@ class _ChecklistScreenState extends State<ChecklistScreen> {
               onChecklistCreated: () {
                 provider.getChecklists(_studyId, selectedDate);
               }
-              // _loadChecklists,
             ),
           ),
         ],

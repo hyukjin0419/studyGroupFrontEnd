@@ -1,5 +1,3 @@
-import 'dart:developer';
-
 import 'package:flutter/material.dart';
 import 'package:study_group_front_end/screens/checklist/widget/checklists_tile/customized_check_box.dart';
 
@@ -30,7 +28,6 @@ class _ChecklistItemTileState extends State<ChecklistItemTile> {
     super.initState();
     _completed = widget.completed;
     _title = widget.title;
-    log("들어왔고 title: $_title");
   }
 
   void _toggleCompleted() {
