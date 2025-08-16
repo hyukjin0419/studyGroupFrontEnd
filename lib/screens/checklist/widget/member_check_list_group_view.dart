@@ -110,8 +110,6 @@ class _MemberChecklistGroupViewState extends State<MemberChecklistGroupView> {
                   focusNode: _focusNode,
                   onDone: () {
                     setState(() {
-                      log("$g");
-                      log("${widget.groups}");
                       _editingItemId = null;
                       _controller.clear();
                       _focusNode.unfocus();
@@ -120,7 +118,6 @@ class _MemberChecklistGroupViewState extends State<MemberChecklistGroupView> {
                   onSubmitted: (value) async {
                     setState(() {
                       it.content = value;
-                      log("content value: ${it.content}");
                       _editingItemId = null;
                       _controller.clear();
                       _focusNode.unfocus();
