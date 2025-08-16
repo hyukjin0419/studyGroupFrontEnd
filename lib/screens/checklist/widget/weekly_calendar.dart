@@ -8,9 +8,9 @@ import 'package:table_calendar/table_calendar.dart';
 import 'package:intl/intl.dart';
 
 class WeeklyCalendar extends StatefulWidget{
-  //초기 선택 날짜 (기본값은 오늘)
+  //초기  날짜 (기본값은 오늘)
   final DateTime? initialSelectedDay;
-  //날짜가 선택되었을 때 외부로 콜백 전달 -> cia를 target_date로 필터링
+  //날짜가 되었을 때 외부로 콜백 전달 -> cia를 target_date로 필터링
   final Function(DateTime selectedDay)? onDaySelected;
   final StudyDetailResponse study;
 
@@ -37,7 +37,7 @@ class _WeeklyCalendarState extends State<WeeklyCalendar> {
     _focusedDay = getMondayOfWeek(widget.initialSelectedDay ?? DateTime.now());
     _selectedDay = widget.initialSelectedDay ?? DateTime.now();
     _color = hexToColor(widget.study.personalColor);
-    log("Focused Day : $_focusedDay");
+    // log("Focused Day : $_focusedDay");
   }
 
   @override
@@ -75,7 +75,7 @@ class _WeeklyCalendarState extends State<WeeklyCalendar> {
                 onPressed: () {
                   setState(() {
                     _focusedDay = _focusedDay.subtract(const Duration(days: 7));
-                    log("Focused Day : $_focusedDay");
+                    // log("Focused Day : $_focusedDay");
                   });
                 },
               ),
@@ -87,7 +87,7 @@ class _WeeklyCalendarState extends State<WeeklyCalendar> {
                 onPressed: () {
                   setState(() {
                     _focusedDay = _focusedDay.add(const Duration(days: 7));
-                    log("Focused Day : $_focusedDay");
+                    // log("Focused Day : $_focusedDay");
                   });
                 },
               ),

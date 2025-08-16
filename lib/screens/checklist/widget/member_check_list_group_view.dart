@@ -1,4 +1,5 @@
 import 'dart:developer';
+
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:study_group_front_end/dto/checklist_item/create/checklist_item_create_request.dart';
@@ -9,19 +10,16 @@ import 'package:study_group_front_end/screens/checklist/widget/bottom_sheet/show
 import 'package:study_group_front_end/screens/checklist/widget/checklists_tile/checklist_item_input_field.dart';
 import 'package:study_group_front_end/screens/checklist/widget/checklists_tile/checklist_item_tile.dart';
 import 'package:study_group_front_end/screens/checklist/widget/checklists_tile/member_header_chip.dart';
-import 'package:study_group_front_end/screens/checklist/widget/checklists_tile/view_models/member_checklist_group_vm.dart';
 import 'package:study_group_front_end/screens/checklist/widget/checklists_tile/view_models/member_checklist_item_vm.dart';
 import 'package:study_group_front_end/util/color_converters.dart';
 
 class MemberChecklistGroupView extends StatefulWidget {
-  final List<MemberChecklistGroupVM> groups;
   final StudyDetailResponse study;
   final DateTime selectedDate;
   final void Function()? onChecklistCreated;
 
   const MemberChecklistGroupView({
     super.key,
-    required this.groups,
     required this.study,
     required this.selectedDate,
     this.onChecklistCreated,
@@ -38,6 +36,7 @@ class _MemberChecklistGroupViewState extends State<MemberChecklistGroupView> {
   final ScrollController _scrollController = ScrollController();
   final FocusNode _focusNode = FocusNode();
   late VoidCallback _focusListener;
+  late ChecklistItemProvider _checklistItemProvider;
 
   @override
   void initState() {
@@ -67,6 +66,8 @@ class _MemberChecklistGroupViewState extends State<MemberChecklistGroupView> {
 
   @override
   Widget build(BuildContext context) {
+    final provider = context.watch<ChecklistItemProvider>();
+    // log("들어왔는지 판단하기: ${provider.groups[0].items.length}");
     return GestureDetector(
       behavior: HitTestBehavior.translucent,
       onTap: () {
@@ -78,10 +79,10 @@ class _MemberChecklistGroupViewState extends State<MemberChecklistGroupView> {
       child: ListView.separated(
         controller: _scrollController,
         padding: const EdgeInsets.fromLTRB(22, 8, 16, 24),
-        itemCount: widget.groups.length,
+        itemCount: provider.groups.length,
         separatorBuilder: (_, __) => const SizedBox.shrink(),
         itemBuilder: (context, i) {
-          final g = widget.groups[i];
+          final g = provider.groups[i];
           final isEditing = (_editingMemberId == g.studyMemberId);
 
           return Column(
