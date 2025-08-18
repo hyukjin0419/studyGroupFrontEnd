@@ -16,43 +16,78 @@ class ChecklistItemProvider with ChangeNotifier, LoadingNotifier {
   ChecklistItemProvider(this.checklistItemApiService);
 
   List<ChecklistItemDetailResponse> _checklists = [];
+
   List<ChecklistItemDetailResponse> get checklists => _checklists;
 
   List<MemberChecklistGroupVM> _groups = [];
+
   List<MemberChecklistGroupVM> get groups => _groups;
 
   List<StudyMemberSummaryResponse> _studyMembers = [];
-  void setStudyMembers(List<StudyMemberSummaryResponse> members){
+
+  void setStudyMembers(List<StudyMemberSummaryResponse> members) {
     _studyMembers = members;
   }
 
   DateTime _selectedDate = DateTime.now();
+
   DateTime get selectedDate => _selectedDate;
 
-  int? _hoveredItemIndex;
-  int? get hoveredItemIndex => _hoveredItemIndex;
-  void setHoveredItem(int index) {
-    _hoveredItemIndex = index;
-    notifyListeners();
-  }
-  void clearHoveredItem(){
-    _hoveredItemIndex = null;
+//==================hovering boolean=============//
+  // int? _hoveredItemId; //드래그 중인 아이템의 현재 위치
+  //
+  // int? get hoveredItemId => _hoveredItemId;
+  //
+  // void setHoveredItem(int itemId) {
+  //   _hoveredItemId = itemId;
+  //   notifyListeners();
+  // }
+  //
+  // void clearHoveredItem() {
+  //   _hoveredItemId = null;
+  //   notifyListeners();
+  // }
+  //
+  // bool isHoveringItem(int id) => _hoveredItemId == id;
+//====================hovering enum==================//
+  HoveredItem _hoveredItem = const HoveredItem(status: HoverStatus.notHovering);
+
+  HoveredItem get hoveredItem => _hoveredItem;
+
+  void setHoveredItem(int itemId) {
+    _hoveredItem = HoveredItem(itemId: itemId, status: HoverStatus.hovering);
     notifyListeners();
   }
 
-  bool _isDragging = false;
-  bool get isDragging => _isDragging;
-
-  void startDragging (){
-    _isDragging = true;
+  void setOutOfBound() {
+    _hoveredItem = const HoveredItem(status: HoverStatus.outOfBound);
     notifyListeners();
   }
 
-  void finishDragging() {
-    _isDragging = false;
+  void clearHoveredItem() {
+    _hoveredItem = const HoveredItem(status: HoverStatus.notHovering);
     notifyListeners();
   }
 
+  HoverStatus getHoverStatusOfItem(int itemId) {
+    switch (_hoveredItem.status) {
+      case HoverStatus.hovering:
+        return _hoveredItem.itemId == itemId
+            ? HoverStatus.hovering
+            : HoverStatus.notHovering;
+
+      case HoverStatus.outOfBound:
+        return HoverStatus.outOfBound;
+
+      case HoverStatus.notHovering:
+        return HoverStatus.notHovering;
+    }
+  }
+
+
+
+
+//===============api용 Provier=================================//
   Future<void> loadChecklists(int studyId, DateTime targetDate) async {
     _selectedDate = targetDate;
     _checklists = await checklistItemApiService.getChecklistItemsOfStudy(studyId, targetDate);
@@ -106,6 +141,7 @@ class ChecklistItemProvider with ChangeNotifier, LoadingNotifier {
   }
 
 
+  //Drag & Drop용 함수
   void moveItem({
     required MemberChecklistItemVM item,
     required int fromMemberId,
@@ -146,22 +182,17 @@ class ChecklistItemProvider with ChangeNotifier, LoadingNotifier {
     }
   }
 
+}
 
-  void reorderChecklistItemToEnd(MemberChecklistItemVM draggedItem) {
-    log("To the end");
-    final oldIndex = _checklists.indexWhere((item) => item.id == draggedItem.id);
-    if (oldIndex == -1) return;
+enum HoverStatus{
+  hovering,
+  notHovering,
+  outOfBound,
+}
 
-    final item = _checklists.removeAt(oldIndex);
-    _checklists.add(item);
+class HoveredItem {
+  final int? itemId;
+  final HoverStatus status;
 
-    _updateOrderIndex();
-    notifyListeners();
-  }
-
-  void _updateOrderIndex() {
-    for (int i = 0 ; i < _checklists.length; i++){
-      _checklists[i].orderIndex = i;
-    }
-  }
+  const HoveredItem({this.itemId, required this.status});
 }
