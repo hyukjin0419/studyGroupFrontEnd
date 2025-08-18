@@ -76,6 +76,12 @@ class _MemberChecklistGroupViewState extends State<MemberChecklistGroupView> {
         _editingItemId = null;
         _editingMemberId = null;
       },
+      // onLongPress: () {
+      //   _controller.text = "";
+      //   FocusScope.of(context).unfocus();
+      //   _editingItemId = null;
+      //   _editingMemberId = null;
+      // },
       child: ListView.separated(
         controller: _scrollController,
         padding: const EdgeInsets.fromLTRB(22, 8, 16, 24),
@@ -102,69 +108,141 @@ class _MemberChecklistGroupViewState extends State<MemberChecklistGroupView> {
                 },
               ),
               const SizedBox(height: 10),
-              ...g.items.map((it) =>
-              _editingItemId == it.id ?
-                ChecklistItemInputField(
-                  key: ValueKey('title-${it.id}'),
-                  color: hexToColor(widget.study.personalColor),
-                  controller: _controller,
-                  focusNode: _focusNode,
-                  onDone: () {
-                    setState(() {
-                      _editingItemId = null;
-                      _controller.clear();
-                      _focusNode.unfocus();
-                    });
-                  },
-                  onSubmitted: (value) async {
-                    setState(() {
-                      it.content = value;
-                      _editingItemId = null;
-                      _controller.clear();
-                      _focusNode.unfocus();
-                    });
-                    //TODO checklist item update api 호출
-                    try {
-                      final request = ChecklistItemContentUpdateRequest(
-                        content: value,
-                      );
 
-                      final provider = context.read<ChecklistItemProvider>();
-                      await provider.updateChecklistItemContent(it.id, request);
-                      // widget.onChecklistCreated?.call();
-                    } catch (e) {
-                      ScaffoldMessenger.of(context).showSnackBar(
-                        SnackBar(content: Text("체크리스트 content 업데이트 실패: $e")),
-                      );
-                      log("체크리스트 content 업데이트 실패: $e");
-                    }
-                  }
-                )
-                :
-                ChecklistItemTile(
-                  key: ValueKey('title-${it.id}'),
-                  title: it.content,
-                  completed: it.completed,
-                  color: hexToColor(widget.study.personalColor),
-                  onMore:() {
-                    //TODO 삭제 및
-                    showChecklistItemOptionsBottomSheet(
-                        context: context,
-                        title: it.content,
-                        onEdit: () {
-                          log("edit pressed");
-                          Navigator.pop(context);
-                          _startEditing(it);
-                        },
-                        onDelete: () {
-                          Navigator.pop(context);
-                          log("delete pressed");
+              Column(
+                children: [
+                  for (int i=0; i < g.items.length; i++) ...[
+                    DragTarget<MemberChecklistItemVM>(
+                      key: ValueKey('target-${g.items[i].id}'),
+                      onWillAcceptWithDetails: (dragged) {
+                        provider.setHoveredItem(i);
+                        return true;
+                      },
+                      onLeave: (dragged) {
+                        provider.clearHoveredItem();
+                        provider.startDragging();
+                        log("현재 위치: ${dragged?.content}");
+                      },
+                      onMove: (dragged) {
+                        // log("현재 위치: ${dragged.offset}");
+                      },
+                      onAcceptWithDetails: (dragged) {
+                        provider.finishDragging();
+                        provider.moveItem(
+                            item: dragged.data,
+                            fromMemberId: dragged.data.studyMemberId,
+                            fromIndex: provider.getIndexOf(dragged.data),
+                            toMemberId: g.studyMemberId,
+                            toIndex: i
+                        );
+
+                        provider.clearHoveredItem();
+                      },
+                      builder: (context, candidateDate, rejectedData) {
+                        final it = g.items[i];
+                        if (_editingItemId == it.id) {
+                          return ChecklistItemInputField(
+                              key: ValueKey('title-${it.id}'),
+                              color: hexToColor(widget.study.personalColor),
+                              controller: _controller,
+                              focusNode: _focusNode,
+                              onDone: () {
+                                setState(() {
+                                  _editingItemId = null;
+                                  _controller.clear();
+                                  _focusNode.unfocus();
+                                });
+                              },
+                              onSubmitted: (value) async {
+                                setState(() {
+                                  it.content = value;
+                                  _editingItemId = null;
+                                  _controller.clear();
+                                  _focusNode.unfocus();
+                                });
+                                //TODO checklist item update api 호출
+                                try {
+                                  final request = ChecklistItemContentUpdateRequest(
+                                    content: value,
+                                  );
+
+                                  final provider = context.read<ChecklistItemProvider>();
+                                  await provider.updateChecklistItemContent(it.id, request);
+                                  // widget.onChecklistCreated?.call();
+                                } catch (e) {
+                                  ScaffoldMessenger.of(context).showSnackBar(
+                                    SnackBar(content: Text("체크리스트 content 업데이트 실패: $e")),
+                                  );
+                                  log("체크리스트 content 업데이트 실패: $e");
+                                }
+                              }
+                          );
                         }
-                    );
-                  }
-                ),
-              ),
+                        else {
+                          // final isDragging = provider.draggingItemId == it.id;
+                          return LongPressDraggable<MemberChecklistItemVM>(
+                            key: ValueKey('draggable-${it.id}'),
+                            data: it,
+                            feedback: Material(
+                              child: ConstrainedBox(
+                                constraints: const BoxConstraints(maxWidth: 400),
+                                child: ChecklistItemTile(
+                                    title: it.content, completed: it.completed, color: hexToColor(widget.study.personalColor), onMore: (){}
+                                ),
+                              ),
+                            ),
+                            onDragStarted: () {
+                              _controller.text = "";
+                              FocusScope.of(context).unfocus();
+                              _editingItemId = null;
+                              _editingMemberId = null;
+                            },
+                            // onDragEnd: (_) => provider.clearDraggingItem(),
+                            // onDraggableCanceled: (_,__) => provider.clearDraggingItem(),
+                            childWhenDragging:
+                              AnimatedOpacity(
+                                duration: const Duration(milliseconds: 150),
+                                opacity: provider.isDragging ? 0.0 : 1.0,
+                                curve: Curves.easeInOut,
+                                child:
+                                   provider.isDragging ? const  SizedBox.shrink():
+                                  const SizedBox(height: 48,)
+                              ),
 
+                          axis: Axis.vertical,
+                          child: AnimatedSwitcher(
+                            duration: const Duration(milliseconds: 150),
+                            child: ChecklistItemTile(
+                              key: ValueKey('title-${it.id}'),
+                              title: it.content,
+                              completed: it.completed,
+                              color: hexToColor(widget.study.personalColor),
+                              onMore:() {
+                                //TODO 삭제 및
+                                showChecklistItemOptionsBottomSheet(
+                                    context: context,
+                                    title: it.content,
+                                    onEdit: () {
+                                      log("edit pressed");
+                                      Navigator.pop(context);
+                                      _startEditing(it);
+                                    },
+                                    onDelete: () {
+                                      Navigator.pop(context);
+                                      log("delete pressed");
+                                    }
+                                );
+                              }
+                            ),
+                          ),
+                          // ),
+                          );
+                        }
+                      }
+                    ),
+                  ],
+              ],
+            ),
               if(isEditing)
                 ChecklistItemInputField(
                     color: hexToColor(widget.study.personalColor),
@@ -209,6 +287,118 @@ class _MemberChecklistGroupViewState extends State<MemberChecklistGroupView> {
       ),
     );
   }
+
+
+  // Widget _buildChecklistItem(MemberChecklistItemVM it) {
+  //   final provider = context.read<ChecklistItemProvider>();
+  //
+  //   if (_editingItemId == it.id) {
+  //     return ChecklistItemInputField(
+  //         key: ValueKey('title-${it.id}'),
+  //         color: hexToColor(widget.study.personalColor),
+  //         controller: _controller,
+  //         focusNode: _focusNode,
+  //         onDone: () {
+  //           setState(() {
+  //             _editingItemId = null;
+  //             _controller.clear();
+  //             _focusNode.unfocus();
+  //           });
+  //         },
+  //         onSubmitted: (value) async {
+  //           setState(() {
+  //             it.content = value;
+  //             _editingItemId = null;
+  //             _controller.clear();
+  //             _focusNode.unfocus();
+  //           });
+  //           //TODO checklist item update api 호출
+  //           try {
+  //             final request = ChecklistItemContentUpdateRequest(
+  //               content: value,
+  //             );
+  //
+  //             final provider = context.read<ChecklistItemProvider>();
+  //             await provider.updateChecklistItemContent(it.id, request);
+  //             // widget.onChecklistCreated?.call();
+  //           } catch (e) {
+  //             ScaffoldMessenger.of(context).showSnackBar(
+  //               SnackBar(content: Text("체크리스트 content 업데이트 실패: $e")),
+  //             );
+  //             log("체크리스트 content 업데이트 실패: $e");
+  //           }
+  //         }
+  //     );
+  //   }
+  //   else {
+  //     final isDragging = provider.draggingItemId == it.id;
+  //     return LongPressDraggable<MemberChecklistItemVM>(
+  //       key: ValueKey('draggable-${it.id}'),
+  //       data: it,
+  //       feedback: Material(
+  //         child: ConstrainedBox(
+  //           constraints: const BoxConstraints(maxWidth: 400),
+  //           child: ChecklistItemTile(
+  //               title: it.content, completed: it.completed, color: hexToColor(widget.study.personalColor), onMore: (){}
+  //           ),
+  //         ),
+  //       ),
+  //       onDragStarted: () {
+  //         _controller.text = "";
+  //         FocusScope.of(context).unfocus();
+  //         _editingItemId = null;
+  //         _editingMemberId = null;
+  //         provider.setDraggingItem(it.id);
+  //       },
+  //       onDragEnd: (_) => provider.clearDraggingItem(),
+  //       onDraggableCanceled: (_,__) => provider.clearDraggingItem(),
+  //       childWhenDragging:
+  //       // provider.draggingItemId == it.id
+  //       // ?
+  //       // //   ? Opacity(opacity: 0.3, child: ChecklistItemTile(
+  //       // //       title: it.content,
+  //       // //       completed: it.completed,
+  //       // //       color: hexToColor(widget.study.personalColor),
+  //       // //       onMore: () {},
+  //       // //     )) :
+  //       // ChecklistItemTile(
+  //       //       title: it.content,
+  //       //       completed: it.completed,
+  //       //       color: hexToColor(widget.study.personalColor),
+  //       //       onMore: () {},
+  //       //     ):
+  //           const SizedBox(height: 48),
+  //       axis: Axis.vertical,
+  //         child: AnimatedOpacity(
+  //           duration: const Duration(milliseconds: 150),
+  //           opacity: isDragging ? 0.0 : 1.0,
+  //           child: ChecklistItemTile(
+  //               key: ValueKey('title-${it.id}'),
+  //               title: it.content,
+  //               completed: it.completed,
+  //               color: hexToColor(widget.study.personalColor),
+  //               onMore:() {
+  //                 //TODO 삭제 및
+  //                 showChecklistItemOptionsBottomSheet(
+  //                     context: context,
+  //                     title: it.content,
+  //                     onEdit: () {
+  //                       log("edit pressed");
+  //                       Navigator.pop(context);
+  //                       _startEditing(it);
+  //                     },
+  //                     onDelete: () {
+  //                       Navigator.pop(context);
+  //                       log("delete pressed");
+  //                     }
+  //                 );
+  //               }
+  //           ),
+  //         ),
+  //       // ),
+  //     );
+  //   }
+  // }
 
   void _scrollToInputField() {
     WidgetsBinding.instance.addPostFrameCallback((_) {

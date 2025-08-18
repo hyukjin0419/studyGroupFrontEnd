@@ -29,6 +29,30 @@ class ChecklistItemProvider with ChangeNotifier, LoadingNotifier {
   DateTime _selectedDate = DateTime.now();
   DateTime get selectedDate => _selectedDate;
 
+  int? _hoveredItemIndex;
+  int? get hoveredItemIndex => _hoveredItemIndex;
+  void setHoveredItem(int index) {
+    _hoveredItemIndex = index;
+    notifyListeners();
+  }
+  void clearHoveredItem(){
+    _hoveredItemIndex = null;
+    notifyListeners();
+  }
+
+  bool _isDragging = false;
+  bool get isDragging => _isDragging;
+
+  void startDragging (){
+    _isDragging = true;
+    notifyListeners();
+  }
+
+  void finishDragging() {
+    _isDragging = false;
+    notifyListeners();
+  }
+
   Future<void> loadChecklists(int studyId, DateTime targetDate) async {
     _selectedDate = targetDate;
     _checklists = await checklistItemApiService.getChecklistItemsOfStudy(studyId, targetDate);
@@ -79,5 +103,65 @@ class ChecklistItemProvider with ChangeNotifier, LoadingNotifier {
     }
     _groups = groupMap.values.toList();
     notifyListeners();
+  }
+
+
+  void moveItem({
+    required MemberChecklistItemVM item,
+    required int fromMemberId,
+    required int fromIndex,
+    required int toMemberId,
+    required int toIndex,
+  }) {
+    final fromGroup = _groups.firstWhere((g) => g.studyMemberId == fromMemberId);
+    final toGroup   = _groups.firstWhere((g) => g.studyMemberId == toMemberId);
+
+    // 1. 기존 위치에서 제거
+    fromGroup.items.removeAt(fromIndex);
+
+    // 2. 소속 멤버 ID 수정
+    item.studyMemberId = toMemberId;
+
+    // 3. 새로운 위치에 삽입
+    toGroup.items.insert(toIndex, item);
+
+    // 4. 정렬 인덱스 재정렬
+    _reorderGroup(fromGroup);
+    if (fromGroup != toGroup) {
+      _reorderGroup(toGroup);
+    }
+
+    // 5. 상태 갱신
+    notifyListeners();
+  }
+
+  int getIndexOf(MemberChecklistItemVM item) {
+    final group = _groups.firstWhere((g) => g.studyMemberId == item.studyMemberId);
+    return group.items.indexWhere((it) => it.id == item.id);
+  }
+
+  void _reorderGroup(MemberChecklistGroupVM group) {
+    for (int i = 0; i < group.items.length; i++) {
+      group.items[i].orderIndex = i;
+    }
+  }
+
+
+  void reorderChecklistItemToEnd(MemberChecklistItemVM draggedItem) {
+    log("To the end");
+    final oldIndex = _checklists.indexWhere((item) => item.id == draggedItem.id);
+    if (oldIndex == -1) return;
+
+    final item = _checklists.removeAt(oldIndex);
+    _checklists.add(item);
+
+    _updateOrderIndex();
+    notifyListeners();
+  }
+
+  void _updateOrderIndex() {
+    for (int i = 0 ; i < _checklists.length; i++){
+      _checklists[i].orderIndex = i;
+    }
   }
 }

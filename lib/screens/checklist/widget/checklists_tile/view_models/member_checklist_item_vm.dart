@@ -1,9 +1,9 @@
 class MemberChecklistItemVM{
   final int id;
-  final int studyMemberId;
+  int studyMemberId;
   String content;
   final bool completed;
-  final int orderIndex;
+  int orderIndex;
 
   MemberChecklistItemVM({
     required this.id,

@@ -5,7 +5,7 @@ class ChecklistItemDetailResponse {
   final int studyMemberId;
   final String content;
   final bool completed;
-  final int orderIndex;
+  int orderIndex;
 
   ChecklistItemDetailResponse({
     required this.id,
