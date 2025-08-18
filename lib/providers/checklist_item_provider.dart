@@ -1,3 +1,4 @@
+import 'dart:async';
 import 'dart:developer';
 
 import 'package:flutter/material.dart';
@@ -32,57 +33,59 @@ class ChecklistItemProvider with ChangeNotifier, LoadingNotifier {
   DateTime _selectedDate = DateTime.now();
 
   DateTime get selectedDate => _selectedDate;
-
-//==================hovering boolean=============//
-  // int? _hoveredItemId; //드래그 중인 아이템의 현재 위치
-  //
-  // int? get hoveredItemId => _hoveredItemId;
-  //
-  // void setHoveredItem(int itemId) {
-  //   _hoveredItemId = itemId;
-  //   notifyListeners();
-  // }
-  //
-  // void clearHoveredItem() {
-  //   _hoveredItemId = null;
-  //   notifyListeners();
-  // }
-  //
-  // bool isHoveringItem(int id) => _hoveredItemId == id;
 //====================hovering enum==================//
   HoveredItem _hoveredItem = const HoveredItem(status: HoverStatus.notHovering);
+  Timer? _outOfBoundTimer;
 
   HoveredItem get hoveredItem => _hoveredItem;
 
   void setHoveredItem(int itemId) {
+    log("count 시작");
+    _outOfBoundTimer?.cancel();
+    if (_hoveredItem.itemId == itemId && _hoveredItem.status == HoverStatus.hovering) return;
     _hoveredItem = HoveredItem(itemId: itemId, status: HoverStatus.hovering);
     notifyListeners();
   }
 
-  void setOutOfBound() {
-    _hoveredItem = const HoveredItem(status: HoverStatus.outOfBound);
+  void clearHoveredItemAndResetTimer(int itemId) {
+    log("리셋!");
+    _hoveredItem = HoveredItem(itemId: itemId , status: HoverStatus.notHovering);
     notifyListeners();
+
+    _outOfBoundTimer?.cancel();
   }
 
-  void clearHoveredItem() {
-    _hoveredItem = const HoveredItem(status: HoverStatus.notHovering);
-    notifyListeners();
+  // void clearHoveredItemAndStartTimer(int itemId) {
+  //   log("hovering Item ID: ${_hoveredItem.itemId}");
+  //   log("parameter itemID: $itemId");
+  //
+  //   _outOfBoundTimer?.cancel();
+  //   _outOfBoundTimer = Timer(const Duration(milliseconds: 0), () {
+  //     // 아직도 hover 중이 아니고, 이 아이템이 대상이 아닐 경우에만
+  //     // log("끝!");
+  //     if (_hoveredItem.status == HoverStatus.notHovering && _hoveredItem.itemId == itemId) {
+  //       log("what???");
+  //       // 렌더링 쪽에서 이 조건만 보고 안 보이게 할 수 있음
+  //       _hoveredItem = HoveredItem(itemId: itemId, status: HoverStatus.outOfBound);
+  //       notifyListeners();
+  //     }
+  //   });
+  // }
+
+
+  @override
+  void dispose(){
+    _outOfBoundTimer?.cancel();
+    super.dispose();
   }
 
   HoverStatus getHoverStatusOfItem(int itemId) {
-    switch (_hoveredItem.status) {
-      case HoverStatus.hovering:
-        return _hoveredItem.itemId == itemId
-            ? HoverStatus.hovering
-            : HoverStatus.notHovering;
-
-      case HoverStatus.outOfBound:
-        return HoverStatus.outOfBound;
-
-      case HoverStatus.notHovering:
-        return HoverStatus.notHovering;
+    if (_hoveredItem.status == HoverStatus.hovering && _hoveredItem.itemId == itemId) {
+      return HoverStatus.hovering;
     }
+    return HoverStatus.notHovering;
   }
+
 
 
 
@@ -187,7 +190,6 @@ class ChecklistItemProvider with ChangeNotifier, LoadingNotifier {
 enum HoverStatus{
   hovering,
   notHovering,
-  outOfBound,
 }
 
 class HoveredItem {

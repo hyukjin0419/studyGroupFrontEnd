@@ -115,7 +115,8 @@ class _MemberChecklistGroupViewState extends State<MemberChecklistGroupView> {
                     DragTarget<MemberChecklistItemVM>(
                       key: ValueKey('target-${g.items[i].id}'),
                       onWillAcceptWithDetails: (dragged) {
-                        log("${dragged.data.content}의 현재 위치: ${g.items[i].content}");
+                        // log("${dragged.data.content}의 현재 위치: ${g.items[i].content}");
+                        provider.setHoveredItem(g.items[i].id);
                         provider.moveItem(
                             item: dragged.data,
                             fromMemberId: dragged.data.studyMemberId,
@@ -123,14 +124,22 @@ class _MemberChecklistGroupViewState extends State<MemberChecklistGroupView> {
                             toMemberId: g.studyMemberId,
                             toIndex: i
                         );
-                        provider.setHoveredItem(g.items[i].id);
                         return true;
                       },
                       onLeave: (dragged) {
-                        provider.clearHoveredItem();
+                        log("인덱스 : ${dragged?.content}");
+                        // provider.clearHoveredItemAndResetTimer(dragged!.id);
+                        // provider.clearHoveredItemAndStartTimer(dragged!.id);
                       },
                       onAcceptWithDetails: (dragged) {
-                        provider.clearHoveredItem();
+                        provider.clearHoveredItemAndResetTimer(dragged.data.id);
+                        // provider.moveItem(
+                        //     item: dragged.data,
+                        //     fromMemberId: dragged.data.studyMemberId,
+                        //     fromIndex: provider.getIndexOf(dragged.data),
+                        //     toMemberId: g.studyMemberId,
+                        //     toIndex: i
+                        // );
                       },
                       builder: (context, candidateDate, rejectedData) {
                         final it = g.items[i];
@@ -176,19 +185,21 @@ class _MemberChecklistGroupViewState extends State<MemberChecklistGroupView> {
                           );
                         }
                         else {
-                          return AnimatedSwitcher(
-                            duration: const Duration(milliseconds: 0),
-                            // switchInCurve: Curves.easeInOut,
-                            // switchOutCurve: Curves.easeInOut,
-                            child: switch (hoverStatus) {
+                          return switch (hoverStatus) {
                               HoverStatus.hovering =>
-                                Container(
-                                  key: ValueKey('hovered-${it.id}'),
-                                  height: 48,
-                                ),
+                                  Container(
+                                    key: ValueKey('hovered-${it.id}'),
+                                    height: 48,
+                                    decoration: BoxDecoration(
+                                      border: Border.all(
+                                        color: Colors.blue, // 원하는 테두리 색상
+                                        width: 2.0,         // 테두리 두께
+                                      ),
+                                      borderRadius: BorderRadius.circular(8), // 선택: 둥근 테두리
+                                      color: Colors.white, // 선택: 배경색
+                                    ),
+                                  ),
 
-                              HoverStatus.outOfBound =>
-                                const SizedBox.shrink(),
                               HoverStatus.notHovering =>
                                 LongPressDraggable<MemberChecklistItemVM>(
                                   key: ValueKey('draggable-${it.id}'),
@@ -209,6 +220,13 @@ class _MemberChecklistGroupViewState extends State<MemberChecklistGroupView> {
                                     FocusScope.of(context).unfocus();
                                     _editingItemId = null;
                                     _editingMemberId = null;
+                                  },
+                                  onDragCompleted: () {
+                                    log("onDragCompleted");
+                                  },
+                                  onDraggableCanceled: (_,_) {
+                                    log("onDraggableCanceled");
+                                    provider.clearHoveredItemAndResetTimer(it.id);
                                   },
                                   childWhenDragging:
                                   const SizedBox.shrink(),
@@ -236,67 +254,7 @@ class _MemberChecklistGroupViewState extends State<MemberChecklistGroupView> {
                                     }
                                   ),
                                 ),
-                            },
-
-          // isHovered
-                            //   ?
-                            // // SizedBox(
-                            // //   key: ValueKey('emptyBox-${it.id}'),
-                            // //   height: 48,)
-                            // Container(
-                            //     key: ValueKey('hovered'),
-                            //       height: 48,
-                            //       decoration: BoxDecoration(
-                            //       borderRadius: BorderRadius.circular(8),
-                            //       // border: Border.all(color: Colors.indigoAccent),
-                            //       // color: Colors.indigo.withOpacity(0.05),
-                            //       ),
-                            //     )
-                            //   : LongPressDraggable<MemberChecklistItemVM>(
-                            //     key: ValueKey('draggable-${it.id}'),
-                            //     data: it,
-                            //     feedback: Material(
-                            //       child: ConstrainedBox(
-                            //         constraints: const BoxConstraints(maxWidth: 400),
-                            //         child: ChecklistItemTile(
-                            //             title: it.content, completed: it.completed, color: hexToColor(widget.study.personalColor), onMore: (){}
-                            //         ),
-                            //       ),
-                            //     ),
-                            //     onDragStarted: () {
-                            //       _controller.text = "";
-                            //       FocusScope.of(context).unfocus();
-                            //       _editingItemId = null;
-                            //       _editingMemberId = null;
-                            //     },
-                            //     childWhenDragging:
-                            //       const SizedBox.shrink(),
-                            //     axis: Axis.vertical,
-                            //     child: ChecklistItemTile(
-                            //       key: ValueKey('title-${it.id}'),
-                            //       title: it.content,
-                            //       completed: it.completed,
-                            //       color: hexToColor(widget.study.personalColor),
-                            //       onMore:() {
-                            //         //TODO 삭제 및
-                            //         showChecklistItemOptionsBottomSheet(
-                            //             context: context,
-                            //             title: it.content,
-                            //             onEdit: () {
-                            //               log("edit pressed");
-                            //               Navigator.pop(context);
-                            //               _startEditing(it);
-                            //             },
-                            //             onDelete: () {
-                            //               Navigator.pop(context);
-                            //               log("delete pressed");
-                            //             }
-                            //         );
-                            //       }
-                            //     ),
-                            //   ),
-
-                          );
+                            };
                         }
                       }
                     ),
