@@ -186,56 +186,63 @@ class _MemberChecklistGroupViewState extends State<MemberChecklistGroupView> {
                         }
                         else {
                           return switch (hoverStatus) {
-                              HoverStatus.hovering =>
-                                  Container(
-                                    key: ValueKey('hovered-${it.id}'),
-                                    height: 48,
-                                    decoration: BoxDecoration(
-                                      border: Border.all(
-                                        color: Colors.blue, // 원하는 테두리 색상
-                                        width: 2.0,         // 테두리 두께
-                                      ),
-                                      borderRadius: BorderRadius.circular(8), // 선택: 둥근 테두리
-                                      color: Colors.white, // 선택: 배경색
-                                    ),
+                            HoverStatus.hovering =>
+                              Container(
+                                key: ValueKey('hovered-${it.id}'),
+                                height: 48,
+                                decoration: BoxDecoration(
+                                  border: Border.all(
+                                    color: hexToColor(
+                                        widget.study.personalColor),
+                                    // 원하는 테두리 색상
+                                    width: 2.0, // 테두리 두께
                                   ),
+                                  borderRadius: BorderRadius.circular(8),
+                                  // 선택: 둥근 테두리
+                                  color: Colors.white, // 선택: 배경색
+                                ),
+                              ),
 
-                              HoverStatus.notHovering =>
-                                LongPressDraggable<MemberChecklistItemVM>(
-                                  key: ValueKey('draggable-${it.id}'),
-                                  data: it,
-                                  feedback: Material(
-                                    child: ConstrainedBox(
-                                      constraints: const BoxConstraints(maxWidth: 400),
-                                      child: ChecklistItemTile(
-                                          title: it.content,
-                                          completed: it.completed,
-                                          color: hexToColor(widget.study.personalColor),
-                                          onMore: () {}
-                                      ),
+                            HoverStatus.notHovering =>
+                              LongPressDraggable<MemberChecklistItemVM>(
+                                key: ValueKey('draggable-${it.id}'),
+                                data: it,
+                                feedback: Material(
+                                  child: ConstrainedBox(
+                                    constraints: const BoxConstraints(
+                                        maxWidth: 400),
+                                    child: ChecklistItemTile(
+                                        title: it.content,
+                                        completed: it.completed,
+                                        color: hexToColor(
+                                            widget.study.personalColor),
+                                        onMore: () {}
                                     ),
                                   ),
-                                  onDragStarted: () {
-                                    _controller.text = "";
-                                    FocusScope.of(context).unfocus();
-                                    _editingItemId = null;
-                                    _editingMemberId = null;
-                                  },
-                                  onDragCompleted: () {
-                                    log("onDragCompleted");
-                                  },
-                                  onDraggableCanceled: (_,_) {
-                                    log("onDraggableCanceled");
-                                    provider.clearHoveredItemAndResetTimer(it.id);
-                                  },
-                                  childWhenDragging:
-                                  const SizedBox.shrink(),
-                                  axis: Axis.vertical,
-                                  child: ChecklistItemTile(
+                                ),
+                                onDragStarted: () {
+                                  _controller.text = "";
+                                  FocusScope.of(context).unfocus();
+                                  _editingItemId = null;
+                                  _editingMemberId = null;
+                                },
+                                onDragCompleted: () {
+                                  log("onDragCompleted");
+                                },
+                                onDraggableCanceled: (_, _) {
+                                  log("onDraggableCanceled");
+                                  provider.clearHoveredItemAndResetTimer(
+                                      it.id);
+                                },
+                                childWhenDragging:
+                                const SizedBox.shrink(),
+                                axis: Axis.vertical,
+                                child: ChecklistItemTile(
                                     key: ValueKey('title-${it.id}'),
                                     title: it.content,
                                     completed: it.completed,
-                                    color: hexToColor(widget.study.personalColor),
+                                    color: hexToColor(
+                                        widget.study.personalColor),
                                     onMore: () {
                                       //TODO 삭제 및
                                       showChecklistItemOptionsBottomSheet(
@@ -252,15 +259,15 @@ class _MemberChecklistGroupViewState extends State<MemberChecklistGroupView> {
                                           }
                                       );
                                     }
-                                  ),
                                 ),
-                            };
+                              ),
+                          };
                         }
                       }
                     ),
                   ],
-              ],
-            ),
+                ],
+              ),
               if(isEditing)
                 ChecklistItemInputField(
                     color: hexToColor(widget.study.personalColor),
