@@ -12,87 +12,24 @@ import 'package:study_group_front_end/screens/checklist/widget/checklists_tile/v
 import 'package:study_group_front_end/screens/checklist/widget/checklists_tile/view_models/member_checklist_item_vm.dart';
 
 class ChecklistItemProvider with ChangeNotifier, LoadingNotifier {
+  //Api 주입
   final ChecklistItemApiService checklistItemApiService;
-
   ChecklistItemProvider(this.checklistItemApiService);
 
+  //변수
   List<ChecklistItemDetailResponse> _checklists = [];
-
   List<ChecklistItemDetailResponse> get checklists => _checklists;
 
   List<MemberChecklistGroupVM> _groups = [];
-
   List<MemberChecklistGroupVM> get groups => _groups;
 
   List<StudyMemberSummaryResponse> _studyMembers = [];
-
   void setStudyMembers(List<StudyMemberSummaryResponse> members) {
     _studyMembers = members;
   }
 
-  DateTime _selectedDate = DateTime.now();
-
-  DateTime get selectedDate => _selectedDate;
-//====================hovering enum==================//
-  HoveredItem _hoveredItem = const HoveredItem(status: HoverStatus.notHovering);
-  Timer? _outOfBoundTimer;
-
-  HoveredItem get hoveredItem => _hoveredItem;
-
-  void setHoveredItem(int itemId) {
-    log("count 시작");
-    _outOfBoundTimer?.cancel();
-    if (_hoveredItem.itemId == itemId && _hoveredItem.status == HoverStatus.hovering) return;
-    _hoveredItem = HoveredItem(itemId: itemId, status: HoverStatus.hovering);
-    notifyListeners();
-  }
-
-  void clearHoveredItemAndResetTimer(int itemId) {
-    log("리셋!");
-    _hoveredItem = HoveredItem(itemId: itemId , status: HoverStatus.notHovering);
-    notifyListeners();
-
-    _outOfBoundTimer?.cancel();
-  }
-
-  // void clearHoveredItemAndStartTimer(int itemId) {
-  //   log("hovering Item ID: ${_hoveredItem.itemId}");
-  //   log("parameter itemID: $itemId");
-  //
-  //   _outOfBoundTimer?.cancel();
-  //   _outOfBoundTimer = Timer(const Duration(milliseconds: 0), () {
-  //     // 아직도 hover 중이 아니고, 이 아이템이 대상이 아닐 경우에만
-  //     // log("끝!");
-  //     if (_hoveredItem.status == HoverStatus.notHovering && _hoveredItem.itemId == itemId) {
-  //       log("what???");
-  //       // 렌더링 쪽에서 이 조건만 보고 안 보이게 할 수 있음
-  //       _hoveredItem = HoveredItem(itemId: itemId, status: HoverStatus.outOfBound);
-  //       notifyListeners();
-  //     }
-  //   });
-  // }
-
-
-  @override
-  void dispose(){
-    _outOfBoundTimer?.cancel();
-    super.dispose();
-  }
-
-  HoverStatus getHoverStatusOfItem(int itemId) {
-    if (_hoveredItem.status == HoverStatus.hovering && _hoveredItem.itemId == itemId) {
-      return HoverStatus.hovering;
-    }
-    return HoverStatus.notHovering;
-  }
-
-
-
-
-
-//===============api용 Provier=================================//
+  //===============api용 Provier=================================//
   Future<void> loadChecklists(int studyId, DateTime targetDate) async {
-    _selectedDate = targetDate;
     _checklists = await checklistItemApiService.getChecklistItemsOfStudy(studyId, targetDate);
     updateGroups();
   }
@@ -143,8 +80,26 @@ class ChecklistItemProvider with ChangeNotifier, LoadingNotifier {
     notifyListeners();
   }
 
+  //====================hovering enum==================//
+  int? _hoveredItemId;
 
-  //Drag & Drop용 함수
+  void setHoveredItem(int itemId) {
+    _hoveredItemId = itemId;
+    notifyListeners();
+  }
+
+  void clearHoveredItem(int itemId) {
+    _hoveredItemId = null;
+    notifyListeners();
+  }
+
+  HoverStatus getHoverStatusOfItem(int itemId) {
+    return _hoveredItemId == itemId
+        ? HoverStatus.hovering
+        : HoverStatus.notHovering;
+  }
+
+  //====================drag & drop==================//
   void moveItem({
     required MemberChecklistItemVM item,
     required int fromMemberId,
@@ -184,17 +139,9 @@ class ChecklistItemProvider with ChangeNotifier, LoadingNotifier {
       group.items[i].orderIndex = i;
     }
   }
-
 }
 
 enum HoverStatus{
   hovering,
   notHovering,
-}
-
-class HoveredItem {
-  final int? itemId;
-  final HoverStatus status;
-
-  const HoveredItem({this.itemId, required this.status});
 }

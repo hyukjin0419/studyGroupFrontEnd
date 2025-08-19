@@ -115,7 +115,6 @@ class _MemberChecklistGroupViewState extends State<MemberChecklistGroupView> {
                     DragTarget<MemberChecklistItemVM>(
                       key: ValueKey('target-${g.items[i].id}'),
                       onWillAcceptWithDetails: (dragged) {
-                        // log("${dragged.data.content}의 현재 위치: ${g.items[i].content}");
                         provider.setHoveredItem(g.items[i].id);
                         provider.moveItem(
                             item: dragged.data,
@@ -126,26 +125,16 @@ class _MemberChecklistGroupViewState extends State<MemberChecklistGroupView> {
                         );
                         return true;
                       },
-                      onLeave: (dragged) {
-                        log("인덱스 : ${dragged?.content}");
-                        // provider.clearHoveredItemAndResetTimer(dragged!.id);
-                        // provider.clearHoveredItemAndStartTimer(dragged!.id);
+                      onMove: (dragged) {
+                        log("움직인다~~!");
+                        _handleAutoScroll(dragged.offset);
                       },
                       onAcceptWithDetails: (dragged) {
-                        provider.clearHoveredItemAndResetTimer(dragged.data.id);
-                        // provider.moveItem(
-                        //     item: dragged.data,
-                        //     fromMemberId: dragged.data.studyMemberId,
-                        //     fromIndex: provider.getIndexOf(dragged.data),
-                        //     toMemberId: g.studyMemberId,
-                        //     toIndex: i
-                        // );
+                        provider.clearHoveredItem(dragged.data.id);
                       },
-                      builder: (context, candidateDate, rejectedData) {
+                      builder: (context, _, __) {
                         final it = g.items[i];
-                        // final isHovered = provider.isHoveringItem(it.id);
                         final hoverStatus = provider.getHoverStatusOfItem(it.id);
-                        // final isBeingDragged = provider.isDraggingItem(it.id);
                         if (_editingItemId == it.id) {
                           return ChecklistItemInputField(
                               key: ValueKey('title-${it.id}'),
@@ -226,13 +215,9 @@ class _MemberChecklistGroupViewState extends State<MemberChecklistGroupView> {
                                   _editingItemId = null;
                                   _editingMemberId = null;
                                 },
-                                onDragCompleted: () {
-                                  log("onDragCompleted");
-                                },
                                 onDraggableCanceled: (_, _) {
                                   log("onDraggableCanceled");
-                                  provider.clearHoveredItemAndResetTimer(
-                                      it.id);
+                                  provider.clearHoveredItem(it.id);
                                 },
                                 childWhenDragging:
                                 const SizedBox.shrink(),
@@ -332,4 +317,29 @@ class _MemberChecklistGroupViewState extends State<MemberChecklistGroupView> {
       _focusNode.requestFocus();
     });
   }
+
+  // _MemberChecklistGroupViewState 클래스 내부에 추가
+
+  void _handleAutoScroll(Offset globalPosition) {
+    const scrollThreshold = 50.0; // 스크롤이 시작될 경계 (상단/하단으로부터 100px)
+    const scrollSpeed = 10.0; // 스크롤 속도
+
+    final renderBox = context.findRenderObject() as RenderBox;
+    final listHeight = renderBox.size.height;
+    final localPosition = renderBox.globalToLocal(globalPosition);
+
+    final currentOffset = _scrollController.offset;
+    final maxScrollExtent = _scrollController.position.maxScrollExtent;
+    final minScrollExtent = _scrollController.position.minScrollExtent;
+
+    // 상단으로 스크롤
+    if (localPosition.dy < scrollThreshold && currentOffset > minScrollExtent) {
+      _scrollController.jumpTo((currentOffset - scrollSpeed).clamp(minScrollExtent, maxScrollExtent));
+    }
+    // 하단으로 스크롤
+    else if (localPosition.dy > listHeight - scrollThreshold && currentOffset < maxScrollExtent) {
+      _scrollController.jumpTo((currentOffset + scrollSpeed).clamp(minScrollExtent, maxScrollExtent));
+    }
+  }
+
 }
