@@ -36,7 +36,6 @@ class _MemberChecklistGroupViewState extends State<MemberChecklistGroupView> {
   final ScrollController _scrollController = ScrollController();
   final FocusNode _focusNode = FocusNode();
   late VoidCallback _focusListener;
-  late ChecklistItemProvider _checklistItemProvider;
 
   @override
   void initState() {
@@ -67,21 +66,9 @@ class _MemberChecklistGroupViewState extends State<MemberChecklistGroupView> {
   @override
   Widget build(BuildContext context) {
     final provider = context.watch<ChecklistItemProvider>();
-    // log("들어왔는지 판단하기: ${provider.groups[0].items.length}");
     return GestureDetector(
       behavior: HitTestBehavior.translucent,
-      onTap: () {
-        _controller.text = "";
-        FocusScope.of(context).unfocus();
-        _editingItemId = null;
-        _editingMemberId = null;
-      },
-      // onLongPress: () {
-      //   _controller.text = "";
-      //   FocusScope.of(context).unfocus();
-      //   _editingItemId = null;
-      //   _editingMemberId = null;
-      // },
+      onTap: _quitEditing,
       child: ListView.separated(
         controller: _scrollController,
         padding: const EdgeInsets.fromLTRB(22, 8, 16, 24),
@@ -97,15 +84,7 @@ class _MemberChecklistGroupViewState extends State<MemberChecklistGroupView> {
               MemberHeaderChip(
                 name: g.memberName,
                 color: hexToColor(widget.study.personalColor),
-                onAddPressed: (){
-                  log("working");
-                  setState(() {
-                    _editingItemId = null;
-                    _editingMemberId = g.studyMemberId;
-                    _controller.text = "";
-                    _scrollToInputField();
-                  });
-                },
+                onAddPressed: () => _startEditing(g.studyMemberId),
               ),
               const SizedBox(height: 10),
 
@@ -126,7 +105,6 @@ class _MemberChecklistGroupViewState extends State<MemberChecklistGroupView> {
                         return true;
                       },
                       onMove: (dragged) {
-                        log("움직인다~~!");
                         _handleAutoScroll(dragged.offset);
                       },
                       onAcceptWithDetails: (dragged) {
@@ -141,20 +119,10 @@ class _MemberChecklistGroupViewState extends State<MemberChecklistGroupView> {
                               color: hexToColor(widget.study.personalColor),
                               controller: _controller,
                               focusNode: _focusNode,
-                              onDone: () {
-                                setState(() {
-                                  _editingItemId = null;
-                                  _controller.clear();
-                                  _focusNode.unfocus();
-                                });
-                              },
+                              onDone: () {},
                               onSubmitted: (value) async {
-                                setState(() {
-                                  it.content = value;
-                                  _editingItemId = null;
-                                  _controller.clear();
-                                  _focusNode.unfocus();
-                                });
+                                //it이 전역이 아닌데도 사용할 수 있음은 Dart의 Closure 기능 때문
+                                _finishEditing(it, updatedContent: value);
                                 //TODO checklist item update api 호출
                                 try {
                                   final request = ChecklistItemContentUpdateRequest(
@@ -209,12 +177,7 @@ class _MemberChecklistGroupViewState extends State<MemberChecklistGroupView> {
                                     ),
                                   ),
                                 ),
-                                onDragStarted: () {
-                                  _controller.text = "";
-                                  FocusScope.of(context).unfocus();
-                                  _editingItemId = null;
-                                  _editingMemberId = null;
-                                },
+                                onDragStarted: _quitEditing,
                                 onDraggableCanceled: (_, _) {
                                   log("onDraggableCanceled");
                                   provider.clearHoveredItem(it.id);
@@ -236,7 +199,7 @@ class _MemberChecklistGroupViewState extends State<MemberChecklistGroupView> {
                                           onEdit: () {
                                             log("edit pressed");
                                             Navigator.pop(context);
-                                            _startEditing(it);
+                                            _startUpdateEditing(it);
                                           },
                                           onDelete: () {
                                             Navigator.pop(context);
@@ -298,6 +261,36 @@ class _MemberChecklistGroupViewState extends State<MemberChecklistGroupView> {
     );
   }
 
+
+//------------------------------화면 로직------------------------------//
+  void _startEditing(int studyMemberId) {
+    setState(() {
+      log("읭?");
+      _editingItemId = null;
+      _editingMemberId = studyMemberId;
+      _controller.clear();
+      _scrollToInputField();
+    });
+  }
+
+  void _quitEditing() {
+    setState(() {
+      _editingItemId = null;
+      _editingMemberId = null;
+      _controller.clear();
+      _focusNode.unfocus();
+    });
+  }
+
+  void _finishEditing(it, {required String updatedContent}) {
+    setState(() {
+      it.content = updatedContent;
+      _editingItemId = null;
+      _controller.clear();
+      _focusNode.unfocus();
+    });
+  }
+
   void _scrollToInputField() {
     WidgetsBinding.instance.addPostFrameCallback((_) {
       _focusNode.requestFocus();
@@ -309,7 +302,7 @@ class _MemberChecklistGroupViewState extends State<MemberChecklistGroupView> {
     });
   }
 
-  void _startEditing(MemberChecklistItemVM item) {
+  void _startUpdateEditing(MemberChecklistItemVM item) {
     setState(() {
       _editingMemberId = null;
       _controller.text = item.content;
@@ -317,8 +310,6 @@ class _MemberChecklistGroupViewState extends State<MemberChecklistGroupView> {
       _focusNode.requestFocus();
     });
   }
-
-  // _MemberChecklistGroupViewState 클래스 내부에 추가
 
   void _handleAutoScroll(Offset globalPosition) {
     const scrollThreshold = 50.0; // 스크롤이 시작될 경계 (상단/하단으로부터 100px)
@@ -341,5 +332,4 @@ class _MemberChecklistGroupViewState extends State<MemberChecklistGroupView> {
       _scrollController.jumpTo((currentOffset + scrollSpeed).clamp(minScrollExtent, maxScrollExtent));
     }
   }
-
 }
