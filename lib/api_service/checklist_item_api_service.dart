@@ -49,6 +49,19 @@ class ChecklistItemApiService extends BaseApiService {
       );
     }
   }
+
+  Future<void> updateChecklistItemStatus(int checklistItemId) async {
+    final response = await post(
+        '/checklistItem/$checklistItemId/changeCheckStatus',
+        null
+    );
+
+    if (response.statusCode != 200) {
+      throw Exception(
+          '[Checklist_Item_API_Service] updateChecklistItemStatus 실패: ${response.statusCode}'
+      );
+    }
+  }
 }
 // class ChecklistApiService extends BaseApiService {
 //   final String basePath = '/checklist';

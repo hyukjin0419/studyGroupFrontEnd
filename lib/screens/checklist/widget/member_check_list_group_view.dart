@@ -169,6 +169,7 @@ class _MemberChecklistGroupViewState extends State<MemberChecklistGroupView> {
                                     constraints: const BoxConstraints(
                                         maxWidth: 400),
                                     child: ChecklistItemTile(
+                                        itemId: it.id,
                                         title: it.content,
                                         completed: it.completed,
                                         color: hexToColor(
@@ -186,6 +187,7 @@ class _MemberChecklistGroupViewState extends State<MemberChecklistGroupView> {
                                 const SizedBox.shrink(),
                                 axis: Axis.vertical,
                                 child: ChecklistItemTile(
+                                    itemId: it.id,
                                     key: ValueKey('title-${it.id}'),
                                     title: it.content,
                                     completed: it.completed,
@@ -312,7 +314,7 @@ class _MemberChecklistGroupViewState extends State<MemberChecklistGroupView> {
   }
 
   void _handleAutoScroll(Offset globalPosition) {
-    const scrollThreshold = 50.0; // 스크롤이 시작될 경계 (상단/하단으로부터 100px)
+    const scrollThreshold = 50.0; // 스크롤이 시작될 경계
     const scrollSpeed = 10.0; // 스크롤 속도
 
     final renderBox = context.findRenderObject() as RenderBox;

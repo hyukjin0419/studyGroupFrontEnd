@@ -1,7 +1,12 @@
+import 'dart:developer';
+
+import 'package:provider/provider.dart';
 import 'package:flutter/material.dart';
+import 'package:study_group_front_end/providers/checklist_item_provider.dart';
 import 'package:study_group_front_end/screens/checklist/widget/checklists_tile/customized_check_box.dart';
 
 class ChecklistItemTile extends StatefulWidget {
+  final int itemId;
   final String title;
   final bool completed;
   final Color color;
@@ -9,6 +14,7 @@ class ChecklistItemTile extends StatefulWidget {
 
   const ChecklistItemTile({
     super.key,
+    required this.itemId,
     required this.title,
     required this.completed,
     required this.color,
@@ -30,10 +36,20 @@ class _ChecklistItemTileState extends State<ChecklistItemTile> {
     _title = widget.title;
   }
 
-  void _toggleCompleted() {
+  void _toggleCompleted() async {
     setState(() {
       _completed = !_completed;
     });
+    try {
+      final provider = context.read<ChecklistItemProvider>();
+      await provider.updateChecklistItemStatus(widget.itemId);
+      // widget.onChecklistCreated?.call();
+    } catch (e) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text("체크리스트 content 업데이트 실패: $e")),
+      );
+      log("체크리스트 content 업데이트 실패: $e");
+    }
   }
 
   @override

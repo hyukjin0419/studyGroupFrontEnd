@@ -52,6 +52,10 @@ class ChecklistItemProvider with ChangeNotifier, LoadingNotifier {
     await checklistItemApiService.updateChecklistItemContent(checklistItemId, request);
   }
 
+  Future<void> updateChecklistItemStatus(int checklistItemId) async {
+    await checklistItemApiService.updateChecklistItemStatus(checklistItemId);
+  }
+
   void updateGroups(){
     final items = _checklists;
     log("여기서 부터 안 불러져 왔나? ${_checklists.length}");
