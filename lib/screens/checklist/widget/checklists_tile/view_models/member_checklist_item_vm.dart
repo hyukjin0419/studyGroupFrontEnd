@@ -2,7 +2,7 @@ class MemberChecklistItemVM{
   final int id;
   int studyMemberId;
   String content;
-  final bool completed;
+  late final bool completed;
   int orderIndex;
 
   MemberChecklistItemVM({

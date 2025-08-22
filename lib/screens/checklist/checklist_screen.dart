@@ -19,23 +19,22 @@ class ChecklistScreen extends StatefulWidget {
 
 class _ChecklistScreenState extends State<ChecklistScreen> {
   DateTime selectedDate = DateTime.now();
-  late final int _studyId;
   late ChecklistItemProvider _checklistItemProvider;
 
   @override
   void initState() {
     super.initState();
-    _studyId = widget.study.id;
 
     WidgetsBinding.instance.addPostFrameCallback((_) async{
       _checklistItemProvider = context.read<ChecklistItemProvider>();
-      _checklistItemProvider.setStudyMembers(widget.study.members);
-      _checklistItemProvider.loadChecklists(_studyId, selectedDate);
+      _checklistItemProvider.initializeContext(widget.study.id, widget.study.members);
+      // _checklistItemProvider.setStudyMembers(widget.study.members);
+      // _checklistItemProvider.loadChecklists(_studyId, selectedDate);
     });
   }
 
   Future<void> updateSelectedDate(DateTime newDate) async {
-    _checklistItemProvider.loadChecklists(_studyId, newDate);
+    _checklistItemProvider.loadChecklists(newDate);
 
     setState(() {
       selectedDate = newDate;
@@ -68,7 +67,7 @@ class _ChecklistScreenState extends State<ChecklistScreen> {
               study: widget.study,
               selectedDate: selectedDate,
               onChecklistCreated: () async {
-                provider.loadChecklists(_studyId, selectedDate);
+                provider.loadChecklists(selectedDate);
               }
             ),
           ),

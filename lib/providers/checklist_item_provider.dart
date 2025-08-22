@@ -28,23 +28,32 @@ class ChecklistItemProvider with ChangeNotifier, LoadingNotifier {
     _studyMembers = members;
   }
 
+  int? _studyId;
+  DateTime _selectedDate = DateTime.now();
+
+  void initializeContext(int studyId, List<StudyMemberSummaryResponse> members) {
+    _studyId = studyId;
+    _studyMembers = members;
+    _selectedDate = DateTime.now();
+    loadChecklists(_selectedDate);
+  }
+
+  void updateSelectedDate(DateTime newDate) {
+    _selectedDate = newDate;
+    loadChecklists(_selectedDate);
+    notifyListeners();
+  }
+
+
   //===============api용 Provier=================================//
-  Future<void> loadChecklists(int studyId, DateTime targetDate) async {
-    _checklists = await checklistItemApiService.getChecklistItemsOfStudy(studyId, targetDate);
+  Future<void> loadChecklists(DateTime targetDate) async {
+    _checklists = await checklistItemApiService.getChecklistItemsOfStudy(_studyId!, targetDate);
     updateGroups();
   }
 
-  Future<void> createChecklistItem(ChecklistItemCreateRequest request, studyId) async {
+  Future<void> createChecklistItem(ChecklistItemCreateRequest request) async {
     await runWithLoading(() async {
-      await checklistItemApiService.createChecklistItemOfStudy(request, studyId);
-    });
-  }
-
-  Future<void> getChecklists(int studyId, DateTime targetDate) async {
-    await runWithLoading(() async {
-      log ("시작");
-      _checklists = await checklistItemApiService.getChecklistItemsOfStudy(studyId, targetDate);
-      log("종료 ${_checklists.length}");
+      await checklistItemApiService.createChecklistItemOfStudy(request, _studyId!);
     });
   }
 
@@ -54,6 +63,7 @@ class ChecklistItemProvider with ChangeNotifier, LoadingNotifier {
 
   Future<void> updateChecklistItemStatus(int checklistItemId) async {
     await checklistItemApiService.updateChecklistItemStatus(checklistItemId);
+    await loadChecklists(_selectedDate);
   }
 
   void updateGroups(){
@@ -80,6 +90,9 @@ class ChecklistItemProvider with ChangeNotifier, LoadingNotifier {
         ));
       }
     }
+
+    sortChecklistGroupsByCompletedThenOrder();
+
     _groups = groupMap.values.toList();
     notifyListeners();
   }
@@ -129,6 +142,8 @@ class ChecklistItemProvider with ChangeNotifier, LoadingNotifier {
       _reorderGroup(toGroup);
     }
 
+    sortChecklistGroupsByCompletedThenOrder();
+
     // 5. 상태 갱신
     notifyListeners();
   }
@@ -143,6 +158,18 @@ class ChecklistItemProvider with ChangeNotifier, LoadingNotifier {
       group.items[i].orderIndex = i;
     }
   }
+
+  void sortChecklistGroupsByCompletedThenOrder() {
+    for (final group in _groups) {
+      group.items.sort((a, b) {
+        if (a.completed == b.completed) {
+          return (a.orderIndex ?? 0).compareTo(b.orderIndex ?? 0);
+        }
+        return a.completed ? 1 : -1;
+      });
+    }
+  }
+
 }
 
 enum HoverStatus{

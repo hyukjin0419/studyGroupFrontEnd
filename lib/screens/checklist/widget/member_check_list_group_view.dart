@@ -108,7 +108,9 @@ class _MemberChecklistGroupViewState extends State<MemberChecklistGroupView> {
                         _handleAutoScroll(dragged.offset);
                       },
                       onAcceptWithDetails: (dragged) {
+                        ///TODO 이게 해결방안이 아닌 것 같은데..
                         provider.clearHoveredItem(dragged.data.id);
+                        // provider.updateGroups();
                       },
                       builder: (context, _, __) {
                         final it = g.items[i];
@@ -169,12 +171,12 @@ class _MemberChecklistGroupViewState extends State<MemberChecklistGroupView> {
                                     constraints: const BoxConstraints(
                                         maxWidth: 400),
                                     child: ChecklistItemTile(
-                                        itemId: it.id,
-                                        title: it.content,
-                                        completed: it.completed,
-                                        color: hexToColor(
-                                            widget.study.personalColor),
-                                        onMore: () {}
+                                      itemId: it.id,
+                                      title: it.content,
+                                      completed: it.completed,
+                                      color: hexToColor(
+                                          widget.study.personalColor),
+                                      onMore: () {}
                                     ),
                                   ),
                                 ),
@@ -182,6 +184,7 @@ class _MemberChecklistGroupViewState extends State<MemberChecklistGroupView> {
                                 onDraggableCanceled: (_, _) {
                                   log("onDraggableCanceled");
                                   provider.clearHoveredItem(it.id);
+                                  provider.updateGroups();
                                 },
                                 childWhenDragging:
                                 const SizedBox.shrink(),
@@ -235,7 +238,6 @@ class _MemberChecklistGroupViewState extends State<MemberChecklistGroupView> {
                     onSubmitted: (value) async {
                       log("생성할 항목: $value, 대상 멤버 ID: ${g.studyMemberId}");
                       log("orderIndex: ${g.items.length}");
-                      //TODO: API 호출
                       try {
                         final request = ChecklistItemCreateRequest(
                             content: value,
@@ -246,7 +248,7 @@ class _MemberChecklistGroupViewState extends State<MemberChecklistGroupView> {
                         );
 
                         final provider = context.read<ChecklistItemProvider>();
-                        await provider.createChecklistItem(request, widget.study.id);
+                        await provider.createChecklistItem(request);
                         widget.onChecklistCreated?.call();
                       } catch (e) {
                         ScaffoldMessenger.of(context).showSnackBar(

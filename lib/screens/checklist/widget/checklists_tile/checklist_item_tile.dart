@@ -43,7 +43,7 @@ class _ChecklistItemTileState extends State<ChecklistItemTile> {
     try {
       final provider = context.read<ChecklistItemProvider>();
       await provider.updateChecklistItemStatus(widget.itemId);
-      // widget.onChecklistCreated?.call();
+      provider.updateGroups();
     } catch (e) {
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(content: Text("체크리스트 content 업데이트 실패: $e")),
@@ -55,7 +55,7 @@ class _ChecklistItemTileState extends State<ChecklistItemTile> {
   @override
   Widget build(BuildContext context) {
     return Container(
-      height: 45,//?
+      height: 45,
       padding: const EdgeInsets.fromLTRB(10,0,0,0),
       child: Row(
         children: [
