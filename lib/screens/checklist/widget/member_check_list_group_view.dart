@@ -90,6 +90,50 @@ class _MemberChecklistGroupViewState extends State<MemberChecklistGroupView> {
 
               Column(
                 children: [
+                  if (g.items.isEmpty && !isEditing)
+                    DragTarget<MemberChecklistItemVM>(
+                      key: ValueKey('empty-target-${g.studyMemberId}'),
+                      onWillAcceptWithDetails: (dragged) {
+                        provider.setHoveredItem(dragged.data.id);
+                        provider.moveItem(
+                          item: dragged.data,
+                          fromMemberId: dragged.data.studyMemberId,
+                          fromIndex: provider.getIndexOf(dragged.data),
+                          toMemberId: g.studyMemberId,
+                          toIndex: 0, // 항상 0
+                        );
+                        return true;
+                      },
+                      onAcceptWithDetails: (dragged) {
+                        provider.clearHoveredItem(dragged.data.id);
+                        provider.reorderChecklistItem();
+                      },
+                      builder: (context, candidateData, rejectedData) {
+                        final isHovered = candidateData.isNotEmpty;
+                        return Container(
+                          height: 48,
+                          decoration: BoxDecoration(
+                            border: Border.all(
+                              color: isHovered
+                                  ? hexToColor(widget.study.personalColor)
+                                  : Colors.transparent,
+                            ),
+                            borderRadius: BorderRadius.circular(8),
+                            color: isHovered
+                                ? hexToColor(widget.study.personalColor).withOpacity(0.1)
+                                : Colors.transparent,
+                          ),
+                          // alignment: Alignment.center,
+                          // child: const Text(
+                          //   '여기로 드래그하여 항목 추가',
+                          //   style: TextStyle(
+                          //     color: Colors.grey,
+                          //     fontStyle: FontStyle.italic,
+                          //   ),
+                          // ),
+                        );
+                      },
+                    ),
                   for (int i=0; i < g.items.length; i++) ...[
                     DragTarget<MemberChecklistItemVM>(
                       key: ValueKey('target-${g.items[i].id}'),
@@ -110,6 +154,7 @@ class _MemberChecklistGroupViewState extends State<MemberChecklistGroupView> {
                       onAcceptWithDetails: (dragged) {
                         ///TODO 이게 해결방안이 아닌 것 같은데..
                         provider.clearHoveredItem(dragged.data.id);
+                        provider.reorderChecklistItem();
                         // provider.updateGroups();
                       },
                       builder: (context, _, __) {
@@ -182,9 +227,7 @@ class _MemberChecklistGroupViewState extends State<MemberChecklistGroupView> {
                                 ),
                                 onDragStarted: _quitEditing,
                                 onDraggableCanceled: (_, _) {
-                                  log("onDraggableCanceled");
                                   provider.clearHoveredItem(it.id);
-                                  provider.updateGroups();
                                 },
                                 childWhenDragging:
                                 const SizedBox.shrink(),
@@ -202,13 +245,11 @@ class _MemberChecklistGroupViewState extends State<MemberChecklistGroupView> {
                                           context: context,
                                           title: it.content,
                                           onEdit: () {
-                                            log("edit pressed");
                                             Navigator.pop(context);
                                             _startUpdateEditing(it);
                                           },
                                           onDelete: () {
                                             Navigator.pop(context);
-                                            log("delete pressed");
                                           }
                                       );
                                     }
@@ -236,8 +277,6 @@ class _MemberChecklistGroupViewState extends State<MemberChecklistGroupView> {
                       });
                     },
                     onSubmitted: (value) async {
-                      log("생성할 항목: $value, 대상 멤버 ID: ${g.studyMemberId}");
-                      log("orderIndex: ${g.items.length}");
                       try {
                         final request = ChecklistItemCreateRequest(
                             content: value,
@@ -269,7 +308,6 @@ class _MemberChecklistGroupViewState extends State<MemberChecklistGroupView> {
 //------------------------------화면 로직------------------------------//
   void _startEditing(int studyMemberId) {
     setState(() {
-      log("읭?");
       _editingItemId = null;
       _editingMemberId = studyMemberId;
       _controller.clear();

@@ -6,6 +6,7 @@ import 'package:study_group_front_end/api_service/checklist_item_api_service.dar
 import 'package:study_group_front_end/dto/checklist_item/create/checklist_item_create_request.dart';
 import 'package:study_group_front_end/dto/checklist_item/detail/checklist_item_detail_response.dart';
 import 'package:study_group_front_end/dto/checklist_item/update/checklist_item_content_update_request.dart';
+import 'package:study_group_front_end/dto/checklist_item/update/checklist_item_reorder_request.dart';
 import 'package:study_group_front_end/dto/study/detail/study_member_summary_response.dart';
 import 'package:study_group_front_end/providers/loading_notifier.dart';
 import 'package:study_group_front_end/screens/checklist/widget/checklists_tile/view_models/member_checklist_group_vm.dart';
@@ -30,6 +31,7 @@ class ChecklistItemProvider with ChangeNotifier, LoadingNotifier {
 
   int? _studyId;
   DateTime _selectedDate = DateTime.now();
+  DateTime get selectedDate =>_selectedDate;
 
   void initializeContext(int studyId, List<StudyMemberSummaryResponse> members) {
     _studyId = studyId;
@@ -46,8 +48,9 @@ class ChecklistItemProvider with ChangeNotifier, LoadingNotifier {
 
 
   //===============api용 Provier=================================//
-  Future<void> loadChecklists(DateTime targetDate) async {
-    _checklists = await checklistItemApiService.getChecklistItemsOfStudy(_studyId!, targetDate);
+  Future<void> loadChecklists(selectedDate) async {
+    log("Date: $selectedDate");
+    _checklists = await checklistItemApiService.getChecklistItemsOfStudy(_studyId!, selectedDate);
     updateGroups();
   }
 
@@ -64,6 +67,24 @@ class ChecklistItemProvider with ChangeNotifier, LoadingNotifier {
   Future<void> updateChecklistItemStatus(int checklistItemId) async {
     await checklistItemApiService.updateChecklistItemStatus(checklistItemId);
     await loadChecklists(_selectedDate);
+  }
+
+  Future<void> reorderChecklistItem() async {
+    final List<ChecklistItemReorderRequest> request = [];
+
+    for (final group in _groups){
+      for(int i=0; i< group.items.length; i++) {
+        final item = group.items[i];
+        request.add(ChecklistItemReorderRequest(
+          checklistItemId: item.id,
+          studyMemberId: item.studyMemberId,
+          orderIndex: i,
+        ));
+      }
+    }
+
+    await checklistItemApiService.reorderChecklistItem(request);
+    loadChecklists(selectedDate);
   }
 
   void updateGroups(){
@@ -91,9 +112,9 @@ class ChecklistItemProvider with ChangeNotifier, LoadingNotifier {
       }
     }
 
-    sortChecklistGroupsByCompletedThenOrder();
-
     _groups = groupMap.values.toList();
+
+    sortChecklistGroupsByCompletedThenOrder();
     notifyListeners();
   }
 
@@ -160,6 +181,7 @@ class ChecklistItemProvider with ChangeNotifier, LoadingNotifier {
   }
 
   void sortChecklistGroupsByCompletedThenOrder() {
+    // log("complete로 그룹 reordre");
     for (final group in _groups) {
       group.items.sort((a, b) {
         if (a.completed == b.completed) {
@@ -169,7 +191,6 @@ class ChecklistItemProvider with ChangeNotifier, LoadingNotifier {
       });
     }
   }
-
 }
 
 enum HoverStatus{

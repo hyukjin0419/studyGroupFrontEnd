@@ -43,7 +43,7 @@ class _ChecklistItemTileState extends State<ChecklistItemTile> {
     try {
       final provider = context.read<ChecklistItemProvider>();
       await provider.updateChecklistItemStatus(widget.itemId);
-      provider.updateGroups();
+      provider.sortChecklistGroupsByCompletedThenOrder();
     } catch (e) {
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(content: Text("체크리스트 content 업데이트 실패: $e")),

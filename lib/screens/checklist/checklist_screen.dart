@@ -18,7 +18,7 @@ class ChecklistScreen extends StatefulWidget {
 }
 
 class _ChecklistScreenState extends State<ChecklistScreen> {
-  DateTime selectedDate = DateTime.now();
+  // DateTime selectedDate = DateTime.now();
   late ChecklistItemProvider _checklistItemProvider;
 
   @override
@@ -34,11 +34,8 @@ class _ChecklistScreenState extends State<ChecklistScreen> {
   }
 
   Future<void> updateSelectedDate(DateTime newDate) async {
-    _checklistItemProvider.loadChecklists(newDate);
+    _checklistItemProvider.updateSelectedDate(newDate);
 
-    setState(() {
-      selectedDate = newDate;
-    });
   }
 
   @override
@@ -55,7 +52,7 @@ class _ChecklistScreenState extends State<ChecklistScreen> {
           StudyHeaderCard(study: widget.study),     // 🧾 스터디 카드
           WeeklyCalendar(                           // 달력
             study: widget.study,
-            initialSelectedDay: selectedDate,
+            initialSelectedDay: provider.selectedDate,
             onDaySelected: (date) {
               log(" 날짜: $date");
               updateSelectedDate(date);
@@ -65,9 +62,9 @@ class _ChecklistScreenState extends State<ChecklistScreen> {
           Expanded(                                 //체크리스트 부분
             child: MemberChecklistGroupView(
               study: widget.study,
-              selectedDate: selectedDate,
+              selectedDate: provider.selectedDate,
               onChecklistCreated: () async {
-                provider.loadChecklists(selectedDate);
+                provider.loadChecklists(provider.selectedDate);
               }
             ),
           ),
