@@ -152,7 +152,6 @@ class _MemberChecklistGroupViewState extends State<MemberChecklistGroupView> {
                         _handleAutoScroll(dragged.offset);
                       },
                       onAcceptWithDetails: (dragged) {
-                        ///TODO 이게 해결방안이 아닌 것 같은데..
                         provider.clearHoveredItem(dragged.data.id);
                         provider.reorderChecklistItem();
                         // provider.updateGroups();
