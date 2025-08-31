@@ -123,14 +123,6 @@ class _MemberChecklistGroupViewState extends State<MemberChecklistGroupView> {
                                 ? hexToColor(widget.study.personalColor).withOpacity(0.1)
                                 : Colors.transparent,
                           ),
-                          // alignment: Alignment.center,
-                          // child: const Text(
-                          //   '여기로 드래그하여 항목 추가',
-                          //   style: TextStyle(
-                          //     color: Colors.grey,
-                          //     fontStyle: FontStyle.italic,
-                          //   ),
-                          // ),
                         );
                       },
                     ),
@@ -247,8 +239,17 @@ class _MemberChecklistGroupViewState extends State<MemberChecklistGroupView> {
                                             Navigator.pop(context);
                                             _startUpdateEditing(it);
                                           },
-                                          onDelete: () {
+                                          onDelete: () async {
                                             Navigator.pop(context);
+                                            try {
+                                              final provider = context.read<ChecklistItemProvider>();
+                                              await provider.softDeleteChecklistItems(it.id);
+                                              provider.updateGroups();
+                                            } catch(e) {
+                                              ScaffoldMessenger.of(context).showSnackBar(
+                                                SnackBar(content: Text("체크리스트 삭제 실패: $e")),
+                                              );
+                                            }
                                           }
                                       );
                                     }

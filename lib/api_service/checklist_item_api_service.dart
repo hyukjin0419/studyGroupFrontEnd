@@ -76,4 +76,17 @@ class ChecklistItemApiService extends BaseApiService {
       );
     }
   }
+
+  Future<void> softDeleteChecklistItems(int checklistItemId) async {
+    final response = await post(
+        '/checklistItem/$checklistItemId/delete',
+        null
+    );
+
+    if (response.statusCode != 200) {
+      throw Exception(
+          '[Checklist_Item_API_Service] softDeleteChecklistItems 실패: ${response.statusCode}'
+      );
+    }
+  }
 }

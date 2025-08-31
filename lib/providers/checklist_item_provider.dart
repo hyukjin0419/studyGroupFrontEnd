@@ -69,6 +69,11 @@ class ChecklistItemProvider with ChangeNotifier, LoadingNotifier {
     await loadChecklists(_selectedDate);
   }
 
+  Future<void> softDeleteChecklistItems(int checklistItemId) async {
+    await checklistItemApiService.softDeleteChecklistItems(checklistItemId);
+    await loadChecklists(_selectedDate);
+  }
+
   Future<void> reorderChecklistItem() async {
     final List<ChecklistItemReorderRequest> request = [];
 
