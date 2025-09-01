@@ -49,15 +49,27 @@ Future<void> main() async {
         child: MaterialApp.router(
           routerConfig: router,
           theme: ThemeData(
+            useMaterial3: true,
+            fontFamily: 'Pretendard',
+
             appBarTheme: const AppBarTheme(
               backgroundColor: Colors.white,
             ),
+
             scaffoldBackgroundColor: Colors.white,
+
             colorScheme: ColorScheme.fromSeed(
               seedColor: Color(0xFF73B4E3),
               brightness: Brightness.light,
             ),
-            useMaterial3: true,
+
+            textTheme: const TextTheme(
+              displayLarge: TextStyle(fontSize: 36, fontWeight: FontWeight.w400),
+              displayMedium: TextStyle(fontSize: 20, fontWeight: FontWeight.w400),
+              bodyLarge: TextStyle(fontSize: 16, fontWeight: FontWeight.w600),
+              bodyMedium: TextStyle(fontSize: 14, fontWeight: FontWeight.w500),
+              bodySmall: TextStyle(fontSize: 12, fontWeight: FontWeight.w400),
+            )
           ),
         )
       )
