@@ -1,13 +1,16 @@
 import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/material.dart';
+import 'package:intl/date_symbol_data_local.dart';
 import 'package:provider/provider.dart';
 import 'package:study_group_front_end/api_service/auth_api_service.dart';
+import 'package:study_group_front_end/api_service/checklist_item_api_service.dart';
 import 'package:study_group_front_end/api_service/me_api_service.dart';
 import 'package:study_group_front_end/api_service/study_api_service.dart';
 import 'package:study_group_front_end/api_service/study_join_api_service.dart';
 import 'package:study_group_front_end/firebase_options.dart';
 import 'package:study_group_front_end/notification_service/fcm/fcm_initializer.dart';
 import 'package:study_group_front_end/notification_service/local/local_notifications_service.dart';
+import 'package:study_group_front_end/providers/checklist_item_provider.dart';
 import 'package:study_group_front_end/providers/me_provider.dart';
 import 'package:study_group_front_end/providers/study_join_provider.dart';
 import 'package:study_group_front_end/providers/study_provider.dart';
@@ -24,6 +27,9 @@ Future<void> main() async {
 
   await FcmInitializer.init(localNotificationsService: localNotificationsService);
 
+  await initializeDateFormatting();
+
+
   runApp(
       MultiProvider(
         providers: [
@@ -35,11 +41,18 @@ Future<void> main() async {
           ),
           ChangeNotifierProvider(
               create: (_) => StudyJoinProvider(StudyJoinApiService()),
+          ),
+          ChangeNotifierProvider(
+            create: (_) => ChecklistItemProvider(ChecklistItemApiService()),
           )
         ],
         child: MaterialApp.router(
           routerConfig: router,
           theme: ThemeData(
+            appBarTheme: const AppBarTheme(
+              backgroundColor: Colors.white,
+            ),
+            scaffoldBackgroundColor: Colors.white,
             colorScheme: ColorScheme.fromSeed(
               seedColor: Color(0xFF73B4E3),
               brightness: Brightness.light,

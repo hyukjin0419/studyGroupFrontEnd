@@ -1,11 +1,13 @@
 class StudyMemberSummaryResponse {
   final int id;
+  final int studyMemberId;
   final String userName;
   final String role;
   final String personalColor;
 
   StudyMemberSummaryResponse({
     required this.id,
+    required this.studyMemberId,
     required this.userName,
     required this.role,
     required this.personalColor,
@@ -15,6 +17,7 @@ class StudyMemberSummaryResponse {
   factory StudyMemberSummaryResponse.fromJson(Map<String, dynamic> json) {
     return StudyMemberSummaryResponse(
       id: json['id'],
+      studyMemberId: json['studyMemberId'],
       userName: json['userName'],
       role: json['role'],
       personalColor: json['personalColor'],

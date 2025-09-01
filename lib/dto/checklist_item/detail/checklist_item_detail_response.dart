@@ -1,31 +1,31 @@
-import 'package:study_group_front_end/dto/base_res_dto.dart';
-
-class ChecklistItemDetailResponse extends BaseResDto {
+class ChecklistItemDetailResponse {
   final int id;
-  final int creatorId;
-  final int? studyId;
+  final String type; // ChecklistItemType enum as String
+  final int studyId;
+  final int studyMemberId;
   final String content;
-  final DateTime? dueDate;
+  final bool completed;
+  int orderIndex;
 
   ChecklistItemDetailResponse({
     required this.id,
-    required this.creatorId,
-    this.studyId,
+    required this.type,
+    required this.studyId,
+    required this.studyMemberId,
     required this.content,
-    this.dueDate,
-    super.createdAt,
-    super.modifiedAt,
+    required this.completed,
+    required this.orderIndex,
   });
 
   factory ChecklistItemDetailResponse.fromJson(Map<String, dynamic> json) {
     return ChecklistItemDetailResponse(
       id: json['id'],
-      creatorId: json['creatorId'],
+      type: json['type'],
       studyId: json['studyId'],
+      studyMemberId: json['studyMemberId'],
       content: json['content'],
-      dueDate: json['dueDate'] != null ? DateTime.parse(json['dueDate']) : null,
-      createdAt: json['createdAt'] != null ? DateTime.parse(json['createdAt']) : null,
-      modifiedAt: json['modifiedAt'] != null ? DateTime.parse(json['modifiedAt']) : null,
+      completed: json['completed'],
+      orderIndex: json['orderIndex'],
     );
   }
 }

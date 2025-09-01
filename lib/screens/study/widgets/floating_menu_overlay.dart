@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
-import 'package:study_group_front_end/screens/study/widgets/create_study_dialog.dart';
+import 'package:study_group_front_end/screens/study/widgets/dialog/create_study_dialog.dart';
 
 class FloatingMenuOverlay extends StatelessWidget {
   const FloatingMenuOverlay({super.key});
