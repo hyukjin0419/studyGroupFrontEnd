@@ -5,6 +5,7 @@ import 'package:study_group_front_end/providers/study_provider.dart';
 import 'package:study_group_front_end/screens/study/widgets/floating_menu_overlay.dart';
 import 'package:study_group_front_end/screens/study/widgets/study_card.dart';
 import 'package:study_group_front_end/screens/widgets/custom_bottom_navigation_bar.dart';
+import 'package:study_group_front_end/util/color_converters.dart';
 
 class StudiesScreen extends StatefulWidget {
   const StudiesScreen({super.key});
@@ -27,12 +28,24 @@ class _StudyScreenState extends State<StudiesScreen> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: const Row(
-          children: [
-            Icon(Icons.school, color: Colors.indigo),
-            SizedBox(width: 8),
-            Text("Sync Mate"),
-          ],
+        title: Padding(
+          padding: const EdgeInsets.fromLTRB(5,0,8,0),
+          child: Row(
+            crossAxisAlignment: CrossAxisAlignment.end,
+            children: [
+              Image.asset(
+                'assets/logo/owl2.png',
+                height: 40,
+              ),
+              SizedBox(width: 5),
+              Text(
+                "Sync Mate",
+                style: Theme.of(context).textTheme.displayMedium?.copyWith(
+                  color: hexToColor("0xFF1B325E"),
+                ),
+              ),
+            ],
+          ),
         ),
       ),
       body: Padding(
