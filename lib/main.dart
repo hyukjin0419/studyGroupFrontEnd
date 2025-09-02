@@ -68,8 +68,8 @@ Future<void> main() async {
               displayLarge: TextStyle(fontSize: 36, fontWeight: FontWeight.w400),
               displayMedium: TextStyle(fontSize: 20, fontWeight: FontWeight.w400),
               bodyLarge: TextStyle(fontSize: 16, fontWeight: FontWeight.w600),
-              bodyMedium: TextStyle(fontSize: 14, fontWeight: FontWeight.w500),
-              bodySmall: TextStyle(fontSize: 12, fontWeight: FontWeight.w400),
+              bodyMedium: TextStyle(fontSize: 15, fontWeight: FontWeight.w500),
+              bodySmall: TextStyle(fontSize: 14, fontWeight: FontWeight.w400),
             ),
             
             textButtonTheme: TextButtonThemeData(

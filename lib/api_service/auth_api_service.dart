@@ -1,4 +1,5 @@
 import 'dart:convert';
+import 'dart:developer';
 
 import 'package:study_group_front_end/dto/member/login/member_login_request.dart';
 import 'package:study_group_front_end/dto/member/login/member_login_response.dart';
@@ -33,7 +34,9 @@ class AuthApiService extends BaseApiService {
     if (response.statusCode == 200) {
       return MemberLoginResponse.fromJson(jsonDecode(response.body));
     } else {
-      throw Exception('login failed: ${response.statusCode}');
+      final body = jsonDecode(response.body);
+      final message = body['message'];
+      throw Exception(message);
     }
   }
 
