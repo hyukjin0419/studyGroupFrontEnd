@@ -69,8 +69,8 @@ class _StudyScreenState extends State<StudiesScreen> {
               itemBuilder: (context, index) {
                 final study = studies[index];
                 return StudyCard(
-                    key: ValueKey(study.id),
-                    study: study
+                  key: ValueKey(study.id),
+                  study: study
                 );
               },
               onReorder: (oldIndex, newIndex) {
@@ -91,12 +91,25 @@ class _StudyScreenState extends State<StudiesScreen> {
           }
         ),
       ),
-      floatingActionButton: FloatingActionButton(
-        onPressed: () => showDialog(
-          context: context,
-          builder: (_) => const FloatingMenuOverlay(),
+      floatingActionButton: SizedBox(
+        height: 50,
+        width: 50,
+        child: FloatingActionButton(
+          onPressed: () => showDialog(
+            context: context,
+            builder: (_) => const FloatingMenuOverlay(),
+          ),
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(12),
+          ),
+          elevation: 0,
+          backgroundColor: hexToColor("0xFF93DAF8"),
+          foregroundColor: Colors.white,
+          child: Icon(
+            Icons.add_rounded,
+            size: 38,
+          ),
         ),
-        child: const Icon(Icons.add),
       ),
       //skin
       bottomNavigationBar: CustomBottomNavigationBar(

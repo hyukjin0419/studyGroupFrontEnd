@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import 'package:study_group_front_end/screens/study/widgets/dialog/create_study_dialog.dart';
+import 'package:study_group_front_end/util/color_converters.dart';
 
 class FloatingMenuOverlay extends StatelessWidget {
   const FloatingMenuOverlay({super.key});
@@ -56,9 +57,22 @@ class FloatingMenuOverlay extends StatelessWidget {
                   },
                 ),
                 const SizedBox(height: 8),
-                FloatingActionButton(
-                  onPressed: () => Navigator.of(context).pop(),
-                  child: const Icon(Icons.close),
+                SizedBox(
+                  height: 50,
+                  width: 50,
+                  child: FloatingActionButton(
+                    onPressed: () => Navigator.of(context).pop(),
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(12),
+                    ),
+                    elevation: 0,
+                    backgroundColor: hexToColor("0xFF93DAF8"),
+                    foregroundColor: Colors.white,
+                    child: const Icon(
+                      Icons.close_rounded,
+                      size: 38,
+                    ),
+                  ),
                 )
               ],
             ),
