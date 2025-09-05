@@ -64,18 +64,20 @@ class CalendarCard extends StatelessWidget {
               tablePadding: EdgeInsets.only(top: 20),
               isTodayHighlighted: true,
               outsideDaysVisible: true,
-              defaultDecoration: const BoxDecoration(shape: BoxShape.rectangle),
+
+              defaultDecoration: BoxDecoration(
+                  borderRadius: BorderRadius.circular(3),
+              ),
               todayDecoration: BoxDecoration(
-                shape: BoxShape.rectangle,
                 border: Border.all(color: scheme.primary),
                 borderRadius: BorderRadius.circular(3),
               ),
               todayTextStyle: Theme.of(context).textTheme.titleSmall!.copyWith(color: scheme.onSurfaceVariant.withOpacity(0.5)),
               selectedDecoration: BoxDecoration(
                 color: scheme.primary,
-                shape: BoxShape.rectangle,
                 borderRadius: BorderRadius.circular(3),
               ),
+
               cellMargin: const EdgeInsets.all(12),
               cellPadding: EdgeInsets.zero,
               outsideTextStyle: Theme.of(context).textTheme.titleSmall!.copyWith(color: scheme.onSurfaceVariant.withOpacity(0.5)),

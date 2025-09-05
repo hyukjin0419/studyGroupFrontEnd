@@ -35,7 +35,6 @@ class _CreateStudyDialogState extends State<CreateStudyDialog> {
 
     final request = StudyCreateRequest(
       name: name,
-      description: description,
       color: color,
       dueDate: dueDate,
     );

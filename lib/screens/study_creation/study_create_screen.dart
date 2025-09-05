@@ -1,7 +1,11 @@
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
+import 'package:study_group_front_end/dto/study/create/study_create_request.dart';
+import 'package:study_group_front_end/providers/study_provider.dart';
 import 'package:study_group_front_end/screens/study_creation/widgets/calendar_card.dart';
 import 'package:study_group_front_end/screens/study_creation/widgets/color_picker_sheet.dart';
 import 'package:study_group_front_end/screens/study_creation/widgets/input_decoration_(test%20for%20textfield).dart';
+import 'package:study_group_front_end/util/color_converters.dart';
 import 'package:study_group_front_end/util/formatKoreanDate.dart';
 
 class CreateStudyScreen extends StatefulWidget {
@@ -111,6 +115,7 @@ class _CreateStudyScreenState extends State<CreateStudyScreen> {
               ),
             ),
 
+            //달력
             AnimatedCrossFade(
               crossFadeState: _calendarOpen
                   ? CrossFadeState.showFirst
@@ -148,7 +153,7 @@ class _CreateStudyScreenState extends State<CreateStudyScreen> {
                 width: double.infinity,
                 height: 48,
                 child: FilledButton(
-                  onPressed: _isLoading ? null : _submit,
+                  onPressed: _isLoading ? null : _createStudy,
                   style: FilledButton.styleFrom(
                     shape: RoundedRectangleBorder(
                       borderRadius: BorderRadius.circular(8),
@@ -185,22 +190,26 @@ class _CreateStudyScreenState extends State<CreateStudyScreen> {
     }
   }
 
-  Future<void> _submit() async {
+  Future<void> _createStudy() async {
     if (!_formKey.currentState!.validate()) return;
-    if (_selectedDate == null) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('마감일을 선택해주세요.')),
-      );
-      return;
-    }
+
     setState(() => _isLoading = true);
     try {
-      // TODO: 실제 API 호출
+      final request = StudyCreateRequest(
+        name: _controller.text.trim(),
+        color: colorToHex(_selectedColor),
+        dueDate: _selectedDate
+      );
+
+      final provider = context.read<StudyProvider>();
+      await provider.createStudy(request);
+
+      //test용으로 넣어보자 -> ux 어떻게 느껴지는지
       await Future<void>.delayed(const Duration(milliseconds: 500));
       if (!mounted) return;
       ScaffoldMessenger.of(context)
           .showSnackBar(const SnackBar(content: Text('팀이 생성되었습니다.')));
-      Navigator.of(context).pop(/* result */);
+      Navigator.of(context).pop();
     } catch (e) {
       if (!mounted) return;
       ScaffoldMessenger.of(context)
