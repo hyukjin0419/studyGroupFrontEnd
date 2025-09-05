@@ -4,6 +4,7 @@ import 'package:provider/provider.dart';
 import 'package:study_group_front_end/dto/study_member/fellower/study_join_request.dart';
 import 'package:study_group_front_end/providers/study_join_provider.dart';
 import 'package:study_group_front_end/providers/study_provider.dart';
+import 'package:study_group_front_end/screens/study_creation/widgets/input_decoration_(test%20for%20textfield).dart';
 import 'package:study_group_front_end/util/qr_scanner.dart';
 
 class StudyJoinScreenWithQr extends StatefulWidget {
@@ -20,7 +21,10 @@ class _StudyJoinScreenWithQrState extends State<StudyJoinScreenWithQr>{
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: const Text("팀 참여하기"),
+        title: Text(
+          "팀 참여하기",
+          style: Theme.of(context).textTheme.displayMedium,
+        ),
       ),
       body: Padding(
         padding: const EdgeInsets.all(16),
@@ -28,24 +32,38 @@ class _StudyJoinScreenWithQrState extends State<StudyJoinScreenWithQr>{
           children: [
             TextField(
               controller: _codeController,
-              decoration: InputDecoration(
-                hintText: "참여코드를 입력해주세요.",
-                suffixIcon: IconButton(
-                  icon: const Icon(Icons.qr_code_scanner),
-                  onPressed: (){
-                    _scanAndFillCode();
-                  },
-                ),
-                border: const OutlineInputBorder(),
-              ),
-            ),
+              style: Theme.of(context).textTheme.bodyLarge,
+              decoration:
+                fieldDecoration(
+                  context,
+                  label: "qr코드를 스캔하면 참여코드가 입력됩니다.",
+                  suffix: IconButton(
+                    icon: const Icon(Icons.qr_code_scanner),
+                    onPressed: (){
+                      _scanAndFillCode();
+                    },
+                  ),
+              // InputDecoration(
+              //   hintText: "참여코드를 입력해주세요.",
+              //   suffixIcon: IconButton(
+              //     icon: const Icon(Icons.qr_code_scanner),
+              //     onPressed: (){
+              //       _scanAndFillCode();
+              //     },
+              //   ),
+              //   border: const OutlineInputBorder(),
+              // ),
+            ),),
             const SizedBox(height: 16),
             SizedBox(
               width: double.infinity,
               height: 48,
               child: FilledButton(
                   onPressed: _submitJoinCode,
-                  child: const Text("확인"),
+                  child: Text(
+                    "확인",
+                    style: Theme.of(context).textTheme.bodyLarge!.copyWith(color:Colors.white),
+                  ),
               ),
             ),
           ],

@@ -89,6 +89,14 @@ Future<void> main() async {
               ),
             ),
 
+            filledButtonTheme: FilledButtonThemeData(
+              style: FilledButton.styleFrom(
+                shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(8),
+                ),
+                minimumSize: const Size.fromHeight(48),
+              ),
+            ),
           ),
         )
       )
