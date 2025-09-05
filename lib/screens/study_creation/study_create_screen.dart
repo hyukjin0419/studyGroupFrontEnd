@@ -115,7 +115,7 @@ class _CreateStudyScreenState extends State<CreateStudyScreen> {
               crossFadeState: _calendarOpen
                   ? CrossFadeState.showFirst
                   : CrossFadeState.showSecond,
-              duration: const Duration(milliseconds: 220),
+              duration: const Duration(milliseconds: 320),
               firstChild: Padding(
                 padding: const EdgeInsets.symmetric(horizontal: 20),
                 child: CalendarCard(

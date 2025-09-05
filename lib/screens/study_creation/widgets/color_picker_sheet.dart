@@ -1,5 +1,8 @@
 import 'package:flutter/material.dart';
+import 'package:material_symbols_icons/material_symbols_icons.dart';
 import 'package:study_group_front_end/util/Palette.dart';
+import 'package:study_group_front_end/util/color_converters.dart';
+
 
 class ColorPickerSheet extends StatelessWidget {
   const ColorPickerSheet({
@@ -47,6 +50,7 @@ class ColorPickerSheet extends StatelessWidget {
                       borderRadius: BorderRadius.circular(15),
                       onTap: () => Navigator.of(context).pop<Color>(color),
                       child: Stack(
+                        clipBehavior: Clip.none,
                         children: [
                           Container(
                             decoration: BoxDecoration(
@@ -55,12 +59,20 @@ class ColorPickerSheet extends StatelessWidget {
                             ),
                           ),
                           if (isSelected)
-                            const Positioned(
-                              top: 6,
-                              left: 6,
+                            Positioned(
+                              top: -5,
+                              right: -5,
                               child: CircleAvatar(
-                                radius: 10,
-                                child: Icon(Icons.check, size: 14),
+                                radius: 12,
+                                backgroundColor: hexToColor("0xFF1E955E"),
+                                child: const Icon(
+                                  Symbols.check_rounded,
+                                  weight: 600,
+                                  grade: 100,
+                                  opticalSize: 24,
+                                  size: 18,
+                                  color: Colors.white,
+                                ),
                               ),
                             ),
                         ],
