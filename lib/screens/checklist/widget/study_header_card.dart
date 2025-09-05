@@ -36,7 +36,7 @@ class StudyHeaderCard extends StatelessWidget {
                   Expanded(
                     child: Text(
                       study.name,
-                      style: Theme.of(context).textTheme.titleMedium,
+                      style: Theme.of(context).textTheme.displayMedium,
                       maxLines: 1,
                       overflow: TextOverflow.ellipsis,
                     ),
@@ -56,11 +56,15 @@ class StudyHeaderCard extends StatelessWidget {
                       value: study.progress,
                       color: color,
                       backgroundColor: Colors.grey[60],
-                      minHeight: 8,
+                      minHeight: 15,
                       borderRadius: BorderRadius.circular(8),
                     ),
                   ),
-                  Text('${(study.progress * 100).round()}%', style: const TextStyle(color: Colors.black87, fontSize: 12)),
+                  const SizedBox(width: 17),
+                  Text(
+                    '${(study.progress * 100).round()}%',
+                    style: Theme.of(context).textTheme.bodyMedium,
+                  ),
                 ],
               ),
               const SizedBox(height: 8),
@@ -71,20 +75,29 @@ class StudyHeaderCard extends StatelessWidget {
                 children: [
                   Text(
                     "D-${dDay > 0 ? dDay : 0}",
-                    style: Theme.of(context).textTheme.bodySmall,
+                    style: Theme.of(context).textTheme.bodyMedium,
                   ),
                   Text(
-                    study.status ?? "미정",
-                    style: Theme.of(context)
-                      .textTheme
-                      .bodySmall
+                    statusConverter(study.status) ?? "미정",
+                    style: Theme.of(context).textTheme.bodyMedium
                   ),
                 ],
               )
             ],
           ),
         )
-            ),
+        ),
       );
+  }
+}
+
+String statusConverter(String? status) {
+  switch (status) {
+    case 'PROGRESSING':
+      return '진행중';
+    case 'DONE':
+      return '완료';
+    default:
+      return '미정';
   }
 }

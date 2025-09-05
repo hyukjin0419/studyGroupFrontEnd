@@ -41,6 +41,7 @@ class CalendarCard extends StatelessWidget {
             onPageChanged: onPageChanged,
             startingDayOfWeek: StartingDayOfWeek.sunday,
             availableGestures: AvailableGestures.horizontalSwipe,
+
             headerStyle: HeaderStyle(
               formatButtonVisible: false,
               titleCentered: true,
@@ -60,6 +61,7 @@ class CalendarCard extends StatelessWidget {
               weekdayStyle: Theme.of(context).textTheme.titleSmall!,
               weekendStyle: Theme.of(context).textTheme.titleSmall!.copyWith(color: Colors.redAccent),
             ),
+            
             calendarStyle: CalendarStyle(
               tablePadding: EdgeInsets.only(top: 20),
               isTodayHighlighted: true,

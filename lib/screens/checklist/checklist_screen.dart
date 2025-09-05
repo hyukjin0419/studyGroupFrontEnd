@@ -43,8 +43,14 @@ class _ChecklistScreenState extends State<ChecklistScreen> {
     final provider = context.watch<ChecklistItemProvider>();
     return Scaffold(
       appBar: AppBar(
-        title: const Text('캡스톤시각디자인2'),
-        leading: const BackButton(),
+        title: Text(
+          widget.study.name,
+          style: Theme.of(context).textTheme.bodyLarge!,
+        ),
+        leading: IconButton(
+          icon: const Icon(Icons.arrow_back),
+          onPressed: () => Navigator.of(context).maybePop(),
+        ),
       ),
       body: Column(
         crossAxisAlignment: CrossAxisAlignment.start,

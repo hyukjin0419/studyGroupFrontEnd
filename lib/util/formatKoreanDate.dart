@@ -6,3 +6,7 @@ String formatKoreanDate(DateTime d) {
   final ymd = DateFormat('yyyy-MM-dd', 'ko_KR').format(d);
   return '$ymd (${dows[d.weekday-1]})';
 }
+
+String formatKoreanMonth(DateTime day) {
+  return DateFormat("yyyy년 M월").format(day);
+}
