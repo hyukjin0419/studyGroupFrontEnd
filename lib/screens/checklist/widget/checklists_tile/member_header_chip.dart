@@ -31,20 +31,20 @@ class MemberHeaderChip extends StatelessWidget {
           mainAxisSize: MainAxisSize.min,
           children: [
             Text(name,
-              style: TextStyle(
+              style: Theme.of(context).textTheme.titleSmall!.copyWith(
                 color: Colors.white,
-                fontWeight: FontWeight.w600,
+                fontWeight: FontWeight.w500,
               ),
             ),
             const SizedBox(width: 6),
             Container(
               padding: const EdgeInsets.fromLTRB(0,0,0,2),
               child: Text('+',
-                  style: TextStyle(
-                    color: Colors.white,
-                    fontSize: 15,
-                    fontWeight: FontWeight.w600,
-                  )
+                style: Theme.of(context).textTheme.titleSmall!.copyWith(
+                  color: Colors.white,
+                  fontWeight: FontWeight.w500,
+                  fontSize: 17,
+                ),
               ),
             ),
           ],
