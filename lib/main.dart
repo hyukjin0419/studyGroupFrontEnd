@@ -1,5 +1,6 @@
 import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:intl/date_symbol_data_local.dart';
 import 'package:provider/provider.dart';
 import 'package:study_group_front_end/api_service/auth_api_service.dart';
@@ -20,6 +21,9 @@ import 'package:study_group_front_end/util/color_converters.dart';
 Future<void> main() async {
   //비동기 작업 전에 Flutter 프레임워크 초기화 보장 -> 원래는 runApp에서 자동 초기화 되는데, 그 전에 초기화 해주어야해서
   WidgetsFlutterBinding.ensureInitialized();
+  await SystemChrome.setPreferredOrientations(
+    [DeviceOrientation.portraitUp],
+  );
 
   await Firebase.initializeApp(options: DefaultFirebaseOptions.currentPlatform);
 
@@ -62,6 +66,8 @@ Future<void> main() async {
             colorScheme: ColorScheme.fromSeed(
               seedColor: Color(0xFF73B4E3),
               brightness: Brightness.light,
+            ).copyWith(
+              primary: const Color(0xFF73B4E3),
             ),
 
             textTheme: const TextTheme(
@@ -70,6 +76,7 @@ Future<void> main() async {
               bodyLarge: TextStyle(fontSize: 16, fontWeight: FontWeight.w600),
               bodyMedium: TextStyle(fontSize: 15, fontWeight: FontWeight.w500),
               bodySmall: TextStyle(fontSize: 14, fontWeight: FontWeight.w400),
+              titleSmall: TextStyle(fontSize: 16, fontWeight: FontWeight.w300),
             ),
             
             textButtonTheme: TextButtonThemeData(

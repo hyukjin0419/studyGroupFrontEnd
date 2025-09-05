@@ -10,6 +10,7 @@ import 'package:study_group_front_end/screens/study/studies_screen.dart';
 import 'package:study_group_front_end/screens/study/study_detail_screen.dart';
 import 'package:study_group_front_end/screens/study/study_invitation_screen.dart';
 import 'package:study_group_front_end/screens/study/study_join_screen_with_qr.dart';
+import 'package:study_group_front_end/screens/study_creation/study_create_screen.dart';
 import 'package:study_group_front_end/util/navigator_key.dart';
 
 final GoRouter router = GoRouter(
@@ -48,6 +49,10 @@ final GoRouter router = GoRouter(
       path: '/studies',
       builder: (context, state) => const StudiesScreen(),
     ),
+  GoRoute(
+    path: '/studies/create',
+    builder: (context, state) => CreateStudyScreen(),
+  ),
     GoRoute(
       path: '/studies/:id',
       builder: (context, state) {

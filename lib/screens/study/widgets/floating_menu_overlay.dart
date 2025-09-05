@@ -33,10 +33,7 @@ class FloatingMenuOverlay extends StatelessWidget {
                     label: const Text("팀 생성하기"),
                     onPressed: (){
                       Navigator.of(context).pop();
-                      showDialog(
-                          context: context,
-                          builder: (_) => const CreateStudyDialog(),
-                      );
+                      context.push('/studies/create');
                     },
                 ),
                 const SizedBox(height: 8),

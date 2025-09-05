@@ -138,7 +138,7 @@ class _WeeklyCalendarState extends State<WeeklyCalendar> {
         });
       },
       headerVisible: false,
-      startingDayOfWeek: StartingDayOfWeek.monday,
+      startingDayOfWeek: StartingDayOfWeek.sunday,
       calendarStyle: CalendarStyle(
         cellMargin: const EdgeInsets.fromLTRB(15, 10, 15, 10),
         todayDecoration: BoxDecoration(
