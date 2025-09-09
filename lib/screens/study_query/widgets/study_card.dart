@@ -8,7 +8,6 @@ import 'package:study_group_front_end/providers/study_provider.dart';
 import 'package:study_group_front_end/dto/study/detail/study_detail_response.dart';
 import 'package:study_group_front_end/dto/study/update/study_update_request.dart';
 import 'package:study_group_front_end/screens/study_query/widgets/dialog/study_join_code_qr_dialog.dart';
-import 'package:study_group_front_end/screens/study_query//widgets/dialog/update_study_dialog.dart';
 import 'package:study_group_front_end/util/color_converters.dart';
 import 'package:study_group_front_end/widgets/common_bottom_sheet.dart';
 
@@ -121,17 +120,13 @@ class StudyCard extends StatelessWidget {
               text: '수정',
               onTap: () {
                 log('수정 클릭',name: 'StudyCard');
-                showDialog(
-                  context: context,
-                  builder: (_) => UpdateStudyDialog(
-                    // studyId: study.id,
-                    initialData: StudyUpdateRequest(
-                      studyId: study.id,
-                      name: study.name,
-                      description: study.description,
-                      personalColor: study.personalColor,
-                      dueDate: study.dueDate,
-                    ),
+                context.push(
+                  '/studies/${study.id}/update',
+                  extra: StudyUpdateRequest(
+                    studyId: study.id,
+                    name: study.name,
+                    personalColor: study.personalColor,
+                    dueDate: study.dueDate,
                   ),
                 );
               }

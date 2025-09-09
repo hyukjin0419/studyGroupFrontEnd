@@ -9,7 +9,7 @@ class StudyUpdateRequest {
   StudyUpdateRequest({
     required this.studyId,
     required this.name,
-    required this.description,
+    this.description = "version1",
     required this.personalColor,
     this.dueDate,
   });

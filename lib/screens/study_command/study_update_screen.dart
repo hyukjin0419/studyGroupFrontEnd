@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
-import 'package:study_group_front_end/dto/study/create/study_create_request.dart';
+import 'package:study_group_front_end/dto/study/update/study_update_request.dart';
 import 'package:study_group_front_end/providers/study_provider.dart';
 import 'package:study_group_front_end/screens/study_command/widgets/calendar_card.dart';
 import 'package:study_group_front_end/screens/study_command/widgets/color_picker_sheet.dart';
@@ -8,15 +8,21 @@ import 'package:study_group_front_end/screens/study_command/widgets/input_decora
 import 'package:study_group_front_end/util/color_converters.dart';
 import 'package:study_group_front_end/util/formatKoreanDate.dart';
 
-class StudyCreateScreen extends StatefulWidget {
-  const StudyCreateScreen({super.key});
+class StudyUpdateScreen extends StatefulWidget {
+  final StudyUpdateRequest initialData;
+
+  const StudyUpdateScreen({
+    super.key,
+    required this.initialData,
+  });
+
   @override
-  State<StudyCreateScreen> createState() => _StudyCreateScreenState();
+  State<StudyUpdateScreen> createState() => _StudyUpdateScreenState();
 }
 
-class _StudyCreateScreenState extends State<StudyCreateScreen> {
+class _StudyUpdateScreenState extends State<StudyUpdateScreen> {
   final _formKey = GlobalKey<FormState>();
-  final _controller = TextEditingController();
+  late final TextEditingController _controller;
   bool _isLoading = false;
 
   // 날짜/달력 상태
@@ -25,8 +31,15 @@ class _StudyCreateScreenState extends State<StudyCreateScreen> {
   bool _calendarOpen = false;
 
   // 색상 상태
-  Color _selectedColor = const Color(0xFFF28B82);
+  late Color _selectedColor;
 
+  @override
+  void initState() {
+    super.initState();
+    _selectedDate = widget.initialData.dueDate;
+    _selectedColor = hexToColor(widget.initialData.personalColor);
+    _controller = TextEditingController(text: widget.initialData.name);
+  }
 
   @override
   void dispose() {
@@ -39,8 +52,8 @@ class _StudyCreateScreenState extends State<StudyCreateScreen> {
     return Scaffold(
       appBar: AppBar(
         title: Text(
-          '팀 생성하기',
-            style: Theme.of(context).textTheme.displayMedium,
+          '팀 수정하기',
+          style: Theme.of(context).textTheme.displayMedium,
         ),
         leading: IconButton(
           icon: const Icon(Icons.arrow_back),
@@ -62,7 +75,7 @@ class _StudyCreateScreenState extends State<StudyCreateScreen> {
                       textInputAction: TextInputAction.next,
                       decoration: fieldDecoration(
                         context,
-                        label: '팀 이름을 생성해주세요.',
+                        label: '팀 이름을 수정해주세요.',
                         suffix: InkWell(
                           onTap: _openColorPicker,
                           borderRadius: BorderRadius.circular(8),
@@ -153,7 +166,7 @@ class _StudyCreateScreenState extends State<StudyCreateScreen> {
                 width: double.infinity,
                 height: 48,
                 child: FilledButton(
-                  onPressed: _isLoading ? null : _createStudy,
+                  onPressed: _isLoading ? null : _updateStudy,
                   style: FilledButton.styleFrom(
                     shape: RoundedRectangleBorder(
                       borderRadius: BorderRadius.circular(8),
@@ -161,12 +174,12 @@ class _StudyCreateScreenState extends State<StudyCreateScreen> {
                   ),
                   child: _isLoading
                       ? const SizedBox(
-                        width: 20, height: 20, child: CircularProgressIndicator(strokeWidth: 2),
-                      )
+                    width: 20, height: 20, child: CircularProgressIndicator(strokeWidth: 2),
+                  )
                       : Text(
-                        '생성',
-                        style: Theme.of(context).textTheme.bodyLarge!.copyWith(color:Colors.white),
-                      ),
+                    '생성',
+                    style: Theme.of(context).textTheme.bodyLarge!.copyWith(color:Colors.white),
+                  ),
                 ),
               ),
             ),
@@ -190,19 +203,20 @@ class _StudyCreateScreenState extends State<StudyCreateScreen> {
     }
   }
 
-  Future<void> _createStudy() async {
+  Future<void> _updateStudy() async {
     if (!_formKey.currentState!.validate()) return;
 
     setState(() => _isLoading = true);
     try {
-      final request = StudyCreateRequest(
+      final request = StudyUpdateRequest(
+        studyId: widget.initialData.studyId,
         name: _controller.text.trim(),
-        color: colorToHex(_selectedColor),
+        personalColor: colorToHex(_selectedColor),
         dueDate: _selectedDate
       );
 
       final provider = context.read<StudyProvider>();
-      await provider.createStudy(request);
+      await provider.updateStudy(request);
 
       //test용으로 넣어보자 -> ux 어떻게 느껴지는지
       await Future<void>.delayed(const Duration(milliseconds: 500));
@@ -218,6 +232,5 @@ class _StudyCreateScreenState extends State<StudyCreateScreen> {
       if (mounted) setState(() => _isLoading = false);
     }
   }
-
 }
 
