@@ -7,6 +7,7 @@ import 'package:provider/provider.dart';
 import 'package:study_group_front_end/api_service/Auth/token_manager.dart';
 import 'package:study_group_front_end/dto/member/login/member_login_request.dart';
 import 'package:study_group_front_end/providers/me_provider.dart';
+import 'package:study_group_front_end/snack_bar/show_error_snackbar.dart';
 import 'package:study_group_front_end/util/color_converters.dart';
 
 class LoginScreen extends StatefulWidget {
@@ -203,9 +204,10 @@ class _LoginScreenState extends State<LoginScreen> {
       }
 
       print("error: $errorMessage");
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text(errorMessage)),
-      );
+      if(mounted) {
+        showErrorSnackBar(
+            context, "다시 확인해 주세요.", errorMessage);
+      }
     } finally {
       if (mounted) setState(() => _isLoading = false);
     }

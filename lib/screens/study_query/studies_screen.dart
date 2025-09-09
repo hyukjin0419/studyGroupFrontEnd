@@ -2,8 +2,8 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:reorderable_grid_view/reorderable_grid_view.dart';
 import 'package:study_group_front_end/providers/study_provider.dart';
-import 'package:study_group_front_end/screens/study/widgets/floating_menu_overlay.dart';
-import 'package:study_group_front_end/screens/study/widgets/study_card.dart';
+import 'package:study_group_front_end/screens/study_query/widgets/floating_menu_overlay.dart';
+import 'package:study_group_front_end/screens/study_query/widgets/study_card.dart';
 import 'package:study_group_front_end/screens/widgets/custom_bottom_navigation_bar.dart';
 import 'package:study_group_front_end/util/color_converters.dart';
 

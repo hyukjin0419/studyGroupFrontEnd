@@ -2,9 +2,9 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:study_group_front_end/dto/study/create/study_create_request.dart';
 import 'package:study_group_front_end/providers/study_provider.dart';
-import 'package:study_group_front_end/screens/study_creation/widgets/calendar_card.dart';
-import 'package:study_group_front_end/screens/study_creation/widgets/color_picker_sheet.dart';
-import 'package:study_group_front_end/screens/study_creation/widgets/input_decoration_(test%20for%20textfield).dart';
+import 'package:study_group_front_end/screens/study_command/widgets/calendar_card.dart';
+import 'package:study_group_front_end/screens/study_command/widgets/color_picker_sheet.dart';
+import 'package:study_group_front_end/screens/study_command/widgets/input_decoration.dart';
 import 'package:study_group_front_end/util/color_converters.dart';
 import 'package:study_group_front_end/util/formatKoreanDate.dart';
 

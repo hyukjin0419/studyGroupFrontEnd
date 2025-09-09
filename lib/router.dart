@@ -6,11 +6,11 @@ import 'package:study_group_front_end/providers/me_provider.dart';
 import 'package:study_group_front_end/screens/checklist/checklist_screen.dart';
 import 'package:study_group_front_end/screens/login_screen.dart';
 import 'package:study_group_front_end/screens/sign_up_screen.dart';
-import 'package:study_group_front_end/screens/study/studies_screen.dart';
-import 'package:study_group_front_end/screens/study/study_detail_screen.dart';
-import 'package:study_group_front_end/screens/study/study_invitation_screen.dart';
-import 'package:study_group_front_end/screens/study/study_join_screen_with_qr.dart';
-import 'package:study_group_front_end/screens/study_creation/study_create_screen.dart';
+import 'package:study_group_front_end/screens/study_query/studies_screen.dart';
+import 'package:study_group_front_end/screens/study_query/study_detail_screen.dart';
+import 'package:study_group_front_end/screens/study_query/study_invitation_screen.dart';
+import 'package:study_group_front_end/screens/study_query/study_join_screen_with_qr.dart';
+import 'package:study_group_front_end/screens/study_command/study_create_screen.dart';
 import 'package:study_group_front_end/util/navigator_key.dart';
 
 final GoRouter router = GoRouter(

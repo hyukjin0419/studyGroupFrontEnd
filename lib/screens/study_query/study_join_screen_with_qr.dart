@@ -4,7 +4,7 @@ import 'package:provider/provider.dart';
 import 'package:study_group_front_end/dto/study_member/fellower/study_join_request.dart';
 import 'package:study_group_front_end/providers/study_join_provider.dart';
 import 'package:study_group_front_end/providers/study_provider.dart';
-import 'package:study_group_front_end/screens/study_creation/widgets/input_decoration_(test%20for%20textfield).dart';
+import 'package:study_group_front_end/screens/study_command/widgets/input_decoration.dart';
 import 'package:study_group_front_end/util/qr_scanner.dart';
 
 class StudyJoinScreenWithQr extends StatefulWidget {

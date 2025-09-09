@@ -7,8 +7,8 @@ import 'package:study_group_front_end/providers/me_provider.dart';
 import 'package:study_group_front_end/providers/study_provider.dart';
 import 'package:study_group_front_end/dto/study/detail/study_detail_response.dart';
 import 'package:study_group_front_end/dto/study/update/study_update_request.dart';
-import 'package:study_group_front_end/screens/study/widgets/dialog/study_join_code_qr_dialog.dart';
-import 'package:study_group_front_end/screens/study/widgets/dialog/update_study_dialog.dart';
+import 'package:study_group_front_end/screens/study_query/widgets/dialog/study_join_code_qr_dialog.dart';
+import 'package:study_group_front_end/screens/study_query//widgets/dialog/update_study_dialog.dart';
 import 'package:study_group_front_end/util/color_converters.dart';
 import 'package:study_group_front_end/widgets/common_bottom_sheet.dart';
 
