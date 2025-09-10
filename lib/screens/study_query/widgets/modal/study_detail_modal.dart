@@ -47,7 +47,7 @@ Future<void> showStudyDetailModal({
                   textAlign: TextAlign.center,
                 ),
               ),
-              const SizedBox(height: 12),
+              const SizedBox(height: 20),
 
               //body
               Container(
@@ -167,7 +167,6 @@ Widget _buildLabelAndChips(BuildContext context, String label, String color, Lis
 
 Widget _buildInviteCodeRow(BuildContext context, String inviteCode) {
   return Row(
-    mainAxisAlignment: MainAxisAlignment.spaceBetween,
     crossAxisAlignment: CrossAxisAlignment.center,
       children: [
         Expanded(
@@ -178,6 +177,7 @@ Widget _buildInviteCodeRow(BuildContext context, String inviteCode) {
             style: Theme.of(context).textTheme.bodyLarge,
           ),
         ),
+        SizedBox(width: 30),
         IconButton(
           onPressed: (){
             showDialog(
@@ -187,7 +187,7 @@ Widget _buildInviteCodeRow(BuildContext context, String inviteCode) {
           },
           visualDensity: VisualDensity.compact,
           padding: EdgeInsets.zero,
-          icon: const Icon(Icons.qr_code_scanner, size: 20,)
+          icon: const Icon(Icons.qr_code, size: 20,)
         ),
       ],
   );
