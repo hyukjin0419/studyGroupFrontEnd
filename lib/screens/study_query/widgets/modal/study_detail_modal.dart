@@ -31,7 +31,6 @@ Future<void> showStudyDetailModal({
         borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
       ),
       builder: (context) {
-        final color = hexToColor(study.personalColor);
         return Padding(
           padding: const EdgeInsets.fromLTRB(16, 8, 16, 16),
           child: Column(
@@ -111,7 +110,6 @@ Future<void> showStudyDetailModal({
                   Navigator.of(context).pop();
                 },
                 onDeletePressed: () {
-                  //Todo: 스터디 삭제 로직
                   _confirmAndDeleteStudy(context, study.id, study.personalColor);
                 },
                 onLeavePressed: () {
@@ -226,14 +224,16 @@ Widget _buildModalFooter({
 
 
 Future<void> _confirmAndDeleteStudy(BuildContext context, int studyId, String color) async {
-  final confirmed = showConfirmationDialog(
+  final confirmed = await showConfirmationDialog(
     context: context,
     title: "정말 삭제 하시겠어요?",
     description: "삭제한 팀 프로젝트는 모든 내용이 지워지고\n 그 후로는 복구가 어렵습니다.",
     confirmColor: hexToColor(color),
   );
 
-  if (confirmed == true) return;
+  log("confirm: $confirmed");
+
+  if (confirmed != true) return;
 
   try {
     await context.read<StudyProvider>().deleteStudy(studyId);

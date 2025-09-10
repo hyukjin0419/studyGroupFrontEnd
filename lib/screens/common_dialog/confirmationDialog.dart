@@ -49,7 +49,6 @@ Future<bool?> showConfirmationDialog({
               ),
             ),
             const SizedBox(width: 12),
-            // 확인 버튼 (색상 있는 배경 + radius 10)
             Expanded(
               child: ElevatedButton(
                 style: ElevatedButton.styleFrom(
