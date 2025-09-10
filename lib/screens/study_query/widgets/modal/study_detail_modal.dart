@@ -1,8 +1,11 @@
+import 'dart:developer';
+
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import 'package:provider/provider.dart';
 import 'package:study_group_front_end/dto/study/detail/study_detail_response.dart';
 import 'package:study_group_front_end/providers/me_provider.dart';
+import 'package:study_group_front_end/providers/study_provider.dart';
 import 'package:study_group_front_end/screens/checklist/widget/bottom_sheet/show_checklist_item_options_bottom_sheet.dart';
 import 'package:study_group_front_end/screens/study_query/widgets/dialog/study_join_code_qr_dialog.dart';
 import 'package:study_group_front_end/screens/study_query/widgets/modal/member_chip.dart';
@@ -99,15 +102,16 @@ Future<void> showStudyDetailModal({
 
               //footer
               _buildModalFooter(
-                isLeader: study.leaderId == currentUserId,
+                //Todo: 상세정보 보기
+                isLeader: isLeader,
                 onDetailPressed: () {
                   context.push('/studies/${study.id}');
-                  //Todo: 상세정보 보기
+
                   Navigator.of(context).pop();
                 },
                 onDeletePressed: () {
-                  Navigator.of(context).pop();
                   //Todo: 스터디 삭제 로직
+                  _confirmAndDeleteStudy(context, study.id);
                 },
                 onLeavePressed: () {
                   Navigator.of(context).pop();
@@ -219,5 +223,44 @@ Widget _buildModalFooter({
   );
 }
 
+
+Future<void> _confirmAndDeleteStudy(BuildContext context, int studyId) async {
+  log("deleted pressed");
+  final confirmed = await showDialog<bool>(
+    context: context,
+    builder: (_) => AlertDialog(
+      title: const Text('삭제 확인'),
+      content: const Text('정말 이 스터디를 삭제하시겠습니까?'),
+      actions: [
+        TextButton(
+          onPressed: () => Navigator.pop(context, false),
+          child: const Text('취소'),
+        ),
+        ElevatedButton(
+          onPressed: () => Navigator.pop(context, true),
+          child: const Text('삭제'),
+        ),
+      ],
+    ),
+  );
+
+  if (confirmed != true) return;
+
+  try {
+    await context.read<StudyProvider>().deleteStudy(studyId);
+    if (context.mounted) {
+      Navigator.of(context).pop();
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text('스터디가 삭제되었습니다.')),
+      );
+    }
+  } catch (e) {
+    if (context.mounted) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text('삭제 실패: $e')),
+      );
+    }
+  }
+}
 
 
