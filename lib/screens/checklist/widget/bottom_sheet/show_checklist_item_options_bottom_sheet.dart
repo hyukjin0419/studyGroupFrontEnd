@@ -30,17 +30,19 @@ void showChecklistItemOptionsBottomSheet({
                   Row(
                     mainAxisAlignment: MainAxisAlignment.spaceEvenly,
                     children: [
-                      _ActionButton(
+                      ActionButton(
                         icon: Icons.edit,
                         label: '수정',
+                        width: 174,
                         onTap:() {
                           onEdit();
                         }
                       ),
-                      _ActionButton(
+                      ActionButton(
                         icon: Icons.delete,
                         label: '삭제',
                         color: Colors.red,
+                          width: 174,
                         onTap:() {
                           onDelete();
                         }
@@ -55,17 +57,20 @@ void showChecklistItemOptionsBottomSheet({
   );
 }
 
-class _ActionButton extends StatelessWidget {
+class ActionButton extends StatelessWidget {
   final IconData icon;
   final String label;
   final VoidCallback onTap;
   final Color? color;
+  final double? width;
 
-  const _ActionButton({
+  const ActionButton({
+    super.key,
     required this.icon,
     required this.label,
     required this.onTap,
     this.color,
+    this.width,
   });
 
   @override
@@ -75,7 +80,7 @@ class _ActionButton extends StatelessWidget {
       child: Column(
         children: [
           Container(
-            width: 174,
+            width: width ?? double.infinity,
             height: 86,
             decoration: BoxDecoration(
               color: Colors.white,

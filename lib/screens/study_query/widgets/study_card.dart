@@ -8,6 +8,7 @@ import 'package:study_group_front_end/providers/study_provider.dart';
 import 'package:study_group_front_end/dto/study/detail/study_detail_response.dart';
 import 'package:study_group_front_end/dto/study/update/study_update_request.dart';
 import 'package:study_group_front_end/screens/study_query/widgets/dialog/study_join_code_qr_dialog.dart';
+import 'package:study_group_front_end/screens/study_query/widgets/modal/study_detail_modal.dart';
 import 'package:study_group_front_end/util/color_converters.dart';
 import 'package:study_group_front_end/widgets/common_bottom_sheet.dart';
 
@@ -40,7 +41,7 @@ class StudyCard extends StatelessWidget {
                     size: 18,
                   ),
                   onPressed: () {
-                    _showCustomizedModal(context);
+                    showStudyDetailModal(context: context, study: study);
                   },
                 )
               ),

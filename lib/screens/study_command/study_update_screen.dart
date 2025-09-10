@@ -190,6 +190,7 @@ class _StudyUpdateScreenState extends State<StudyUpdateScreen> {
   }
 
   Future<void> _openColorPicker() async {
+    FocusScope.of(context).unfocus();
     final picked = await showModalBottomSheet<Color>(
       context: context,
       showDragHandle: true,
