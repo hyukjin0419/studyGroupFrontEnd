@@ -7,6 +7,7 @@ import 'package:study_group_front_end/dto/study/detail/study_detail_response.dar
 import 'package:study_group_front_end/providers/me_provider.dart';
 import 'package:study_group_front_end/providers/study_provider.dart';
 import 'package:study_group_front_end/screens/checklist/widget/bottom_sheet/show_checklist_item_options_bottom_sheet.dart';
+import 'package:study_group_front_end/screens/common_dialog/confirmationDialog.dart';
 import 'package:study_group_front_end/screens/study_query/widgets/dialog/study_join_code_qr_dialog.dart';
 import 'package:study_group_front_end/screens/study_query/widgets/modal/member_chip.dart';
 import 'package:study_group_front_end/util/color_converters.dart';
@@ -111,7 +112,7 @@ Future<void> showStudyDetailModal({
                 },
                 onDeletePressed: () {
                   //Todo: 스터디 삭제 로직
-                  _confirmAndDeleteStudy(context, study.id);
+                  _confirmAndDeleteStudy(context, study.id, study.personalColor);
                 },
                 onLeavePressed: () {
                   Navigator.of(context).pop();
@@ -224,27 +225,15 @@ Widget _buildModalFooter({
 }
 
 
-Future<void> _confirmAndDeleteStudy(BuildContext context, int studyId) async {
-  log("deleted pressed");
-  final confirmed = await showDialog<bool>(
+Future<void> _confirmAndDeleteStudy(BuildContext context, int studyId, String color) async {
+  final confirmed = showConfirmationDialog(
     context: context,
-    builder: (_) => AlertDialog(
-      title: const Text('삭제 확인'),
-      content: const Text('정말 이 스터디를 삭제하시겠습니까?'),
-      actions: [
-        TextButton(
-          onPressed: () => Navigator.pop(context, false),
-          child: const Text('취소'),
-        ),
-        ElevatedButton(
-          onPressed: () => Navigator.pop(context, true),
-          child: const Text('삭제'),
-        ),
-      ],
-    ),
+    title: "정말 삭제 하시겠어요?",
+    description: "삭제한 팀 프로젝트는 모든 내용이 지워지고\n 그 후로는 복구가 어렵습니다.",
+    confirmColor: hexToColor(color),
   );
 
-  if (confirmed != true) return;
+  if (confirmed == true) return;
 
   try {
     await context.read<StudyProvider>().deleteStudy(studyId);
