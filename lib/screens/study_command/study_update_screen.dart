@@ -177,7 +177,7 @@ class _StudyUpdateScreenState extends State<StudyUpdateScreen> {
                     width: 20, height: 20, child: CircularProgressIndicator(strokeWidth: 2),
                   )
                       : Text(
-                    '생성',
+                    '확인',
                     style: Theme.of(context).textTheme.bodyLarge!.copyWith(color:Colors.white),
                   ),
                 ),
@@ -207,7 +207,6 @@ class _StudyUpdateScreenState extends State<StudyUpdateScreen> {
   Future<void> _updateStudy() async {
     if (!_formKey.currentState!.validate()) return;
 
-    setState(() => _isLoading = true);
     try {
       final request = StudyUpdateRequest(
         studyId: widget.initialData.studyId,
@@ -216,21 +215,20 @@ class _StudyUpdateScreenState extends State<StudyUpdateScreen> {
         dueDate: _selectedDate
       );
 
+      if (!mounted) return;
+      Navigator.of(context).pop();
+
       final provider = context.read<StudyProvider>();
       await provider.updateStudy(request);
 
-      //test용으로 넣어보자 -> ux 어떻게 느껴지는지
-      await Future<void>.delayed(const Duration(milliseconds: 500));
       if (!mounted) return;
       ScaffoldMessenger.of(context)
-          .showSnackBar(const SnackBar(content: Text('팀이 생성되었습니다.')));
+          .showSnackBar(const SnackBar(content: Text('팀이 수정되었습니다.')));
       Navigator.of(context).pop();
     } catch (e) {
       if (!mounted) return;
       ScaffoldMessenger.of(context)
-          .showSnackBar(SnackBar(content: Text('생성 실패: $e')));
-    } finally {
-      if (mounted) setState(() => _isLoading = false);
+          .showSnackBar(SnackBar(content: Text('수정 실패: $e')));
     }
   }
 }

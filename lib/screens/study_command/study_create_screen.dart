@@ -195,7 +195,6 @@ class _StudyCreateScreenState extends State<StudyCreateScreen> {
   Future<void> _createStudy() async {
     if (!_formKey.currentState!.validate()) return;
 
-    setState(() => _isLoading = true);
     try {
       final request = StudyCreateRequest(
         name: _controller.text.trim(),
@@ -203,21 +202,19 @@ class _StudyCreateScreenState extends State<StudyCreateScreen> {
         dueDate: _selectedDate
       );
 
+      if (!mounted) return;
+      Navigator.of(context).pop();
+
       final provider = context.read<StudyProvider>();
       await provider.createStudy(request);
 
-      //test용으로 넣어보자 -> ux 어떻게 느껴지는지
-      await Future<void>.delayed(const Duration(milliseconds: 500));
-      if (!mounted) return;
       ScaffoldMessenger.of(context)
           .showSnackBar(const SnackBar(content: Text('팀이 생성되었습니다.')));
-      Navigator.of(context).pop();
+
     } catch (e) {
       if (!mounted) return;
       ScaffoldMessenger.of(context)
           .showSnackBar(SnackBar(content: Text('생성 실패: $e')));
-    } finally {
-      if (mounted) setState(() => _isLoading = false);
     }
   }
 

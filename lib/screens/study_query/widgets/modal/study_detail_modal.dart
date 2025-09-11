@@ -4,6 +4,7 @@ import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import 'package:provider/provider.dart';
 import 'package:study_group_front_end/dto/study/detail/study_detail_response.dart';
+import 'package:study_group_front_end/dto/study/update/study_update_request.dart';
 import 'package:study_group_front_end/providers/me_provider.dart';
 import 'package:study_group_front_end/providers/study_provider.dart';
 import 'package:study_group_front_end/screens/checklist/widget/bottom_sheet/show_checklist_item_options_bottom_sheet.dart';
@@ -105,8 +106,16 @@ Future<void> showStudyDetailModal({
                 //Todo: 상세정보 보기
                 isLeader: isLeader,
                 onDetailPressed: () {
-                  context.push('/studies/${study.id}');
-
+                  // context.push('/studies/${study.id}');
+                  context.push(
+                    '/studies/${study.id}/update',
+                    extra: StudyUpdateRequest(
+                      studyId: study.id,
+                      name: study.name,
+                      personalColor: study.personalColor,
+                      dueDate: study.dueDate,
+                    ),
+                  );
                   Navigator.of(context).pop();
                 },
                 onDeletePressed: () {
@@ -231,14 +240,16 @@ Future<void> _confirmAndDeleteStudy(BuildContext context, int studyId, String co
     confirmColor: hexToColor(color),
   );
 
-  log("confirm: $confirmed");
 
   if (confirmed != true) return;
+
+  if (context.mounted) {
+    Navigator.of(context).pop();
+  }
 
   try {
     await context.read<StudyProvider>().deleteStudy(studyId);
     if (context.mounted) {
-      Navigator.of(context).pop();
       ScaffoldMessenger.of(context).showSnackBar(
         const SnackBar(content: Text('스터디가 삭제되었습니다.')),
       );
@@ -251,5 +262,3 @@ Future<void> _confirmAndDeleteStudy(BuildContext context, int studyId, String co
     }
   }
 }
-
-

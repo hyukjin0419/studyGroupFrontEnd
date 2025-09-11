@@ -74,8 +74,7 @@ class _StudyScreenState extends State<StudiesScreen> {
                 );
               },
               onReorder: (oldIndex, newIndex) {
-                provider.reorderStudies(oldIndex, newIndex);
-                provider.updateStudiesOrder();
+                provider.updateStudiesOrder(oldIndex, newIndex);
               },
 
               dragWidgetBuilder: (index, child) {
