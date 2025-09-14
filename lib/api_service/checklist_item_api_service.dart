@@ -10,16 +10,16 @@ import 'package:study_group_front_end/dto/checklist_item/update/checklist_item_r
 class ChecklistItemApiService extends BaseApiService {
   final String basePath = '/studies';
 
-  Future<void> createChecklistItemOfStudy(ChecklistItemCreateRequest request, int studyId) async {
+  Future<ChecklistItemDetailResponse> createChecklistItemOfStudy(ChecklistItemCreateRequest request, int studyId) async {
     final response = await post(
       '$basePath/$studyId/checklistItem/create',
       request.toJson()
     );
 
-    if (response.statusCode != 200) {
-      throw Exception(
-          '[Checklist_Item_API_Service] createChecklistItemOfStudy 실패: ${response.statusCode}'
-      );
+    if (response.statusCode == 200) {
+      return ChecklistItemDetailResponse.fromJson(jsonDecode(response.body));
+    } else {
+      throw Exception('[Checklist_Item_API_Service] createChecklistItemOfStudy 실패: ${response.statusCode}');
     }
   }
 

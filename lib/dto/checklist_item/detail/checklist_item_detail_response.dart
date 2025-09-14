@@ -28,4 +28,24 @@ class ChecklistItemDetailResponse {
       orderIndex: json['orderIndex'],
     );
   }
+
+  ChecklistItemDetailResponse copyWith({
+    int? id,
+    String? type,
+    int? studyId,
+    int? studyMemberId,
+    String? content,
+    bool? completed,
+    int? orderIndex,
+  }) {
+    return ChecklistItemDetailResponse(
+      id: id ?? this.id,
+      type: type ?? this.type,
+      studyId: studyId ?? this.studyId,
+      studyMemberId: studyMemberId ?? this.studyMemberId,
+      content: content ?? this.content,
+      completed: completed ?? this.completed,
+      orderIndex: orderIndex ?? this.orderIndex,
+    );
+  }
 }

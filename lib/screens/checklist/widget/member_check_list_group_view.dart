@@ -5,7 +5,7 @@ import 'package:provider/provider.dart';
 import 'package:study_group_front_end/dto/checklist_item/create/checklist_item_create_request.dart';
 import 'package:study_group_front_end/dto/checklist_item/update/checklist_item_content_update_request.dart';
 import 'package:study_group_front_end/dto/study/detail/study_detail_response.dart';
-import 'package:study_group_front_end/providers/checklist_item_provider.dart';
+import 'package:study_group_front_end/providers/checklist_item_provider2.dart';
 import 'package:study_group_front_end/screens/checklist/widget/bottom_sheet/show_checklist_item_options_bottom_sheet.dart';
 import 'package:study_group_front_end/screens/checklist/widget/checklists_tile/checklist_item_input_field.dart';
 import 'package:study_group_front_end/screens/checklist/widget/checklists_tile/checklist_item_tile.dart';
@@ -16,13 +16,11 @@ import 'package:study_group_front_end/util/color_converters.dart';
 class MemberChecklistGroupView extends StatefulWidget {
   final StudyDetailResponse study;
   final DateTime selectedDate;
-  final void Function()? onChecklistCreated;
 
   const MemberChecklistGroupView({
     super.key,
     required this.study,
     required this.selectedDate,
-    this.onChecklistCreated,
   });
 
   @override
@@ -65,7 +63,7 @@ class _MemberChecklistGroupViewState extends State<MemberChecklistGroupView> {
 
   @override
   Widget build(BuildContext context) {
-    final provider = context.watch<ChecklistItemProvider>();
+    final provider = context.watch<ChecklistItemProvider2>();
     return GestureDetector(
       behavior: HitTestBehavior.translucent,
       onTap: _quitEditing,
@@ -106,7 +104,7 @@ class _MemberChecklistGroupViewState extends State<MemberChecklistGroupView> {
                       },
                       onAcceptWithDetails: (dragged) {
                         provider.clearHoveredItem(dragged.data.id);
-                        provider.reorderChecklistItem();
+                        // provider.reorderChecklistItem();
                       },
                       builder: (context, candidateData, rejectedData) {
                         final isHovered = candidateData.isNotEmpty;
@@ -145,7 +143,7 @@ class _MemberChecklistGroupViewState extends State<MemberChecklistGroupView> {
                       },
                       onAcceptWithDetails: (dragged) {
                         provider.clearHoveredItem(dragged.data.id);
-                        provider.reorderChecklistItem();
+                        // provider.reorderChecklistItem();
                         // provider.updateGroups();
                       },
                       builder: (context, _, __) {
@@ -167,7 +165,7 @@ class _MemberChecklistGroupViewState extends State<MemberChecklistGroupView> {
                                     content: value,
                                   );
 
-                                  final provider = context.read<ChecklistItemProvider>();
+                                  final provider = context.read<ChecklistItemProvider2>();
                                   await provider.updateChecklistItemContent(it.id, request);
                                   // widget.onChecklistCreated?.call();
                                 } catch (e) {
@@ -242,9 +240,8 @@ class _MemberChecklistGroupViewState extends State<MemberChecklistGroupView> {
                                           onDelete: () async {
                                             Navigator.pop(context);
                                             try {
-                                              final provider = context.read<ChecklistItemProvider>();
-                                              await provider.softDeleteChecklistItems(it.id);
-                                              provider.updateGroups();
+                                              final provider = context.read<ChecklistItemProvider2>();
+                                              await provider.softDeleteChecklistItem(it.id);
                                             } catch(e) {
                                               ScaffoldMessenger.of(context).showSnackBar(
                                                 SnackBar(content: Text("체크리스트 삭제 실패: $e")),
@@ -286,14 +283,13 @@ class _MemberChecklistGroupViewState extends State<MemberChecklistGroupView> {
                             orderIndex: g.items.length,
                         );
 
-                        final provider = context.read<ChecklistItemProvider>();
+                        final provider = context.read<ChecklistItemProvider2>();
                         await provider.createChecklistItem(request);
-                        widget.onChecklistCreated?.call();
                       } catch (e) {
                         ScaffoldMessenger.of(context).showSnackBar(
-                          SnackBar(content: Text("체크리스트 아이템 생성 실패: $e")),
+                          SnackBar(content: Text("생성 실패: $e")),
                         );
-                        log("체크리스트 아이템 생성 실패: $e");
+                        log("생성 실패: $e");
                       }
                     }
                 )

@@ -12,9 +12,11 @@ import 'package:study_group_front_end/firebase_options.dart';
 import 'package:study_group_front_end/notification_service/fcm/fcm_initializer.dart';
 import 'package:study_group_front_end/notification_service/local/local_notifications_service.dart';
 import 'package:study_group_front_end/providers/checklist_item_provider.dart';
+import 'package:study_group_front_end/providers/checklist_item_provider2.dart';
 import 'package:study_group_front_end/providers/me_provider.dart';
 import 'package:study_group_front_end/providers/study_join_provider.dart';
 import 'package:study_group_front_end/providers/study_provider.dart';
+import 'package:study_group_front_end/repository/checklist_item_repository.dart';
 import 'package:study_group_front_end/repository/study_repository.dart';
 import 'package:study_group_front_end/router.dart';
 
@@ -49,6 +51,9 @@ Future<void> main() async {
           ),
           ChangeNotifierProvider(
             create: (_) => ChecklistItemProvider(ChecklistItemApiService()),
+          ),
+          ChangeNotifierProvider(
+            create: (_) => ChecklistItemProvider2(InMemoryChecklistItemRepository(ChecklistItemApiService())),
           ),
         ],
         child: MaterialApp.router(
