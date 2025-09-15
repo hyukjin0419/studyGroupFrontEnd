@@ -163,7 +163,7 @@ class _WeeklyCalendarState extends State<WeeklyCalendar> {
       ),
 
       calendarStyle: CalendarStyle(
-        cellMargin: const EdgeInsets.fromLTRB(18, 12.5, 18, 12.5),
+        cellMargin: const EdgeInsets.fromLTRB(15, 12.5, 15, 12.5),
         todayDecoration: BoxDecoration(
           border: Border.all(color: _color),
           borderRadius: BorderRadius.circular(3)

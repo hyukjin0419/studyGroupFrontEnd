@@ -99,14 +99,14 @@ class InMemoryChecklistItemRepository{
     final idx = list.indexWhere((e) => e.id == checklistItemId);
     if(idx < 0) return;
 
-    final oldItem = list[idx];
-    list[idx] = list[idx].copyWith(completed: !oldItem.completed);
+    final oldCompleted = list[idx].completed;
+    list[idx] = list[idx].copyWith(completed: !oldCompleted);
     _streams[key]?.add(list);
 
     try {
       await api.updateChecklistItemStatus(checklistItemId);
     } catch (_) {
-      list[idx] = oldItem;
+      list[idx] = list[idx].copyWith(completed: oldCompleted);
       _streams[key]?.add(list);
       rethrow;
     }
