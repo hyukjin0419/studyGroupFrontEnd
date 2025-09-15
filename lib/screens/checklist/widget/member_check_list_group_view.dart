@@ -153,6 +153,7 @@ class _MemberChecklistGroupViewState extends State<MemberChecklistGroupView> {
                           return ChecklistItemInputField(
                               key: ValueKey('title-${it.id}'),
                               color: hexToColor(widget.study.personalColor),
+                              completed: it.completed,
                               controller: _controller,
                               focusNode: _focusNode,
                               onDone: () {},
