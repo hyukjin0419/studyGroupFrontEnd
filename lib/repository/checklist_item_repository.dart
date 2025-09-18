@@ -9,6 +9,19 @@ import 'package:study_group_front_end/dto/checklist_item/update/checklist_item_c
 import 'package:study_group_front_end/dto/checklist_item/update/checklist_item_reorder_request.dart';
 
 class InMemoryChecklistItemRepository{
+  /*
+  생각해보니까 지금은 날짜별로 받아오고 있는데
+  그냥 study별로 받아오는 건 안되는 건가.?
+
+  study 별로 받아와서
+  바로 cache에 fetch
+  cache는 현재 <String, List<CM>>으로 이루어져 있기 때문에 구조 변경할 이유는 없고,
+
+  ---화면단에서는---
+  cache를 그대로 가져다가
+  참조해서 List<CM>만 가져 오고
+  regroup 한뒤 화면에 내려주기..
+   */
   final ChecklistItemApiService api;
   InMemoryChecklistItemRepository(this.api);
 
