@@ -82,16 +82,18 @@ class _LoginScreenState extends State<LoginScreen> {
                                 borderRadius: BorderRadius.circular(8),
                                 borderSide: BorderSide.none,
                               ),
+                              errorStyle: const TextStyle(height: 0),
                               contentPadding: const EdgeInsets.symmetric(
                                 vertical:10,
                                 horizontal: 12,
                               ),
                             ),
                             onSaved: (val) => _userName = val?.trim() ?? '',
-                            validator: (val) =>
-                            (val == null || val.isEmpty)
-                                ? '아이디를 입력하세요'
-                                : null,
+                            validator: (val) {
+                              if (val == null || val.isEmpty) {
+                                return null;
+                              }
+                            }
                           ),
                         ),
                         const SizedBox(height: 10),
@@ -118,13 +120,15 @@ class _LoginScreenState extends State<LoginScreen> {
                                 vertical:10,
                                 horizontal: 12,
                               ),
+                              errorStyle: const TextStyle(height: 0),
                             ),
                             obscureText: true,
                             onSaved: (val) => _password = val?.trim() ?? '',
-                            validator: (val) =>
-                            (val == null || val.isEmpty)
-                                ? '비밀번호를 입력하세요'
-                                : null,
+                              validator: (val) {
+                                if (val == null || val.isEmpty) {
+                                  return null;
+                                }
+                              }
                           ),
                         ),
                         const SizedBox(height: 10),
@@ -175,7 +179,14 @@ class _LoginScreenState extends State<LoginScreen> {
 
   Future<void> _submit() async {
     final currentForm = _formKey.currentState;
-    if(currentForm == null || !currentForm.validate()) return;
+    if(currentForm == null){
+      showBottomErrorSnackBar(context, "아이디 비밀번호가 입력되지 않았어요!");
+    }
+
+    if(!currentForm!.validate()) {
+      showBottomErrorSnackBar(context, "아이디 비밀번호를 확인해주세요!");
+      return;
+    }
     currentForm.save();
 
     setState(() => _isLoading = true);
@@ -205,7 +216,7 @@ class _LoginScreenState extends State<LoginScreen> {
 
       print("error: $errorMessage");
       if(mounted) {
-        showErrorSnackBar(
+        showMiddleErrorSnackBar(
             context, "다시 확인해 주세요.", errorMessage);
       }
     } finally {
