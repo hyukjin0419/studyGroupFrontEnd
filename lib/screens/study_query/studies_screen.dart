@@ -111,9 +111,9 @@ class _StudyScreenState extends State<StudiesScreen> {
         ),
       ),
       //skin
-      bottomNavigationBar: CustomBottomNavigationBar(
-        selectedIndex: 0,
-      ),
+      // bottomNavigationBar: CustomBottomNavigationBar(
+      //   selectedIndex: 0,
+      // ),
     );
   }
 }
