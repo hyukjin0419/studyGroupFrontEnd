@@ -26,6 +26,11 @@ class InMemoryChecklistItemRepository{
     if(_cache.containsKey(key)) _streams[key]!.add(_cache[key]!);
     return _streams[key]!.stream;
   }
+//--------------------Prefetch--------------------//
+Future<void> prefetch() async {
+    final list = await api.prefetchChecklistItems();
+    _saveToCacheAndStream(list);
+}
 
 //--------------------우선적으로 캐시 호출--------------------//
   //force=true시 캐시가 있어도 무시하고 서버 데이터로 덮음
@@ -43,24 +48,22 @@ class InMemoryChecklistItemRepository{
     final startOfWeek = date.subtract(Duration(days: date.weekday - 1));
     final list = await api.getChecklistItemsOfStudyByWeek(studyId, startOfWeek);
 
-    //날짜별로 나누기
-    final Map<String, List<ChecklistItemDetailResponse>> grouped = {};
-    for (final item in list) {
-      final key = _key(studyId, item.targetDate);
-      grouped.putIfAbsent(key, () => []);
-      grouped[key]!.add(item);
-    }
+    //1. 받은 데이터는 날짜별 그룹핑해서 캐시 저장
+    _saveToCacheAndStream(list);
 
-    // 캐시에 반영 + 스트림에 흘려보내기
-    grouped.forEach((key, value) {
-      _cache[key] = value;
+    // 2. 해당 주의 모든 날짜를 캐시에 등록 (데이터가 없어도 []로)
+    for (int i = 0; i < 7; i++) {
+      final d = startOfWeek.add(Duration(days: i));
+      final key = _key(studyId, d);
+      _cache.putIfAbsent(key, () => []); // ✅ 없으면 빈 리스트라도 넣음
       if (pushToStream && _streams.containsKey(key)) {
-        _streams[key]!.add(value);
+        _streams[key]!.add(_cache[key]!);
       }
-    });
+    }
 
     // 호출자가 요청한 날짜 데이터만 반환
     final requestedKey = _key(studyId, date);
+    _cache.putIfAbsent(requestedKey, () => []);
     return _cache[requestedKey] ?? [];
   }
 
@@ -73,6 +76,30 @@ class InMemoryChecklistItemRepository{
     if (pushToStream && _streams.containsKey(key)) _streams[key]!.add(list);
     return list;
   }
+
+
+  //받아온 체크리스트 스터디 + 날짜별로 나눠서 캐시에 반영 + 스트림에 흘려보내기
+  void _saveToCacheAndStream(
+      List<ChecklistItemDetailResponse> items, {
+        bool pushToStream = true,
+      }) {
+    // 날짜별로 그룹핑
+    final Map<String, List<ChecklistItemDetailResponse>> grouped = {};
+    for (final item in items) {
+      final key = _key(item.studyId, item.targetDate);
+      grouped.putIfAbsent(key, () => []);
+      grouped[key]!.add(item);
+    }
+
+    // 캐시에 반영 + 스트림에 push
+    grouped.forEach((key, value) {
+      _cache[key] = value;
+      if (pushToStream && _streams.containsKey(key)) {
+        _streams[key]!.add(value);
+      }
+    });
+  }
+
 
 //--------------------Optimistic Update--------------------//
 

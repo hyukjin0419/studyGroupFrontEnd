@@ -23,6 +23,20 @@ class ChecklistItemApiService extends BaseApiService {
     }
   }
 
+  Future<List<ChecklistItemDetailResponse>> prefetchChecklistItems() async {
+    final response = await get(
+        '$basePath/me/checklists/prefetch'
+    );
+
+    if (response.statusCode == 200) {
+      final List<dynamic> jsonList = jsonDecode(utf8.decode(response.bodyBytes));
+      return jsonList.map((e) => ChecklistItemDetailResponse.fromJson(e)).toList();
+    } else{
+      throw Exception('[Checklist_Item_API_Service] prefetchChecklistItems 실패: ${response.statusCode}');
+    }
+  }
+
+
   Future<List<ChecklistItemDetailResponse>> getChecklistItemsOfStudyByDay(int studyId, DateTime targetDate) async{
     final formattedDate = targetDate.toIso8601String().split("T").first;
 
@@ -34,7 +48,7 @@ class ChecklistItemApiService extends BaseApiService {
       final List<dynamic> jsonList = jsonDecode(utf8.decode(response.bodyBytes));
       return jsonList.map((e) => ChecklistItemDetailResponse.fromJson(e)).toList();
     } else{
-      throw Exception('[Checklist_Item_API_Service] getChecklistItemsOfStudy 실패: ${response.statusCode}');
+      throw Exception('[Checklist_Item_API_Service] getChecklistItemsOfStudyByDay 실패: ${response.statusCode}');
     }
   }
 
@@ -49,7 +63,7 @@ class ChecklistItemApiService extends BaseApiService {
       final List<dynamic> jsonList = jsonDecode(utf8.decode(response.bodyBytes));
       return jsonList.map((e) => ChecklistItemDetailResponse.fromJson(e)).toList();
     } else{
-      throw Exception('[Checklist_Item_API_Service] getChecklistItemsOfStudy 실패: ${response.statusCode}');
+      throw Exception('[Checklist_Item_API_Service] getChecklistItemsOfStudyByWeek 실패: ${response.statusCode}');
     }
   }
 
