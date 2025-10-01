@@ -8,17 +8,18 @@ void showErrorSnackBar(BuildContext context, String title, String description) {
     SnackBar(
       behavior: SnackBarBehavior.floating,
       margin: EdgeInsets.only(
-        top: MediaQuery.of(context).padding.top + 16,
+        bottom: MediaQuery.of(context).size.height / 2.5,
         left: 20,
         right: 20,
       ),
       duration: const Duration(seconds: 3),
-      backgroundColor: scheme.surface,
-      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
+      backgroundColor: Colors.white,
+      // elevation: 0,
+      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(15)),
       content: Row(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Icon(Icons.error_outline, color: Colors.redAccent),
+          Icon(Icons.error, color: Colors.yellow),
           const SizedBox(width: 12),
           Expanded(
             child: Column(
