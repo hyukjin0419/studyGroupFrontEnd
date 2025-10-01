@@ -2,6 +2,7 @@ import 'dart:convert';
 import 'dart:developer';
 
 import 'package:http/src/response.dart';
+import 'package:study_group_front_end/api_service/Auth/token_manager.dart';
 import 'package:study_group_front_end/dto/member/login/member_login_request.dart';
 import 'package:study_group_front_end/dto/member/login/member_login_response.dart';
 import 'package:study_group_front_end/dto/member/signup/member_create_request.dart';
@@ -47,14 +48,18 @@ class AuthApiService extends BaseApiService {
     }
   }
 
-  Future<void> logout() async {
+  Future<void> logout(String deviceToken) async {
     final response = await post(
-      'auth/logout',
-      null,
+      '$basePath/logout',
+      {
+        "deviceToken": deviceToken, // 서버가 요구하는 DTO
+      },
+      authRequired: true,
     );
 
     if (response.statusCode != 200) {
       throw Exception('logout failed: ${response.statusCode}');
     }
   }
+
 }
