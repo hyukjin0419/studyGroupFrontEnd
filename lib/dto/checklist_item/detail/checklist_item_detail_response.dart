@@ -5,6 +5,7 @@ class ChecklistItemDetailResponse {
   final int studyMemberId;
   final String content;
   final bool completed;
+  final DateTime targetDate;
   int orderIndex;
 
   ChecklistItemDetailResponse({
@@ -14,6 +15,7 @@ class ChecklistItemDetailResponse {
     required this.studyMemberId,
     required this.content,
     required this.completed,
+    required this.targetDate,
     required this.orderIndex,
   });
 
@@ -25,6 +27,7 @@ class ChecklistItemDetailResponse {
       studyMemberId: json['studyMemberId'],
       content: json['content'],
       completed: json['completed'],
+      targetDate: DateTime.parse(json['targetDate']),
       orderIndex: json['orderIndex'],
     );
   }
@@ -36,6 +39,7 @@ class ChecklistItemDetailResponse {
     int? studyMemberId,
     String? content,
     bool? completed,
+    DateTime? targetDate,
     int? orderIndex,
   }) {
     return ChecklistItemDetailResponse(
@@ -45,6 +49,7 @@ class ChecklistItemDetailResponse {
       studyMemberId: studyMemberId ?? this.studyMemberId,
       content: content ?? this.content,
       completed: completed ?? this.completed,
+      targetDate: targetDate ?? this.targetDate,
       orderIndex: orderIndex ?? this.orderIndex,
     );
   }

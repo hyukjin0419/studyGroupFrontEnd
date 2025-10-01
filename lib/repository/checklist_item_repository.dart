@@ -9,19 +9,6 @@ import 'package:study_group_front_end/dto/checklist_item/update/checklist_item_c
 import 'package:study_group_front_end/dto/checklist_item/update/checklist_item_reorder_request.dart';
 
 class InMemoryChecklistItemRepository{
-  /*
-  생각해보니까 지금은 날짜별로 받아오고 있는데
-  그냥 study별로 받아오는 건 안되는 건가.?
-
-  study 별로 받아와서
-  바로 cache에 fetch
-  cache는 현재 <String, List<CM>>으로 이루어져 있기 때문에 구조 변경할 이유는 없고,
-
-  ---화면단에서는---
-  cache를 그대로 가져다가
-  참조해서 List<CM>만 가져 오고
-  regroup 한뒤 화면에 내려주기..
-   */
   final ChecklistItemApiService api;
   InMemoryChecklistItemRepository(this.api);
 
@@ -32,6 +19,7 @@ class InMemoryChecklistItemRepository{
   String _key(int studyId, DateTime date) =>
       '$studyId-${date.year}-${date.month.toString().padLeft(2,'0')}-${date.day.toString().padLeft(2,'0')}';
 
+  //UI에서 이 날짜의 체크리스트를 구독 할 수 있도록 Stream을 반환하는 함수
   Stream<List<ChecklistItemDetailResponse>> watch(int studyId, DateTime date){
     final key = _key(studyId,date);
     _streams.putIfAbsent(key, () => StreamController.broadcast());
@@ -39,23 +27,54 @@ class InMemoryChecklistItemRepository{
     return _streams[key]!.stream;
   }
 
+//--------------------우선적으로 캐시 호출--------------------//
+  //force=true시 캐시가 있어도 무시하고 서버 데이터로 덮음
+  //UI에서 특정날짜 선택시 해당하는 날짜에 대한 checklistItem을 return 해주는 함수
   Future<List<ChecklistItemDetailResponse>> getChecklistItems(int studyId, DateTime date, {bool force = false}) async {
     log("cache에서 체크리스트 데이터를 찾는 중....");
     final key = _key(studyId, date);
     if(_cache.containsKey(key) && !force) return _cache[key]!;
-    return await _fetchAndCache(studyId, date);
+    return await _fetchWeek(studyId, date);
   }
 
-  Future<List<ChecklistItemDetailResponse>> _fetchAndCache(int studyId, DateTime date, {bool pushToStream = true}) async {
+//--------------------캐시에서 데이터 못찾을 시 fetch 주 단위로 Update--------------------//
+  //date가 속한 주의 시작일 (월요일) 기준으로 7일씩 묶어서 가져오기
+  Future<List<ChecklistItemDetailResponse>> _fetchWeek(int studyId, DateTime date, {bool pushToStream = false}) async {
+    final startOfWeek = date.subtract(Duration(days: date.weekday - 1));
+    final list = await api.getChecklistItemsOfStudyByWeek(studyId, startOfWeek);
+
+    //날짜별로 나누기
+    final Map<String, List<ChecklistItemDetailResponse>> grouped = {};
+    for (final item in list) {
+      final key = _key(studyId, item.targetDate);
+      grouped.putIfAbsent(key, () => []);
+      grouped[key]!.add(item);
+    }
+
+    // 캐시에 반영 + 스트림에 흘려보내기
+    grouped.forEach((key, value) {
+      _cache[key] = value;
+      if (pushToStream && _streams.containsKey(key)) {
+        _streams[key]!.add(value);
+      }
+    });
+
+    // 호출자가 요청한 날짜 데이터만 반환
+    final requestedKey = _key(studyId, date);
+    return _cache[requestedKey] ?? [];
+  }
+
+  //일별 단일 호출
+  Future<List<ChecklistItemDetailResponse>> _fetchDay(int studyId, DateTime date, {bool pushToStream = true}) async {
     log("cache에서 체크리스트 데이터를 찾을 수 없습니다. fetch from server 동작");
     final key = _key(studyId, date);
-    final list = await api.getChecklistItemsOfStudy(studyId, date);
+    final list = await api.getChecklistItemsOfStudyByDay(studyId, date);
     _cache[key] = list;
     if (pushToStream && _streams.containsKey(key)) _streams[key]!.add(list);
     return list;
   }
 
-  //--------------------Optimistic Update--------------------//
+//--------------------Optimistic Update--------------------//
 
   Future<void> create(int studyId, ChecklistItemCreateRequest request) async {
     final key = _key(studyId, request.targetDate);
@@ -67,6 +86,7 @@ class InMemoryChecklistItemRepository{
         studyId: studyId,
         studyMemberId: request.assigneeId,
         content: request.content,
+        targetDate: request.targetDate,
         completed: false,
         orderIndex: (_cache[key]?.length ?? 0),
     );

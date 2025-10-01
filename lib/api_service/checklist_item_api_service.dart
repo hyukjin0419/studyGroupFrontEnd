@@ -23,7 +23,7 @@ class ChecklistItemApiService extends BaseApiService {
     }
   }
 
-  Future<List<ChecklistItemDetailResponse>> getChecklistItemsOfStudy(int studyId, DateTime targetDate) async{
+  Future<List<ChecklistItemDetailResponse>> getChecklistItemsOfStudyByDay(int studyId, DateTime targetDate) async{
     final formattedDate = targetDate.toIso8601String().split("T").first;
 
     final response = await get(
@@ -37,6 +37,23 @@ class ChecklistItemApiService extends BaseApiService {
       throw Exception('[Checklist_Item_API_Service] getChecklistItemsOfStudy 실패: ${response.statusCode}');
     }
   }
+
+  Future<List<ChecklistItemDetailResponse>> getChecklistItemsOfStudyByWeek(int studyId, DateTime targetDate) async{
+    final formattedDate = targetDate.toIso8601String().split("T").first;
+
+    final response = await get(
+      '$basePath/$studyId/checklists/week?startDate=$formattedDate'
+    );
+
+    if (response.statusCode == 200) {
+      final List<dynamic> jsonList = jsonDecode(utf8.decode(response.bodyBytes));
+      return jsonList.map((e) => ChecklistItemDetailResponse.fromJson(e)).toList();
+    } else{
+      throw Exception('[Checklist_Item_API_Service] getChecklistItemsOfStudy 실패: ${response.statusCode}');
+    }
+  }
+
+
 
   Future<void> updateChecklistItemContent(int checklistItemId, ChecklistItemContentUpdateRequest request) async {
     final response = await post(
