@@ -2,128 +2,131 @@ import 'dart:async';
 import 'dart:developer';
 
 import 'package:flutter/material.dart';
-import 'package:study_group_front_end/api_service/checklist_item_api_service.dart';
 import 'package:study_group_front_end/dto/checklist_item/create/checklist_item_create_request.dart';
 import 'package:study_group_front_end/dto/checklist_item/detail/checklist_item_detail_response.dart';
 import 'package:study_group_front_end/dto/checklist_item/update/checklist_item_content_update_request.dart';
 import 'package:study_group_front_end/dto/checklist_item/update/checklist_item_reorder_request.dart';
 import 'package:study_group_front_end/dto/study/detail/study_member_summary_response.dart';
 import 'package:study_group_front_end/providers/loading_notifier.dart';
+import 'package:study_group_front_end/repository/checklist_item_repository.dart';
 import 'package:study_group_front_end/screens/checklist/widget/checklists_tile/view_models/member_checklist_group_vm.dart';
 import 'package:study_group_front_end/screens/checklist/widget/checklists_tile/view_models/member_checklist_item_vm.dart';
 
-class ChecklistItemProvider with ChangeNotifier, LoadingNotifier {
-  //Api 주입
-  final ChecklistItemApiService checklistItemApiService;
-  ChecklistItemProvider(this.checklistItemApiService);
-
-  //변수
-  List<ChecklistItemDetailResponse> _checklists = [];
-  List<ChecklistItemDetailResponse> get checklists => _checklists;
+class ChecklistItemProvider with ChangeNotifier, LoadingNotifier{
+  final InMemoryChecklistItemRepository repository;
+  ChecklistItemProvider(this.repository);
 
   List<MemberChecklistGroupVM> _groups = [];
   List<MemberChecklistGroupVM> get groups => _groups;
 
   List<StudyMemberSummaryResponse> _studyMembers = [];
-  void setStudyMembers(List<StudyMemberSummaryResponse> members) {
-    _studyMembers = members;
-  }
+  void setStudyMembers(List<StudyMemberSummaryResponse> members) => (_studyMembers = members);
 
   int? _studyId;
   DateTime _selectedDate = DateTime.now();
-  DateTime get selectedDate =>_selectedDate;
+  DateTime get selectedDate => _selectedDate;
 
-  void initializeContext(int studyId, List<StudyMemberSummaryResponse> members) {
+  StreamSubscription<List<ChecklistItemDetailResponse>>? _subscription;
+
+  //--------------------Init--------------------//
+  void initializeContext(int studyId, List<StudyMemberSummaryResponse> members) async {
     _studyId = studyId;
     _studyMembers = members;
     _selectedDate = DateTime.now();
-    loadChecklists(_selectedDate);
+
+    await _subscribeToDate(_selectedDate);
   }
 
-  void updateSelectedDate(DateTime newDate) {
+  void updateSelectedDate(DateTime newDate) async {
     _selectedDate = newDate;
-    loadChecklists(_selectedDate);
+    await _subscribeToDate(_selectedDate);
     notifyListeners();
   }
 
+  Future<void> _subscribeToDate(DateTime date) async {
+    log("_subscribeTodate 호출");
+    if (_studyId == null) return;
 
-  //===============api용 Provier=================================//
-  Future<void> loadChecklists(selectedDate) async {
-    log("Date: $selectedDate");
-    _checklists = await checklistItemApiService.getChecklistItemsOfStudyByDay(_studyId!, selectedDate);
-    updateGroups();
+    await _subscription?.cancel();
+
+    final stream = repository.watch(_studyId!, date);
+    _subscription = stream.listen((items) {
+      updateGroups(items);
+    });
+
+    final items = await repository.getChecklistItems(_studyId!, date);
+    updateGroups(items);
   }
 
+  // ================= Optimistic mutation =================
   Future<void> createChecklistItem(ChecklistItemCreateRequest request) async {
-    await runWithLoading(() async {
-      await checklistItemApiService.createChecklistItemOfStudy(request, _studyId!);
-    });
+    if (_studyId == null) return;
+    await repository.create(_studyId!, request);
   }
 
   Future<void> updateChecklistItemContent(int checklistItemId, ChecklistItemContentUpdateRequest request) async {
-    await checklistItemApiService.updateChecklistItemContent(checklistItemId, request);
+    await repository.updateContent(checklistItemId, _studyId!, _selectedDate, request,);
   }
 
   Future<void> updateChecklistItemStatus(int checklistItemId) async {
-    await checklistItemApiService.updateChecklistItemStatus(checklistItemId);
-    await loadChecklists(_selectedDate);
+    if (_studyId == null) return;
+    await repository.toggleStatus(checklistItemId, _studyId!, _selectedDate);
   }
 
-  Future<void> softDeleteChecklistItems(int checklistItemId) async {
-    await checklistItemApiService.softDeleteChecklistItems(checklistItemId);
-    await loadChecklists(_selectedDate);
+  Future<void> softDeleteChecklistItem(int checklistItemId) async {
+    if (_studyId == null) return;
+    await repository.softDelete(checklistItemId, _studyId!, _selectedDate);
   }
 
-  Future<void> reorderChecklistItem() async {
-    final List<ChecklistItemReorderRequest> request = [];
-
-    for (final group in _groups){
-      for(int i=0; i< group.items.length; i++) {
-        final item = group.items[i];
-        request.add(ChecklistItemReorderRequest(
-          checklistItemId: item.id,
-          studyMemberId: item.studyMemberId,
-          orderIndex: i,
-        ));
-      }
-    }
-
-    await checklistItemApiService.reorderChecklistItem(request);
-    loadChecklists(selectedDate);
+  Future<void> reorderChecklistItem(List<ChecklistItemReorderRequest> requests) async {
+    if (_studyId == null) return;
+    await repository.reorder(requests, _studyId!, _selectedDate);
   }
 
-  void updateGroups(){
-    final items = _checklists;
-    log("여기서 부터 안 불러져 왔나? ${_checklists.length}");
+  // ================= Grouping =================
+  void updateGroups(List<ChecklistItemDetailResponse> items) {
     final Map<int, MemberChecklistGroupVM> groupMap = {
-      for(var sm in _studyMembers)
-        sm.studyMemberId: MemberChecklistGroupVM(
+      for (var sm in _studyMembers)
+        sm.studyMemberId : MemberChecklistGroupVM(
           studyMemberId: sm.studyMemberId,
           memberName: sm.userName,
-          items: []
+          items: [],
         )
     };
 
-    for (final item in items) {
+    for (final item in items){
       final studyMemberId = item.studyMemberId;
       if (groupMap.containsKey(studyMemberId)) {
-        groupMap[studyMemberId]!.items.add(MemberChecklistItemVM(
-          id: item.id,
-          studyMemberId: studyMemberId,
-          content: item.content,
-          completed: item.completed,
-          orderIndex: item.orderIndex,
-        ));
+        groupMap[studyMemberId]!.items.add(
+          MemberChecklistItemVM(
+              id: item.id,
+              studyMemberId: studyMemberId,
+              content: item.content,
+              completed: item.completed,
+              orderIndex: item.orderIndex,
+          ),
+        );
       }
     }
 
     _groups = groupMap.values.toList();
-
-    sortChecklistGroupsByCompletedThenOrder();
+    _sortGroups();
     notifyListeners();
   }
 
-  //====================hovering enum==================//
+  void _sortGroups() {
+    for (final group in _groups){
+      group.items.sort((a,b) {
+        if(a.completed == b.completed) {
+          return (a.orderIndex ?? 0).compareTo(b.orderIndex ?? 0);
+        }
+        return a.completed ? 1 : -1;
+      });
+    }
+  }
+
+
+  // ================= Drag & Drop =================
   int? _hoveredItemId;
 
   void setHoveredItem(int itemId) {
@@ -142,7 +145,6 @@ class ChecklistItemProvider with ChangeNotifier, LoadingNotifier {
         : HoverStatus.notHovering;
   }
 
-  //====================drag & drop==================//
   void moveItem({
     required MemberChecklistItemVM item,
     required int fromMemberId,
@@ -202,3 +204,31 @@ enum HoverStatus{
   hovering,
   notHovering,
 }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+

@@ -2,7 +2,7 @@ import 'dart:developer';
 
 import 'package:provider/provider.dart';
 import 'package:flutter/material.dart';
-import 'package:study_group_front_end/providers/checklist_item_provider2.dart';
+import 'package:study_group_front_end/providers/checklist_item_provider.dart';
 import 'package:study_group_front_end/screens/checklist/widget/checklists_tile/customized_check_box.dart';
 
 class ChecklistItemTile extends StatefulWidget {
@@ -41,7 +41,7 @@ class _ChecklistItemTileState extends State<ChecklistItemTile> {
       _completed = !_completed;
     });
     try {
-      final provider = context.read<ChecklistItemProvider2>();
+      final provider = context.read<ChecklistItemProvider>();
       await provider.updateChecklistItemStatus(widget.itemId);
       provider.sortChecklistGroupsByCompletedThenOrder();
     } catch (e) {

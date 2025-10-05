@@ -3,7 +3,7 @@ import 'dart:developer';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:study_group_front_end/dto/study/detail/study_detail_response.dart';
-import 'package:study_group_front_end/providers/checklist_item_provider2.dart';
+import 'package:study_group_front_end/providers/checklist_item_provider.dart';
 import 'package:study_group_front_end/screens/checklist/widget/member_check_list_group_view.dart';
 import 'package:study_group_front_end/screens/checklist/widget/study_header_card.dart';
 import 'package:study_group_front_end/screens/checklist/widget/weekly_calendar.dart';
@@ -18,14 +18,14 @@ class ChecklistScreen extends StatefulWidget {
 }
 
 class _ChecklistScreenState extends State<ChecklistScreen> {
-  late ChecklistItemProvider2 _checklistItemProvider;
+  late ChecklistItemProvider _checklistItemProvider;
 
   @override
   void initState() {
     super.initState();
 
     WidgetsBinding.instance.addPostFrameCallback((_) async{
-      _checklistItemProvider = context.read<ChecklistItemProvider2>();
+      _checklistItemProvider = context.read<ChecklistItemProvider>();
       _checklistItemProvider.initializeContext(widget.study.id, widget.study.members);
     });
   }
@@ -36,7 +36,7 @@ class _ChecklistScreenState extends State<ChecklistScreen> {
 
   @override
   Widget build(BuildContext context) {
-    final provider = context.watch<ChecklistItemProvider2>();
+    final provider = context.watch<ChecklistItemProvider>();
     return Scaffold(
       appBar: AppBar(
         title: Text(

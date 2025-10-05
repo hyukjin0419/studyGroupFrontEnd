@@ -5,7 +5,7 @@ import 'package:provider/provider.dart';
 import 'package:study_group_front_end/dto/checklist_item/create/checklist_item_create_request.dart';
 import 'package:study_group_front_end/dto/checklist_item/update/checklist_item_content_update_request.dart';
 import 'package:study_group_front_end/dto/study/detail/study_detail_response.dart';
-import 'package:study_group_front_end/providers/checklist_item_provider2.dart';
+import 'package:study_group_front_end/providers/checklist_item_provider.dart';
 import 'package:study_group_front_end/screens/checklist/widget/bottom_sheet/show_checklist_item_options_bottom_sheet.dart';
 import 'package:study_group_front_end/screens/checklist/widget/checklists_tile/checklist_item_input_field.dart';
 import 'package:study_group_front_end/screens/checklist/widget/checklists_tile/checklist_item_tile.dart';
@@ -63,7 +63,7 @@ class _MemberChecklistGroupViewState extends State<MemberChecklistGroupView> {
 
   @override
   Widget build(BuildContext context) {
-    final provider = context.watch<ChecklistItemProvider2>();
+    final provider = context.watch<ChecklistItemProvider>();
     return GestureDetector(
       behavior: HitTestBehavior.translucent,
       onTap: _quitEditing,
@@ -166,7 +166,7 @@ class _MemberChecklistGroupViewState extends State<MemberChecklistGroupView> {
                                     content: value,
                                   );
 
-                                  final provider = context.read<ChecklistItemProvider2>();
+                                  final provider = context.read<ChecklistItemProvider>();
                                   await provider.updateChecklistItemContent(it.id, request);
                                   // widget.onChecklistCreated?.call();
                                 } catch (e) {
@@ -241,7 +241,7 @@ class _MemberChecklistGroupViewState extends State<MemberChecklistGroupView> {
                                           onDelete: () async {
                                             Navigator.pop(context);
                                             try {
-                                              final provider = context.read<ChecklistItemProvider2>();
+                                              final provider = context.read<ChecklistItemProvider>();
                                               await provider.softDeleteChecklistItem(it.id);
                                             } catch(e) {
                                               ScaffoldMessenger.of(context).showSnackBar(
@@ -284,7 +284,7 @@ class _MemberChecklistGroupViewState extends State<MemberChecklistGroupView> {
                             orderIndex: g.items.length,
                         );
 
-                        final provider = context.read<ChecklistItemProvider2>();
+                        final provider = context.read<ChecklistItemProvider>();
                         await provider.createChecklistItem(request);
                       } catch (e) {
                         ScaffoldMessenger.of(context).showSnackBar(
