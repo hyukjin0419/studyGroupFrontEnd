@@ -1,5 +1,6 @@
 import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:intl/date_symbol_data_local.dart';
 import 'package:provider/provider.dart';
 import 'package:study_group_front_end/api_service/auth_api_service.dart';
@@ -11,14 +12,20 @@ import 'package:study_group_front_end/firebase_options.dart';
 import 'package:study_group_front_end/notification_service/fcm/fcm_initializer.dart';
 import 'package:study_group_front_end/notification_service/local/local_notifications_service.dart';
 import 'package:study_group_front_end/providers/checklist_item_provider.dart';
+import 'package:study_group_front_end/providers/checklist_item_provider2.dart';
 import 'package:study_group_front_end/providers/me_provider.dart';
 import 'package:study_group_front_end/providers/study_join_provider.dart';
 import 'package:study_group_front_end/providers/study_provider.dart';
+import 'package:study_group_front_end/repository/checklist_item_repository.dart';
+import 'package:study_group_front_end/repository/study_repository.dart';
 import 'package:study_group_front_end/router.dart';
 
 Future<void> main() async {
   //비동기 작업 전에 Flutter 프레임워크 초기화 보장 -> 원래는 runApp에서 자동 초기화 되는데, 그 전에 초기화 해주어야해서
   WidgetsFlutterBinding.ensureInitialized();
+  await SystemChrome.setPreferredOrientations(
+    [DeviceOrientation.portraitUp],
+  );
 
   await Firebase.initializeApp(options: DefaultFirebaseOptions.currentPlatform);
 
@@ -37,27 +44,64 @@ Future<void> main() async {
             create: (_) => MeProvider(AuthApiService(), MeApiService()),
           ),
           ChangeNotifierProvider(
-            create: (_) => StudyProvider(StudyApiService()),
+            create: (_) => StudyProvider(StudyRepository(StudyApiService())),
           ),
           ChangeNotifierProvider(
               create: (_) => StudyJoinProvider(StudyJoinApiService()),
           ),
           ChangeNotifierProvider(
             create: (_) => ChecklistItemProvider(ChecklistItemApiService()),
-          )
+          ),
+          ChangeNotifierProvider(
+            create: (_) => ChecklistItemProvider2(InMemoryChecklistItemRepository(ChecklistItemApiService())),
+          ),
         ],
         child: MaterialApp.router(
           routerConfig: router,
           theme: ThemeData(
+            useMaterial3: true,
+            fontFamily: 'Pretendard',
+
             appBarTheme: const AppBarTheme(
               backgroundColor: Colors.white,
             ),
+
             scaffoldBackgroundColor: Colors.white,
+
             colorScheme: ColorScheme.fromSeed(
               seedColor: Color(0xFF73B4E3),
               brightness: Brightness.light,
+            ).copyWith(
+              primary: const Color(0xFF73B4E3),
             ),
-            useMaterial3: true,
+
+            textTheme: const TextTheme(
+              displayLarge: TextStyle(fontSize: 36, fontWeight: FontWeight.w400),
+              displayMedium: TextStyle(fontSize: 20, fontWeight: FontWeight.w400),
+              bodyLarge: TextStyle(fontSize: 16, fontWeight: FontWeight.w600),
+              bodyMedium: TextStyle(fontSize: 15, fontWeight: FontWeight.w500),
+              bodySmall: TextStyle(fontSize: 14, fontWeight: FontWeight.w400),
+              titleSmall: TextStyle(fontSize: 16, fontWeight: FontWeight.w300),
+            ),
+            
+            textButtonTheme: TextButtonThemeData(
+              style: TextButton.styleFrom(
+                foregroundColor: Colors.black,
+                textStyle: TextStyle(fontSize: 12, fontWeight: FontWeight.w400),
+                padding: EdgeInsets.zero,
+                minimumSize: Size.zero,
+                tapTargetSize: MaterialTapTargetSize.shrinkWrap,
+              ),
+            ),
+
+            filledButtonTheme: FilledButtonThemeData(
+              style: FilledButton.styleFrom(
+                shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(8),
+                ),
+                minimumSize: const Size.fromHeight(48),
+              ),
+            ),
           ),
         )
       )

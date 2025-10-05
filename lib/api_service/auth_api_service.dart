@@ -1,5 +1,8 @@
 import 'dart:convert';
+import 'dart:developer';
 
+import 'package:http/src/response.dart';
+import 'package:study_group_front_end/api_service/Auth/token_manager.dart';
 import 'package:study_group_front_end/dto/member/login/member_login_request.dart';
 import 'package:study_group_front_end/dto/member/login/member_login_response.dart';
 import 'package:study_group_front_end/dto/member/signup/member_create_request.dart';
@@ -19,8 +22,15 @@ class AuthApiService extends BaseApiService {
     if (response.statusCode == 200) {
       return MemberCreateResponse.fromJson(jsonDecode(response.body));
     } else {
-      throw Exception('회원 가입 실패: ${response.statusCode}');
+      var message = extractErrorMessageFromResponse(response);
+      throw Exception(message);
     }
+  }
+
+  extractErrorMessageFromResponse(Response response) {
+    final body = jsonDecode(response.body);
+    final message = body['message'];
+    return message;
   }
 
   Future<MemberLoginResponse> login(MemberLoginRequest request) async {
@@ -33,18 +43,23 @@ class AuthApiService extends BaseApiService {
     if (response.statusCode == 200) {
       return MemberLoginResponse.fromJson(jsonDecode(response.body));
     } else {
-      throw Exception('login failed: ${response.statusCode}');
+      var message = extractErrorMessageFromResponse(response);
+      throw Exception(message);
     }
   }
 
-  Future<void> logout() async {
+  Future<void> logout(String deviceToken) async {
     final response = await post(
-      'auth/logout',
-      null,
+      '$basePath/logout',
+      {
+        "deviceToken": deviceToken, // 서버가 요구하는 DTO
+      },
+      authRequired: true,
     );
 
     if (response.statusCode != 200) {
       throw Exception('logout failed: ${response.statusCode}');
     }
   }
+
 }

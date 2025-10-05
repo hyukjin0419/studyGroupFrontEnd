@@ -28,7 +28,6 @@ class TokenManager {
       _storage.read(key: 'refreshToken');
 
   static Future<void> setTokens(String accessToken, String refreshToken) async {
-    log("그럼 이거 출력 되어야 하는데?");
     await _storage.write(key: 'accessToken', value: accessToken);
     await _storage.write(key: 'refreshToken', value: refreshToken);
   }
