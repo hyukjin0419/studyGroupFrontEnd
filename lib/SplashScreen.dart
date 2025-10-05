@@ -9,7 +9,9 @@ class SplashScreen extends StatefulWidget {
   @override
   State<SplashScreen> createState() => _SplashScreenState();
 }
-
+/*
+여기서 개인 체크리스트 + 스터디 리스트를 불러와야 함.
+ */
 class _SplashScreenState extends State<SplashScreen> {
   @override
   void initState() {
