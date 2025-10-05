@@ -3,6 +3,7 @@ import 'package:study_group_front_end/screens/checklist/widget/checklists_tile/c
 
 class ChecklistItemInputField extends StatelessWidget {
   final Color color;
+  final bool? completed;
   final TextEditingController controller;
   final FocusNode focusNode;
   final VoidCallback onDone; //final void Function() onDone;
@@ -12,6 +13,7 @@ class ChecklistItemInputField extends StatelessWidget {
   const ChecklistItemInputField({
     super.key,
     required this.color,
+    this.completed,
     required this.controller,
     required this.focusNode,
     required this.onDone,
@@ -28,7 +30,7 @@ class ChecklistItemInputField extends StatelessWidget {
         children: [
           CustomizedCheckBox(
               color: color,
-              completed: null
+              completed: completed ?? false,
           ),
           const SizedBox(width: 12),
           Expanded(

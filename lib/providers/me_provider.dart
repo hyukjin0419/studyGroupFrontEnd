@@ -39,6 +39,23 @@ class MeProvider with ChangeNotifier,LoadingNotifier {
     });
   }
 
+  Future<bool> loadCurrentMember() async {
+    final token = await TokenManager.getAccessToken();
+    if (token == null) return false;
+
+    try {
+      _currentMember = await meApiService.getMyInfo();
+      notifyListeners();
+      return true;
+    } catch (e) {
+      // 토큰 만료 or 서버 오류 → 토큰 제거
+      await TokenManager.clearTokens();
+      _currentMember = null;
+      return false;
+    }
+  }
+
+
   Future<void> create(MemberCreateRequest request) async {
     await runWithLoading(() async {
       await authApiService.createMember(request);
@@ -63,7 +80,11 @@ class MeProvider with ChangeNotifier,LoadingNotifier {
 
   Future<void> logout() async {
     await runWithLoading(() async{
-      await authApiService.logout();
+      final fcmToken = await TokenManager.getFcmToken(); // ✅ await 필요
+      if (fcmToken == null) {
+        throw Exception("로그아웃 실패: FCM 토큰 없음");
+      }
+      await authApiService.logout(fcmToken);
       await TokenManager.clearTokens();
       _currentMember = null;
       notifyListeners();

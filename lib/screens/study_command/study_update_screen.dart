@@ -1,0 +1,235 @@
+import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
+import 'package:study_group_front_end/dto/study/update/study_update_request.dart';
+import 'package:study_group_front_end/providers/study_provider.dart';
+import 'package:study_group_front_end/screens/study_command/widgets/calendar_card.dart';
+import 'package:study_group_front_end/screens/study_command/widgets/color_picker_sheet.dart';
+import 'package:study_group_front_end/screens/study_command/widgets/input_decoration.dart';
+import 'package:study_group_front_end/util/color_converters.dart';
+import 'package:study_group_front_end/util/formatKoreanDate.dart';
+
+class StudyUpdateScreen extends StatefulWidget {
+  final StudyUpdateRequest initialData;
+
+  const StudyUpdateScreen({
+    super.key,
+    required this.initialData,
+  });
+
+  @override
+  State<StudyUpdateScreen> createState() => _StudyUpdateScreenState();
+}
+
+class _StudyUpdateScreenState extends State<StudyUpdateScreen> {
+  final _formKey = GlobalKey<FormState>();
+  late final TextEditingController _controller;
+  bool _isLoading = false;
+
+  // 날짜/달력 상태
+  DateTime? _selectedDate;
+  DateTime _focusedDay = DateTime.now();
+  bool _calendarOpen = false;
+
+  // 색상 상태
+  late Color _selectedColor;
+
+  @override
+  void initState() {
+    super.initState();
+    _selectedDate = widget.initialData.dueDate;
+    _selectedColor = hexToColor(widget.initialData.personalColor);
+    _controller = TextEditingController(text: widget.initialData.name);
+  }
+
+  @override
+  void dispose() {
+    _controller.dispose();
+    super.dispose();
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      appBar: AppBar(
+        title: Text(
+          '팀 수정하기',
+          style: Theme.of(context).textTheme.displayMedium,
+        ),
+        leading: IconButton(
+          icon: const Icon(Icons.arrow_back),
+          onPressed: () => Navigator.of(context).maybePop(),
+        ),
+      ),
+      body: SafeArea(
+        child: Column(
+          children: [
+            Form(
+              key: _formKey,
+              child: Column(
+                children: [
+                  Padding(
+                    padding: const EdgeInsets.fromLTRB(20,40,20,0),
+                    child: TextFormField(
+                      style: Theme.of(context).textTheme.bodyLarge,
+                      controller: _controller,
+                      textInputAction: TextInputAction.next,
+                      decoration: fieldDecoration(
+                        context,
+                        label: '팀 이름을 수정해주세요.',
+                        suffix: InkWell(
+                          onTap: _openColorPicker,
+                          borderRadius: BorderRadius.circular(8),
+                          child: Row(
+                            mainAxisSize: MainAxisSize.min,
+                            children: [
+                              Container(
+                                width: 25,
+                                height: 25,
+                                decoration: BoxDecoration(
+                                  color: _selectedColor,
+                                  borderRadius: BorderRadius.circular(5),
+                                ),
+                              ),
+                              const Icon(
+                                Icons.arrow_drop_down,
+                              ),
+                              const SizedBox(width: 6),
+                            ],
+                          ),
+                        ),
+                      ),
+                      validator: (v) =>
+                      (v == null || v.trim().isEmpty) ? '팀 이름은 필수입니다.' : null,
+                    ),
+                  ),
+
+                  GestureDetector(
+                    onTap: () => setState(() => _calendarOpen = !_calendarOpen),
+                    child: AbsorbPointer(
+                      child: Padding(
+                        padding: const EdgeInsets.all(20.0),
+                        child: TextFormField(
+                          style: Theme.of(context).textTheme.bodyLarge,
+                          controller: TextEditingController(
+                            text: _selectedDate == null
+                                ? ''
+                                : formatKoreanDate(_selectedDate!),
+                          ),
+                          decoration: fieldDecoration(
+                            context,
+                            label: '팀 프로젝트 마감일을 입력해주세요.',
+                            suffix: const Icon(Icons.arrow_drop_down),
+                          ),
+                        ),
+                      ),
+                    ),
+                  ),
+                ],
+              ),
+            ),
+
+            //달력
+            AnimatedCrossFade(
+              crossFadeState: _calendarOpen
+                  ? CrossFadeState.showFirst
+                  : CrossFadeState.showSecond,
+              duration: const Duration(milliseconds: 320),
+              firstChild: Padding(
+                padding: const EdgeInsets.symmetric(horizontal: 20),
+                child: CalendarCard(
+                  focusedDay: _focusedDay,
+                  selectedDay: _selectedDate,
+                  onPageChanged: (day) => setState(() => _focusedDay = day),
+                  onDaySelected: (selectedDate, focusedDay) {
+                    setState(() {
+                      _selectedDate = selectedDate;
+                      _focusedDay = focusedDay;
+                      _calendarOpen = false;
+                    });
+                  }, onClear: () {
+                  setState(() {
+                    _selectedDate = null;
+                    _calendarOpen = false;
+                  });
+                },
+                ),
+              ),
+              secondChild: const SizedBox(height: 4, width: double.infinity),
+            ),
+
+            const Spacer(),
+
+            // 생성 버튼
+            Padding(
+              padding: const EdgeInsets.fromLTRB(20, 0, 20, 20),
+              child: SizedBox(
+                width: double.infinity,
+                height: 48,
+                child: FilledButton(
+                  onPressed: _isLoading ? null : _updateStudy,
+                  style: FilledButton.styleFrom(
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(8),
+                    ),
+                  ),
+                  child: _isLoading
+                      ? const SizedBox(
+                    width: 20, height: 20, child: CircularProgressIndicator(strokeWidth: 2),
+                  )
+                      : Text(
+                    '확인',
+                    style: Theme.of(context).textTheme.bodyLarge!.copyWith(color:Colors.white),
+                  ),
+                ),
+              ),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+
+  Future<void> _openColorPicker() async {
+    FocusScope.of(context).unfocus();
+    final picked = await showModalBottomSheet<Color>(
+      context: context,
+      showDragHandle: true,
+      backgroundColor: Theme.of(context).colorScheme.surface,
+      builder: (_) => ColorPickerSheet(
+        selected: _selectedColor,
+      ),
+    );
+    if (picked != null) {
+      setState(() => _selectedColor = picked);
+    }
+  }
+
+  Future<void> _updateStudy() async {
+    if (!_formKey.currentState!.validate()) return;
+
+    try {
+      final request = StudyUpdateRequest(
+        studyId: widget.initialData.studyId,
+        name: _controller.text.trim(),
+        personalColor: colorToHex(_selectedColor),
+        dueDate: _selectedDate
+      );
+
+      if (!mounted) return;
+      Navigator.of(context).pop();
+
+      final provider = context.read<StudyProvider>();
+      await provider.updateStudy(request);
+
+      if (!mounted) return;
+      ScaffoldMessenger.of(context)
+          .showSnackBar(const SnackBar(content: Text('팀이 수정되었습니다.')));
+      Navigator.of(context).pop();
+    } catch (e) {
+      if (!mounted) return;
+      ScaffoldMessenger.of(context)
+          .showSnackBar(SnackBar(content: Text('수정 실패: $e')));
+    }
+  }
+}
+

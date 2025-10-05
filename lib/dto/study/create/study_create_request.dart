@@ -6,7 +6,7 @@ class StudyCreateRequest {
 
   StudyCreateRequest({
     required this.name,
-    required this.description,
+    this.description = "version1",
     required this.color,
     this.dueDate,
   });

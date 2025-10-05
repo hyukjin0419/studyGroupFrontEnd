@@ -50,7 +50,7 @@ class ChecklistItemProvider with ChangeNotifier, LoadingNotifier {
   //===============api용 Provier=================================//
   Future<void> loadChecklists(selectedDate) async {
     log("Date: $selectedDate");
-    _checklists = await checklistItemApiService.getChecklistItemsOfStudy(_studyId!, selectedDate);
+    _checklists = await checklistItemApiService.getChecklistItemsOfStudyByDay(_studyId!, selectedDate);
     updateGroups();
   }
 

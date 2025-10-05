@@ -3,6 +3,7 @@ import 'package:go_router/go_router.dart';
 import 'package:provider/provider.dart';
 import 'package:study_group_front_end/dto/member/signup/member_create_request.dart';
 import 'package:study_group_front_end/providers/me_provider.dart';
+import 'package:study_group_front_end/snack_bar/show_error_snackbar.dart';
 
 class SignUpScreen extends StatefulWidget{
   const SignUpScreen({super.key});
@@ -32,9 +33,16 @@ class _SignUpScreenState extends State<SignUpScreen> {
 
       if (mounted) context.go('/studies');
     } catch (e) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text('회원가입 실패: ${e.toString()}')),
-      );
+      String errorMessage;
+
+      try {
+        errorMessage = e.toString().replaceFirst("Exception: ", "");
+      } catch (_) {
+        errorMessage = e.toString();
+      }
+      if(mounted){
+        showBottomErrorSnackBar(context, errorMessage);
+      }
     } finally {
       if (mounted) setState(() => _isLoading = false);
     }
