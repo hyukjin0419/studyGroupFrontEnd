@@ -69,6 +69,8 @@ class _MemberChecklistGroupViewState extends State<MemberChecklistGroupView> {
       onTap: _quitEditing,
       child: ListView.separated(
         controller: _scrollController,
+        shrinkWrap: true,
+        physics: const NeverScrollableScrollPhysics(),
         padding: const EdgeInsets.fromLTRB(22, 8, 16, 24),
         itemCount: provider.groups.length,
         separatorBuilder: (_, __) => const SizedBox.shrink(),
@@ -333,11 +335,14 @@ class _MemberChecklistGroupViewState extends State<MemberChecklistGroupView> {
   void _scrollToInputField() {
     WidgetsBinding.instance.addPostFrameCallback((_) {
       _focusNode.requestFocus();
-      _scrollController.animateTo(
-        _scrollController.position.maxScrollExtent,
-        duration: const Duration(milliseconds: 300),
-        curve: Curves.easeOut,
-      );
+
+      if (_focusNode.context != null) {
+        Scrollable.ensureVisible(
+          _focusNode.context!,
+          duration: const Duration(milliseconds: 300),
+          curve: Curves.easeOut,
+        );
+      }
     });
   }
 

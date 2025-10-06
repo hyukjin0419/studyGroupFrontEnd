@@ -48,26 +48,26 @@ class _ChecklistScreenState extends State<ChecklistScreen> {
           onPressed: () => Navigator.of(context).maybePop(),
         ),
       ),
-      body: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          StudyHeaderCard(study: widget.study),     // 🧾 스터디 카드
-          WeeklyCalendar(                           // 달력
-            study: widget.study,
-            initialSelectedDay: provider.selectedDate,
-            onDaySelected: (date) {
-              log(" 날짜: $date");
-              updateSelectedDate(date);
-            },
-          ),
-          const SizedBox(height: 12),
-          Expanded(
-            child: MemberChecklistGroupView(
+      body: SingleChildScrollView(
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            StudyHeaderCard(study: widget.study),     // 🧾 스터디 카드
+            WeeklyCalendar(                           // 달력
+              study: widget.study,
+              initialSelectedDay: provider.selectedDate,
+              onDaySelected: (date) {
+                log(" 날짜: $date");
+                updateSelectedDate(date);
+              },
+            ),
+            const SizedBox(height: 12),
+            MemberChecklistGroupView(
               study: widget.study,
               selectedDate: provider.selectedDate,
             ),
-          ),
-        ],
+          ],
+        ),
       ),
     );
   }
