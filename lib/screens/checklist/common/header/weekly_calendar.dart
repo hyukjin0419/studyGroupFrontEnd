@@ -1,12 +1,9 @@
-import 'dart:developer';
-
 import 'package:flutter/material.dart';
 import 'package:study_group_front_end/dto/study/detail/study_detail_response.dart';
 import 'package:study_group_front_end/util/color_converters.dart';
 import 'package:study_group_front_end/util/date_calculator.dart';
 import 'package:study_group_front_end/util/formatKoreanDate.dart';
 import 'package:table_calendar/table_calendar.dart';
-import 'package:intl/intl.dart';
 
 class WeeklyCalendar extends StatefulWidget{
   //초기  날짜 (기본값은 오늘)

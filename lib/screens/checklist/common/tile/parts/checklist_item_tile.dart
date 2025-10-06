@@ -1,9 +1,9 @@
 import 'dart:developer';
 
-import 'package:provider/provider.dart';
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
 import 'package:study_group_front_end/providers/checklist_item_provider.dart';
-import 'package:study_group_front_end/screens/checklist/widget/checklists_tile/customized_check_box.dart';
+import 'package:study_group_front_end/screens/checklist/common/tile/parts/customized_check_box.dart';
 
 class ChecklistItemTile extends StatefulWidget {
   final int itemId;

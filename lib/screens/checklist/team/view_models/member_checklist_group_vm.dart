@@ -1,4 +1,6 @@
-import 'package:study_group_front_end/screens/checklist/widget/checklists_tile/view_models/member_checklist_item_vm.dart';
+
+
+import 'package:study_group_front_end/screens/checklist/team/view_models/member_checklist_item_vm.dart';
 
 class MemberChecklistGroupVM{
   final int studyMemberId;

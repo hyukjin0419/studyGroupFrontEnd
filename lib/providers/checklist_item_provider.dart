@@ -9,8 +9,8 @@ import 'package:study_group_front_end/dto/checklist_item/update/checklist_item_r
 import 'package:study_group_front_end/dto/study/detail/study_member_summary_response.dart';
 import 'package:study_group_front_end/providers/loading_notifier.dart';
 import 'package:study_group_front_end/repository/checklist_item_repository.dart';
-import 'package:study_group_front_end/screens/checklist/widget/checklists_tile/view_models/member_checklist_group_vm.dart';
-import 'package:study_group_front_end/screens/checklist/widget/checklists_tile/view_models/member_checklist_item_vm.dart';
+import 'package:study_group_front_end/screens/checklist/team/view_models/member_checklist_group_vm.dart';
+import 'package:study_group_front_end/screens/checklist/team/view_models/member_checklist_item_vm.dart';
 
 class ChecklistItemProvider with ChangeNotifier, LoadingNotifier{
   final InMemoryChecklistItemRepository repository;

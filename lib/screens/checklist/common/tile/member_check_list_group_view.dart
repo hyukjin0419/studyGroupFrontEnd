@@ -6,11 +6,11 @@ import 'package:study_group_front_end/dto/checklist_item/create/checklist_item_c
 import 'package:study_group_front_end/dto/checklist_item/update/checklist_item_content_update_request.dart';
 import 'package:study_group_front_end/dto/study/detail/study_detail_response.dart';
 import 'package:study_group_front_end/providers/checklist_item_provider.dart';
-import 'package:study_group_front_end/screens/checklist/widget/bottom_sheet/show_checklist_item_options_bottom_sheet.dart';
-import 'package:study_group_front_end/screens/checklist/widget/checklists_tile/checklist_item_input_field.dart';
-import 'package:study_group_front_end/screens/checklist/widget/checklists_tile/checklist_item_tile.dart';
-import 'package:study_group_front_end/screens/checklist/widget/checklists_tile/member_header_chip.dart';
-import 'package:study_group_front_end/screens/checklist/widget/checklists_tile/view_models/member_checklist_item_vm.dart';
+import 'package:study_group_front_end/screens/checklist/common/bottom/show_checklist_item_options_bottom_sheet.dart';
+import 'package:study_group_front_end/screens/checklist/common/tile/parts/checklist_item_input_field.dart';
+import 'package:study_group_front_end/screens/checklist/common/tile/parts/checklist_item_tile.dart';
+import 'package:study_group_front_end/screens/checklist/common/tile/parts/member_header_chip.dart';
+import 'package:study_group_front_end/screens/checklist/team/view_models/member_checklist_item_vm.dart';
 import 'package:study_group_front_end/util/color_converters.dart';
 
 class MemberChecklistGroupView extends StatefulWidget {

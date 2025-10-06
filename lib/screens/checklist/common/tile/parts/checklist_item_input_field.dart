@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:study_group_front_end/screens/checklist/widget/checklists_tile/customized_check_box.dart';
+import 'package:study_group_front_end/screens/checklist/common/tile/parts/customized_check_box.dart';
 
 class ChecklistItemInputField extends StatelessWidget {
   final Color color;
