@@ -18,9 +18,9 @@ class _StudyScreenState extends State<StudiesScreen> {
   @override
   void initState() {
     super.initState();
-    WidgetsBinding.instance.addPostFrameCallback((_) {
-      Provider.of<StudyProvider>(context, listen: false).getMyStudies();
-    });
+    // WidgetsBinding.instance.addPostFrameCallback((_) {
+    //   Provider.of<StudyProvider>(context, listen: false).getMyStudies();
+    // });
   }
 
   @override

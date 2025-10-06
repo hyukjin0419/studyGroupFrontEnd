@@ -37,8 +37,8 @@ class ChecklistItemApiService extends BaseApiService {
   }
 
 
-  Future<List<ChecklistItemDetailResponse>> getChecklistItemsOfStudyByDay(int studyId, DateTime targetDate) async{
-    final formattedDate = targetDate.toIso8601String().split("T").first;
+  Future<List<ChecklistItemDetailResponse>> getChecklistItemsOfStudyByDay(int studyId, DateTime startDate) async{
+    final formattedDate = startDate.toIso8601String().split("T").first;
 
     final response = await get(
       '$basePath/$studyId/checklists?targetDate=$formattedDate'
