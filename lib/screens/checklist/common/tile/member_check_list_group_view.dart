@@ -10,17 +10,20 @@ import 'package:study_group_front_end/screens/checklist/common/bottom/show_check
 import 'package:study_group_front_end/screens/checklist/common/tile/parts/checklist_item_input_field.dart';
 import 'package:study_group_front_end/screens/checklist/common/tile/parts/checklist_item_tile.dart';
 import 'package:study_group_front_end/screens/checklist/common/tile/parts/member_header_chip.dart';
+import 'package:study_group_front_end/screens/checklist/team/view_models/member_checklist_group_vm.dart';
 import 'package:study_group_front_end/screens/checklist/team/view_models/member_checklist_item_vm.dart';
 import 'package:study_group_front_end/util/color_converters.dart';
 
 class MemberChecklistGroupView extends StatefulWidget {
   final StudyDetailResponse study;
   final DateTime selectedDate;
+  final ScrollController? parentScrollController;
 
   const MemberChecklistGroupView({
     super.key,
     required this.study,
     required this.selectedDate,
+    this.parentScrollController,
   });
 
   @override
@@ -28,8 +31,19 @@ class MemberChecklistGroupView extends StatefulWidget {
 }
 
 class _MemberChecklistGroupViewState extends State<MemberChecklistGroupView> {
+  // Constants
+  static const double _scrollThreshold = 50.0;
+  static const double _scrollSpeed = 10.0;
+  static const double _maxDraggableWidth = 400.0;
+  static const double _emptyTargetHeight = 48.0;
+  static const Duration _scrollDuration = Duration(milliseconds: 300);
+
+  // State
   int? _editingMemberId;
   int? _editingItemId;
+  late final Color _personalColor;
+
+  // Controllers
   final TextEditingController _controller = TextEditingController();
   final ScrollController _scrollController = ScrollController();
   final FocusNode _focusNode = FocusNode();
@@ -38,6 +52,7 @@ class _MemberChecklistGroupViewState extends State<MemberChecklistGroupView> {
   @override
   void initState() {
     super.initState();
+    _personalColor = hexToColor(widget.study.personalColor);
 
     _focusListener = () {
       if (!_focusNode.hasFocus) {
@@ -83,228 +98,261 @@ class _MemberChecklistGroupViewState extends State<MemberChecklistGroupView> {
             children: [
               MemberHeaderChip(
                 name: g.memberName,
-                color: hexToColor(widget.study.personalColor),
+                color: _personalColor,
                 onAddPressed: () => _startEditing(g.studyMemberId),
               ),
               const SizedBox(height: 10),
-
-              Column(
-                children: [
-                  if (g.items.isEmpty && !isEditing)
-                    DragTarget<MemberChecklistItemVM>(
-                      key: ValueKey('empty-target-${g.studyMemberId}'),
-                      onWillAcceptWithDetails: (dragged) {
-                        provider.setHoveredItem(dragged.data.id);
-                        provider.moveItem(
-                          item: dragged.data,
-                          fromMemberId: dragged.data.studyMemberId,
-                          fromIndex: provider.getIndexOf(dragged.data),
-                          toMemberId: g.studyMemberId,
-                          toIndex: 0, // 항상 0
-                        );
-                        return true;
-                      },
-                      onAcceptWithDetails: (dragged) {
-                        provider.clearHoveredItem(dragged.data.id);
-                        // provider.reorderChecklistItem();
-                      },
-                      builder: (context, candidateData, rejectedData) {
-                        final isHovered = candidateData.isNotEmpty;
-                        return Container(
-                          height: 48,
-                          decoration: BoxDecoration(
-                            border: Border.all(
-                              color: isHovered
-                                  ? hexToColor(widget.study.personalColor)
-                                  : Colors.transparent,
-                            ),
-                            borderRadius: BorderRadius.circular(8),
-                            color: isHovered
-                                ? hexToColor(widget.study.personalColor).withOpacity(0.1)
-                                : Colors.transparent,
-                          ),
-                        );
-                      },
-                    ),
-                  for (int i=0; i < g.items.length; i++) ...[
-                    DragTarget<MemberChecklistItemVM>(
-                      key: ValueKey('target-${g.items[i].id}'),
-                      onWillAcceptWithDetails: (dragged) {
-                        provider.setHoveredItem(g.items[i].id);
-                        provider.moveItem(
-                            item: dragged.data,
-                            fromMemberId: dragged.data.studyMemberId,
-                            fromIndex: provider.getIndexOf(dragged.data),
-                            toMemberId: g.studyMemberId,
-                            toIndex: i
-                        );
-                        return true;
-                      },
-                      onMove: (dragged) {
-                        _handleAutoScroll(dragged.offset);
-                      },
-                      onAcceptWithDetails: (dragged) {
-                        provider.clearHoveredItem(dragged.data.id);
-                        // provider.reorderChecklistItem();
-                        // provider.updateGroups();
-                      },
-                      builder: (context, _, __) {
-                        final it = g.items[i];
-                        final hoverStatus = provider.getHoverStatusOfItem(it.id);
-                        if (_editingItemId == it.id) {
-                          return ChecklistItemInputField(
-                              key: ValueKey('title-${it.id}'),
-                              color: hexToColor(widget.study.personalColor),
-                              completed: it.completed,
-                              controller: _controller,
-                              focusNode: _focusNode,
-                              onDone: () {},
-                              onSubmitted: (value) async {
-                                //it이 전역이 아닌데도 사용할 수 있음은 Dart의 Closure 기능 때문
-                                _finishEditing(it, updatedContent: value);
-                                //TODO checklist item update api 호출
-                                try {
-                                  final request = ChecklistItemContentUpdateRequest(
-                                    content: value,
-                                  );
-
-                                  final provider = context.read<ChecklistItemProvider>();
-                                  await provider.updateChecklistItemContent(it.id, request);
-                                  // widget.onChecklistCreated?.call();
-                                } catch (e) {
-                                  ScaffoldMessenger.of(context).showSnackBar(
-                                    SnackBar(content: Text("체크리스트 content 업데이트 실패: $e")),
-                                  );
-                                  log("체크리스트 content 업데이트 실패: $e");
-                                }
-                              }
-                          );
-                        }
-                        else {
-                          return switch (hoverStatus) {
-                            HoverStatus.hovering =>
-                              Container(
-                                key: ValueKey('hovered-${it.id}'),
-                                height: 48,
-                                decoration: BoxDecoration(
-                                  border: Border.all(
-                                    color: hexToColor(
-                                        widget.study.personalColor),
-                                    // 원하는 테두리 색상
-                                    width: 2.0, // 테두리 두께
-                                  ),
-                                  borderRadius: BorderRadius.circular(8),
-                                  // 선택: 둥근 테두리
-                                  color: Colors.white, // 선택: 배경색
-                                ),
-                              ),
-
-                            HoverStatus.notHovering =>
-                              LongPressDraggable<MemberChecklistItemVM>(
-                                key: ValueKey('draggable-${it.id}'),
-                                data: it,
-                                feedback: Material(
-                                  child: ConstrainedBox(
-                                    constraints: const BoxConstraints(
-                                        maxWidth: 400),
-                                    child: ChecklistItemTile(
-                                      itemId: it.id,
-                                      title: it.content,
-                                      completed: it.completed,
-                                      color: hexToColor(
-                                          widget.study.personalColor),
-                                      onMore: () {}
-                                    ),
-                                  ),
-                                ),
-                                onDragStarted: _quitEditing,
-                                onDraggableCanceled: (_, _) {
-                                  provider.clearHoveredItem(it.id);
-                                },
-                                childWhenDragging:
-                                const SizedBox.shrink(),
-                                axis: Axis.vertical,
-                                child: ChecklistItemTile(
-                                    itemId: it.id,
-                                    key: ValueKey('title-${it.id}'),
-                                    title: it.content,
-                                    completed: it.completed,
-                                    color: hexToColor(
-                                        widget.study.personalColor),
-                                    onMore: () {
-                                      //TODO 삭제 및
-                                      showChecklistItemOptionsBottomSheet(
-                                          context: context,
-                                          title: it.content,
-                                          onEdit: () {
-                                            Navigator.pop(context);
-                                            _startUpdateEditing(it);
-                                          },
-                                          onDelete: () async {
-                                            Navigator.pop(context);
-                                            try {
-                                              final provider = context.read<ChecklistItemProvider>();
-                                              await provider.softDeleteChecklistItem(it.id);
-                                            } catch(e) {
-                                              ScaffoldMessenger.of(context).showSnackBar(
-                                                SnackBar(content: Text("체크리스트 삭제 실패: $e")),
-                                              );
-                                            }
-                                          }
-                                      );
-                                    }
-                                ),
-                              ),
-                          };
-                        }
-                      }
-                    ),
-                  ],
-                ],
-              ),
-              if(isEditing)
-                ChecklistItemInputField(
-                    color: hexToColor(widget.study.personalColor),
-                    controller: _controller,
-                    focusNode: _focusNode,
-                    onDone: () {
-                      setState(() {
-                        _controller.clear();
-                        _focusNode
-                          ..unfocus()
-                          ..requestFocus();
-                        _scrollToInputField();
-                      });
-                    },
-                    onSubmitted: (value) async {
-                      try {
-                        final request = ChecklistItemCreateRequest(
-                            content: value,
-                            assigneeId: g.studyMemberId,
-                            type: "STUDY",
-                            targetDate: widget.selectedDate,
-                            orderIndex: g.items.length,
-                        );
-
-                        final provider = context.read<ChecklistItemProvider>();
-                        await provider.createChecklistItem(request);
-                      } catch (e) {
-                        ScaffoldMessenger.of(context).showSnackBar(
-                          SnackBar(content: Text("생성 실패: $e")),
-                        );
-                        log("생성 실패: $e");
-                      }
-                    }
-                )
+              _buildChecklistItems(g, isEditing),
+              if (isEditing) _buildNewItemInputField(g),
             ],
           );
-        }
+        },
       ),
     );
   }
 
+  // ==================== Widget Builders ====================
 
-//------------------------------화면 로직------------------------------//
+  Widget _buildChecklistItems(MemberChecklistGroupVM g, bool isEditing) {
+    return Column(
+      children: [
+        if (g.items.isEmpty && !isEditing) _buildEmptyDragTarget(g),
+        for (int i = 0; i < g.items.length; i++)
+          _buildChecklistItemDragTarget(g, g.items[i], i),
+      ],
+    );
+  }
+
+  Widget _buildEmptyDragTarget(MemberChecklistGroupVM g) {
+    final provider = context.watch<ChecklistItemProvider>();
+
+    return DragTarget<MemberChecklistItemVM>(
+      key: ValueKey('empty-target-${g.studyMemberId}'),
+      onWillAcceptWithDetails: (dragged) {
+        provider.setHoveredItem(dragged.data.id);
+        provider.moveItem(
+          item: dragged.data,
+          fromMemberId: dragged.data.studyMemberId,
+          fromIndex: provider.getIndexOf(dragged.data),
+          toMemberId: g.studyMemberId,
+          toIndex: 0,
+        );
+        return true;
+      },
+      onAcceptWithDetails: (dragged) {
+        provider.clearHoveredItem(dragged.data.id);
+      },
+      builder: (context, candidateData, rejectedData) {
+        final isHovered = candidateData.isNotEmpty;
+        return Container(
+          height: _emptyTargetHeight,
+          decoration: BoxDecoration(
+            border: Border.all(
+              color: isHovered ? _personalColor : Colors.transparent,
+            ),
+            borderRadius: BorderRadius.circular(8),
+            color: isHovered ? _personalColor.withOpacity(0.1) : Colors.transparent,
+          ),
+        );
+      },
+    );
+  }
+
+  Widget _buildChecklistItemDragTarget(
+      MemberChecklistGroupVM g,
+      MemberChecklistItemVM item,
+      int index,
+      ) {
+    final provider = context.watch<ChecklistItemProvider>();
+
+    return DragTarget<MemberChecklistItemVM>(
+      key: ValueKey('target-${item.id}'),
+      onWillAcceptWithDetails: (dragged) {
+        provider.setHoveredItem(item.id);
+        provider.moveItem(
+          item: dragged.data,
+          fromMemberId: dragged.data.studyMemberId,
+          fromIndex: provider.getIndexOf(dragged.data),
+          toMemberId: g.studyMemberId,
+          toIndex: index,
+        );
+        return true;
+      },
+      onMove: (dragged) => _handleAutoScroll(dragged.offset),
+      onAcceptWithDetails: (dragged) => provider.clearHoveredItem(dragged.data.id),
+      builder: (context, _, __) => _buildChecklistItemContent(item),
+    );
+  }
+
+  Widget _buildChecklistItemContent(MemberChecklistItemVM item) {
+    if (_editingItemId == item.id) {
+      return _buildEditingField(item);
+    }
+
+    final provider = context.watch<ChecklistItemProvider>();
+    final hoverStatus = provider.getHoverStatusOfItem(item.id);
+
+    return switch (hoverStatus) {
+      HoverStatus.hovering => _buildHoveredPlaceholder(item),
+      HoverStatus.notHovering => _buildDraggableItem(item),
+    };
+  }
+
+  Widget _buildHoveredPlaceholder(MemberChecklistItemVM item) {
+    return Container(
+      key: ValueKey('hovered-${item.id}'),
+      height: _emptyTargetHeight,
+      decoration: BoxDecoration(
+        border: Border.all(color: _personalColor, width: 2.0),
+        borderRadius: BorderRadius.circular(8),
+        color: Colors.white,
+      ),
+    );
+  }
+
+  Widget _buildDraggableItem(MemberChecklistItemVM item) {
+    final provider = context.read<ChecklistItemProvider>();
+
+    return LongPressDraggable<MemberChecklistItemVM>(
+      key: ValueKey('draggable-${item.id}'),
+      data: item,
+      feedback: Material(
+        child: ConstrainedBox(
+          constraints: const BoxConstraints(maxWidth: _maxDraggableWidth),
+          child: _buildChecklistTile(item),
+        ),
+      ),
+      onDragStarted: _quitEditing,
+      onDraggableCanceled: (_, __) {
+        provider.clearHoveredItem(item.id);
+      },
+      childWhenDragging: const SizedBox.shrink(),
+      axis: Axis.vertical,
+      child: _buildChecklistTile(item, showOptions: true),
+    );
+  }
+
+  Widget _buildChecklistTile(MemberChecklistItemVM item, {bool showOptions = false}) {
+    return ChecklistItemTile(
+      itemId: item.id,
+      key: ValueKey('title-${item.id}'),
+      title: item.content,
+      completed: item.completed,
+      color: _personalColor,
+      onMore: showOptions ? () => _showItemOptions(item) : () {},
+    );
+  }
+
+  Widget _buildEditingField(MemberChecklistItemVM item) {
+    return ChecklistItemInputField(
+      key: ValueKey('editing-${item.id}'),
+      color: _personalColor,
+      completed: item.completed,
+      controller: _controller,
+      focusNode: _focusNode,
+      onDone: () {},
+      onSubmitted: (value) => _updateChecklistItemContent(item, value),
+    );
+  }
+
+  Widget _buildNewItemInputField(MemberChecklistGroupVM g) {
+    return ChecklistItemInputField(
+      color: _personalColor,
+      controller: _controller,
+      focusNode: _focusNode,
+      onDone: () {
+        setState(() {
+          _controller.clear();
+          _focusNode
+            ..unfocus()
+            ..requestFocus();
+          _scrollToInputField();
+        });
+      },
+      onSubmitted: (value) => _createChecklistItem(g, value),
+    );
+  }
+
+  // ==================== Business Logic ====================
+
+  Future<void> _updateChecklistItemContent(
+      MemberChecklistItemVM item,
+      String value,
+      ) async {
+    _finishEditing(item, updatedContent: value);
+
+    try {
+      final request = ChecklistItemContentUpdateRequest(content: value);
+      final provider = context.read<ChecklistItemProvider>();
+      await provider.updateChecklistItemContent(item.id, request);
+    } catch (e) {
+      if (mounted) {
+        _showErrorSnackBar("체크리스트 content 업데이트 실패: $e");
+      }
+      log("체크리스트 content 업데이트 실패: $e");
+    }
+  }
+
+  Future<void> _createChecklistItem(
+      MemberChecklistGroupVM group,
+      String content,
+      ) async {
+    try {
+      final request = ChecklistItemCreateRequest(
+        content: content,
+        assigneeId: group.studyMemberId,
+        type: "STUDY",
+        targetDate: widget.selectedDate,
+        orderIndex: group.items.length,
+      );
+
+      final provider = context.read<ChecklistItemProvider>();
+      await provider.createChecklistItem(request);
+    } catch (e) {
+      if (mounted) {
+        _showErrorSnackBar("생성 실패: $e");
+      }
+      log("생성 실패: $e");
+    }
+  }
+
+  Future<void> _deleteChecklistItem(int itemId) async {
+    try {
+      final provider = context.read<ChecklistItemProvider>();
+      await provider.softDeleteChecklistItem(itemId);
+    } catch (e) {
+      if (mounted) {
+        _showErrorSnackBar("체크리스트 삭제 실패: $e");
+      }
+      log("체크리스트 삭제 실패: $e");
+    }
+  }
+
+  // ==================== UI Actions ====================
+
+  void _showItemOptions(MemberChecklistItemVM item) {
+    showChecklistItemOptionsBottomSheet(
+      context: context,
+      title: item.content,
+      onEdit: () {
+        Navigator.pop(context);
+        _startUpdateEditing(item);
+      },
+      onDelete: () async {
+        Navigator.pop(context);
+        await _deleteChecklistItem(item.id);
+      },
+    );
+  }
+
+  void _showErrorSnackBar(String message) {
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(content: Text(message)),
+    );
+  }
+
+  // ==================== State Management ====================
+
   void _startEditing(int studyMemberId) {
     setState(() {
       _editingItemId = null;
@@ -323,26 +371,12 @@ class _MemberChecklistGroupViewState extends State<MemberChecklistGroupView> {
     });
   }
 
-  void _finishEditing(it, {required String updatedContent}) {
+  void _finishEditing(MemberChecklistItemVM item, {required String updatedContent}) {
     setState(() {
-      it.content = updatedContent;
+      item.content = updatedContent;
       _editingItemId = null;
       _controller.clear();
       _focusNode.unfocus();
-    });
-  }
-
-  void _scrollToInputField() {
-    WidgetsBinding.instance.addPostFrameCallback((_) {
-      _focusNode.requestFocus();
-
-      if (_focusNode.context != null) {
-        Scrollable.ensureVisible(
-          _focusNode.context!,
-          duration: const Duration(milliseconds: 300),
-          curve: Curves.easeOut,
-        );
-      }
     });
   }
 
@@ -355,11 +389,36 @@ class _MemberChecklistGroupViewState extends State<MemberChecklistGroupView> {
     });
   }
 
-  void _handleAutoScroll(Offset globalPosition) {
-    const scrollThreshold = 50.0; // 스크롤이 시작될 경계
-    const scrollSpeed = 10.0; // 스크롤 속도
+  // ==================== Scroll Handling ====================
 
-    final renderBox = context.findRenderObject() as RenderBox;
+  void _scrollToInputField() {
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      _focusNode.requestFocus();
+
+      // 부모 스크롤러가 있으면 사용
+      if (widget.parentScrollController != null) {
+        widget.parentScrollController!.animateTo(
+          widget.parentScrollController!.position.maxScrollExtent,
+          duration: _scrollDuration,
+          curve: Curves.easeOut,
+        );
+      }
+      // 없으면 Scrollable.ensureVisible 사용
+      else if (_focusNode.context != null) {
+        Scrollable.ensureVisible(
+          _focusNode.context!,
+          duration: _scrollDuration,
+          curve: Curves.easeOut,
+          alignment: 0.5,
+        );
+      }
+    });
+  }
+
+  void _handleAutoScroll(Offset globalPosition) {
+    final renderBox = context.findRenderObject() as RenderBox?;
+    if (renderBox == null) return;
+
     final listHeight = renderBox.size.height;
     final localPosition = renderBox.globalToLocal(globalPosition);
 
@@ -367,13 +426,20 @@ class _MemberChecklistGroupViewState extends State<MemberChecklistGroupView> {
     final maxScrollExtent = _scrollController.position.maxScrollExtent;
     final minScrollExtent = _scrollController.position.minScrollExtent;
 
+    double? newOffset;
+
     // 상단으로 스크롤
-    if (localPosition.dy < scrollThreshold && currentOffset > minScrollExtent) {
-      _scrollController.jumpTo((currentOffset - scrollSpeed).clamp(minScrollExtent, maxScrollExtent));
+    if (localPosition.dy < _scrollThreshold && currentOffset > minScrollExtent) {
+      newOffset = (currentOffset - _scrollSpeed).clamp(minScrollExtent, maxScrollExtent);
     }
     // 하단으로 스크롤
-    else if (localPosition.dy > listHeight - scrollThreshold && currentOffset < maxScrollExtent) {
-      _scrollController.jumpTo((currentOffset + scrollSpeed).clamp(minScrollExtent, maxScrollExtent));
+    else if (localPosition.dy > listHeight - _scrollThreshold &&
+        currentOffset < maxScrollExtent) {
+      newOffset = (currentOffset + _scrollSpeed).clamp(minScrollExtent, maxScrollExtent);
+    }
+
+    if (newOffset != null) {
+      _scrollController.jumpTo(newOffset);
     }
   }
 }
