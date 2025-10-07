@@ -4,6 +4,7 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:study_group_front_end/dto/checklist_item/create/checklist_item_create_request.dart';
 import 'package:study_group_front_end/dto/checklist_item/update/checklist_item_content_update_request.dart';
+import 'package:study_group_front_end/dto/checklist_item/update/checklist_item_reorder_request.dart';
 import 'package:study_group_front_end/dto/study/detail/study_detail_response.dart';
 import 'package:study_group_front_end/providers/checklist_item_provider.dart';
 import 'package:study_group_front_end/screens/checklist/common/bottom/show_checklist_item_options_bottom_sheet.dart';
@@ -141,6 +142,7 @@ class _MemberChecklistGroupViewState extends State<MemberChecklistGroupView> {
       },
       onAcceptWithDetails: (dragged) {
         provider.clearHoveredItem(dragged.data.id);
+        _reorderChecklists();
       },
       builder: (context, candidateData, rejectedData) {
         final isHovered = candidateData.isNotEmpty;
@@ -179,7 +181,10 @@ class _MemberChecklistGroupViewState extends State<MemberChecklistGroupView> {
         return true;
       },
       onMove: (dragged) => _handleAutoScroll(dragged.offset),
-      onAcceptWithDetails: (dragged) => provider.clearHoveredItem(dragged.data.id),
+      onAcceptWithDetails: (dragged) {
+        provider.clearHoveredItem(dragged.data.id);
+        _reorderChecklists();
+      },
       builder: (context, _, __) => _buildChecklistItemContent(item),
     );
   }
@@ -327,6 +332,20 @@ class _MemberChecklistGroupViewState extends State<MemberChecklistGroupView> {
       log("체크리스트 삭제 실패: $e");
     }
   }
+
+  Future<void> _reorderChecklists() async {
+    final provider = context.read<ChecklistItemProvider>();
+    final requests = provider.buildReorderRequests();
+
+    try {
+      await provider.reorderChecklistItem(requests);
+    } catch (e) {
+      if (mounted){
+        _showErrorSnackBar("체크리스트 reorder 실패: $e");
+      }
+    }
+  }
+
 
   // ==================== UI Actions ====================
 

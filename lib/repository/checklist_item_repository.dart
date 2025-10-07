@@ -196,6 +196,7 @@ Future<void> prefetch() async {
     final list = _cache[key]!;
     
     final oldList = List.of(list);
+
     for (final req in requests) {
       final idx = list.indexWhere((e) => e.id == req.checklistItemId);
       if(idx >= 0) {

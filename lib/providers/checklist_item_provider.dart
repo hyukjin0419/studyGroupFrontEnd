@@ -81,6 +81,24 @@ class ChecklistItemProvider with ChangeNotifier, LoadingNotifier{
   Future<void> reorderChecklistItem(List<ChecklistItemReorderRequest> requests) async {
     if (_studyId == null) return;
     await repository.reorder(requests, _studyId!, _selectedDate);
+    notifyListeners();
+  }
+
+  List<ChecklistItemReorderRequest> buildReorderRequests() {
+    return _groups.expand((group) {
+      return group.items
+          .asMap()
+          .entries
+          .map((entry) {
+        final item = entry.value;
+
+        return ChecklistItemReorderRequest(
+          checklistItemId: item.id,
+          studyMemberId: item.studyMemberId,
+          orderIndex: item.orderIndex,
+        );
+      });
+    }).toList();
   }
 
   // ================= Grouping =================
