@@ -58,6 +58,14 @@ class ChecklistItemProvider with ChangeNotifier, LoadingNotifier{
     updateGroups(items);
   }
 
+  // ================= exit =================
+
+  void clear() {
+    _studyId = null;
+    _groups = [];
+    _selectedDate = DateTime.now();
+    notifyListeners();
+  }
   // ================= Optimistic mutation =================
   Future<void> createChecklistItem(ChecklistItemCreateRequest request) async {
     if (_studyId == null) return;

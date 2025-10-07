@@ -45,7 +45,10 @@ class _ChecklistScreenState extends State<ChecklistScreen> {
         ),
         leading: IconButton(
           icon: const Icon(Icons.arrow_back),
-          onPressed: () => Navigator.of(context).maybePop(),
+          onPressed: () {
+            context.read<ChecklistItemProvider>().clear();
+            Navigator.of(context).maybePop();
+          },
         ),
       ),
       body: SingleChildScrollView(
