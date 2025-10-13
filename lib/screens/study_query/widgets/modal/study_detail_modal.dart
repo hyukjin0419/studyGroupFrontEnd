@@ -12,7 +12,7 @@ import 'package:study_group_front_end/screens/common_dialog/confirmationDialog.d
 import 'package:study_group_front_end/screens/study_query/widgets/dialog/study_join_code_qr_dialog.dart';
 import 'package:study_group_front_end/screens/study_query/widgets/modal/member_chip.dart';
 import 'package:study_group_front_end/util/color_converters.dart';
-import 'package:study_group_front_end/util/formatKoreanDate.dart';
+import 'package:study_group_front_end/util/format_korean_date.dart';
 
 Future<void> showStudyDetailModal({
   required BuildContext context,

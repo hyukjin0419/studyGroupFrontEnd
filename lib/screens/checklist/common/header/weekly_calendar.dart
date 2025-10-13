@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:study_group_front_end/dto/study/detail/study_detail_response.dart';
 import 'package:study_group_front_end/util/color_converters.dart';
 import 'package:study_group_front_end/util/date_calculator.dart';
-import 'package:study_group_front_end/util/formatKoreanDate.dart';
+import 'package:study_group_front_end/util/format_korean_date.dart';
 import 'package:table_calendar/table_calendar.dart';
 
 class WeeklyCalendar extends StatefulWidget{

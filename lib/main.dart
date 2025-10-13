@@ -65,6 +65,7 @@ Future<void> main() async {
 
             appBarTheme: const AppBarTheme(
               backgroundColor: Colors.white,
+              surfaceTintColor: Colors.transparent,
             ),
 
             scaffoldBackgroundColor: Colors.white,

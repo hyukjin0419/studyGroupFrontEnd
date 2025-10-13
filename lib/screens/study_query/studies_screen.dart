@@ -48,7 +48,7 @@ class _StudyScreenState extends State<StudiesScreen> {
         ),
       ),
       body: Padding(
-        padding: const EdgeInsets.all(12),
+        padding: const EdgeInsets.fromLTRB(12,12,12,0),
         child: Consumer<StudyProvider> (
           builder: (context, provider, _) {
             if (provider.isLoading) {

@@ -6,7 +6,7 @@ import 'package:study_group_front_end/screens/study_command/widgets/calendar_car
 import 'package:study_group_front_end/screens/study_command/widgets/color_picker_sheet.dart';
 import 'package:study_group_front_end/screens/study_command/widgets/input_decoration.dart';
 import 'package:study_group_front_end/util/color_converters.dart';
-import 'package:study_group_front_end/util/formatKoreanDate.dart';
+import 'package:study_group_front_end/util/format_korean_date.dart';
 
 class StudyCreateScreen extends StatefulWidget {
   const StudyCreateScreen({super.key});
