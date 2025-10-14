@@ -10,7 +10,7 @@ import 'package:study_group_front_end/providers/checklist_item_provider.dart';
 import 'package:study_group_front_end/screens/checklist/common/bottom/show_checklist_item_options_bottom_sheet.dart';
 import 'package:study_group_front_end/screens/checklist/common/tile/parts/checklist_item_input_field.dart';
 import 'package:study_group_front_end/screens/checklist/common/tile/parts/checklist_item_tile.dart';
-import 'package:study_group_front_end/screens/checklist/common/tile/parts/member_header_chip.dart';
+import 'package:study_group_front_end/screens/checklist/team/tile/parts/member_header_chip.dart';
 import 'package:study_group_front_end/screens/checklist/team/view_models/member_checklist_group_vm.dart';
 import 'package:study_group_front_end/screens/checklist/team/view_models/member_checklist_item_vm.dart';
 import 'package:study_group_front_end/util/color_converters.dart';

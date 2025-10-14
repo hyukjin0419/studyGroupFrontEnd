@@ -4,9 +4,9 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:study_group_front_end/dto/study/detail/study_detail_response.dart';
 import 'package:study_group_front_end/providers/checklist_item_provider.dart';
-import 'package:study_group_front_end/screens/checklist/common/header/study_header_card.dart';
+import 'package:study_group_front_end/screens/checklist/team/header/study_header_card.dart';
 import 'package:study_group_front_end/screens/checklist/common/header/weekly_calendar.dart';
-import 'package:study_group_front_end/screens/checklist/common/tile/member_check_list_group_view.dart';
+import 'package:study_group_front_end/screens/checklist/team/view_models/member_check_list_group_view.dart';
 
 class ChecklistScreen extends StatefulWidget {
   final StudyDetailResponse study;
