@@ -26,11 +26,12 @@ class InMemoryChecklistItemRepository{
     if(_cache.containsKey(key)) _streams[key]!.add(_cache[key]!);
     return _streams[key]!.stream;
   }
-//--------------------Prefetch--------------------//
-Future<void> prefetch() async {
-    final list = await api.prefetchChecklistItems();
-    _saveToCacheAndStream(list);
-}
+
+  //--------------------Prefetch--------------------//
+  Future<void> prefetch() async {
+      final list = await api.prefetchChecklistItems();
+      _saveToCacheAndStream(list);
+  }
 
 //--------------------우선적으로 캐시 호출--------------------//
   //force=true시 캐시가 있어도 무시하고 서버 데이터로 덮음
@@ -45,6 +46,7 @@ Future<void> prefetch() async {
 //--------------------캐시에서 데이터 못찾을 시 fetch 주 단위로 Update--------------------//
   //date가 속한 주의 시작일 (월요일) 기준으로 7일씩 묶어서 가져오기
   Future<List<ChecklistItemDetailResponse>> _fetchWeek(int studyId, DateTime date, {bool pushToStream = false}) async {
+    log("_fetchByWeek");
     final startOfWeek = date.subtract(Duration(days: date.weekday - 1));
     final list = await api.getChecklistItemsOfStudyByWeek(studyId, startOfWeek);
 

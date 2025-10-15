@@ -6,6 +6,7 @@ import 'package:study_group_front_end/dto/checklist_item/create/checklist_item_c
 import 'package:study_group_front_end/dto/checklist_item/update/checklist_item_content_update_request.dart';
 import 'package:study_group_front_end/dto/study/detail/study_detail_response.dart';
 import 'package:study_group_front_end/providers/checklist_item_provider.dart';
+import 'package:study_group_front_end/providers/personal_checklist_provider.dart';
 import 'package:study_group_front_end/screens/checklist/common/bottom/show_checklist_item_options_bottom_sheet.dart';
 import 'package:study_group_front_end/screens/checklist/common/tile/parts/checklist_item_input_field.dart';
 import 'package:study_group_front_end/screens/checklist/common/tile/parts/checklist_item_tile.dart';
@@ -312,6 +313,10 @@ class _MemberChecklistGroupViewState extends State<MemberChecklistGroupView> {
 
       final provider = context.read<ChecklistItemProvider>();
       await provider.createChecklistItem(request,widget.study.name);
+
+
+      final personalProvider = context.read<PersonalChecklistProvider>();
+      await personalProvider.refresh();
     } catch (e) {
       if (mounted) {
         _showErrorSnackBar("생성 실패: $e");

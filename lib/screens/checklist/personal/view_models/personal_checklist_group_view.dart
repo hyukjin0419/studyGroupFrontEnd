@@ -5,6 +5,7 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:study_group_front_end/dto/checklist_item/create/checklist_item_create_request.dart';
 import 'package:study_group_front_end/dto/checklist_item/update/checklist_item_content_update_request.dart';
+import 'package:study_group_front_end/providers/checklist_item_provider.dart';
 import 'package:study_group_front_end/providers/personal_checklist_provider.dart';
 import 'package:study_group_front_end/screens/checklist/common/bottom/show_checklist_item_options_bottom_sheet.dart';
 import 'package:study_group_front_end/screens/checklist/common/tile/parts/checklist_item_input_field.dart';
@@ -197,14 +198,21 @@ class _PersonalChecklistGroupViewState extends State<PersonalChecklistGroupView>
         content: content,
         targetDate: widget.selectedDate,
         studyId: studyId,
+
       );
 
+      log("studyID: $studyId");
+
+      final teamProvider = context.read<ChecklistItemProvider>();
+      await teamProvider.refresh(studyId, widget.selectedDate);
       _quitEditing();
+
+
     } catch (e) {
       if (mounted) {
         _showErrorSnackBar("생성 실패: $e");
       }
-      log("체크리스트 생성 실패: $e");
+      log("체크리스트 생성 실패?: $e");
     }
   }
 

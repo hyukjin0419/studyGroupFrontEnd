@@ -23,6 +23,7 @@ class ChecklistItemProvider with ChangeNotifier, LoadingNotifier{
   void setStudyMembers(List<StudyMemberSummaryResponse> members) => (_studyMembers = members);
 
   int? _studyId;
+  int? get studyId => _studyId;
   DateTime _selectedDate = DateTime.now();
   DateTime get selectedDate => _selectedDate;
 
@@ -37,7 +38,7 @@ class ChecklistItemProvider with ChangeNotifier, LoadingNotifier{
     await _subscribeToDate(_selectedDate);
   }
 
-  void updateSelectedDate(DateTime newDate) async {
+  Future<void> updateSelectedDate(DateTime newDate) async {
     _selectedDate = newDate;
     await _subscribeToDate(_selectedDate);
     notifyListeners();
@@ -65,6 +66,19 @@ class ChecklistItemProvider with ChangeNotifier, LoadingNotifier{
     _selectedDate = DateTime.now();
     notifyListeners();
   }
+
+  // ================= External Call =================
+  Future<void> refresh(int studyId, DateTime date) async {
+
+    final items = await repository.getChecklistItems(studyId, date, force: true);
+
+    updateGroups(items);
+  }
+
+
+
+
+
   // ================= Optimistic mutation =================
   Future<void> createChecklistItem(ChecklistItemCreateRequest request, String studyName) async {
     if (_studyId == null) return;

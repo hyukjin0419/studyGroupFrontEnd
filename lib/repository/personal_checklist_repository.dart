@@ -20,11 +20,11 @@ class PersonalChecklistRepository {
 
   // ==================== READ ====================
 
-  Future<List<ChecklistItemDetailResponse>> getMyChecklistsOfDay(DateTime date) async {
+  Future<List<ChecklistItemDetailResponse>> getMyChecklistsOfDay(DateTime date, {bool force = false}) async {
     final key = _key(date);
     final startOfWeek = date.subtract(Duration(days: date.weekday - 1));
 
-    if (_cache.containsKey(key)) {
+    if (!force && _cache.containsKey(key)) {
       log("PersonalRepo: 캐시 히트");
       return List.from(_cache[key]!);
     }

@@ -62,6 +62,12 @@ class PersonalChecklistProvider with ChangeNotifier, LoadingNotifier {
     return grouped;
   }
 
+  // =============================== 외부 호출 ===========================//
+  Future<void> refresh() async {
+    await runWithLoading(() async{
+      _personalChecklists = await repository.getMyChecklistsOfDay(_selectedDate, force: true);
+    });
+  }
 
 
   // =============================== 데이터 로드 ===========================//
