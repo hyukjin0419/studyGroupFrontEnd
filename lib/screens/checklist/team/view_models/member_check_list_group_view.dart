@@ -4,7 +4,6 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:study_group_front_end/dto/checklist_item/create/checklist_item_create_request.dart';
 import 'package:study_group_front_end/dto/checklist_item/update/checklist_item_content_update_request.dart';
-import 'package:study_group_front_end/dto/checklist_item/update/checklist_item_reorder_request.dart';
 import 'package:study_group_front_end/dto/study/detail/study_detail_response.dart';
 import 'package:study_group_front_end/providers/checklist_item_provider.dart';
 import 'package:study_group_front_end/screens/checklist/common/bottom/show_checklist_item_options_bottom_sheet.dart';

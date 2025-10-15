@@ -1,17 +1,19 @@
+import 'dart:developer';
+
 import 'package:flutter/material.dart';
 
-class MemberHeaderChip extends StatelessWidget {
-  final String name;
+class StudyHeaderChip extends StatelessWidget {
+  final String? name;
   final Color color;
   final VoidCallback onAddPressed;
-  
-  const MemberHeaderChip({
+
+  const StudyHeaderChip({
     super.key,
-    required this.name,
+    this.name,
     required this.color,
     required this.onAddPressed,
   });
-  
+
   @override
   Widget build(BuildContext context) {
     return Container(
@@ -28,7 +30,7 @@ class MemberHeaderChip extends StatelessWidget {
         child: Row(
           mainAxisSize: MainAxisSize.min,
           children: [
-            Text(name,
+            Text(name!,
               style: Theme.of(context).textTheme.titleSmall!.copyWith(
                 color: Colors.white,
                 fontWeight: FontWeight.w500,
