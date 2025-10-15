@@ -21,7 +21,7 @@ Future<bool> prefetchAll(BuildContext context) async {
   try {
     await Future.wait([
       studyProvider.getMyStudies(),
-      personalChecklistProvider.fetchPersonalChecklists(),
+      personalChecklistProvider.getMyChecklists(),
     ]);
     return true;
   } catch (e) {

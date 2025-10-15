@@ -312,7 +312,7 @@ class _MemberChecklistGroupViewState extends State<MemberChecklistGroupView> {
       );
 
       final provider = context.read<ChecklistItemProvider>();
-      await provider.createChecklistItem(request);
+      await provider.createChecklistItem(request,widget.study.name);
     } catch (e) {
       if (mounted) {
         _showErrorSnackBar("생성 실패: $e");

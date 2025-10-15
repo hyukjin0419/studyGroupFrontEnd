@@ -18,6 +18,7 @@ import 'package:study_group_front_end/providers/personal_checklist_provider.dart
 import 'package:study_group_front_end/providers/study_join_provider.dart';
 import 'package:study_group_front_end/providers/study_provider.dart';
 import 'package:study_group_front_end/repository/checklist_item_repository.dart';
+import 'package:study_group_front_end/repository/personal_checklist_repository.dart';
 import 'package:study_group_front_end/repository/study_repository.dart';
 import 'package:study_group_front_end/router.dart';
 
@@ -54,7 +55,7 @@ Future<void> main() async {
             create: (_) => ChecklistItemProvider(InMemoryChecklistItemRepository(ChecklistItemApiService())),
           ),
           ChangeNotifierProvider(
-            create: (_) => PersonalChecklistProvider(PersonalChecklistApiService()),
+            create: (_) => PersonalChecklistProvider(PersonalChecklistApiService(),ChecklistItemApiService(),PersonalChecklistRepository(PersonalChecklistApiService(),ChecklistItemApiService(),)),
           ),
         ],
         child: MaterialApp.router(

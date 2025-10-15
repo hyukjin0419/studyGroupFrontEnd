@@ -3,6 +3,7 @@ class ChecklistItemDetailResponse {
   final String type; // ChecklistItemType enum as String
   final int studyId;
   final int studyMemberId;
+  final String? studyName;
   final String content;
   final bool completed;
   final DateTime targetDate;
@@ -12,6 +13,7 @@ class ChecklistItemDetailResponse {
     required this.id,
     required this.type,
     required this.studyId,
+    required this.studyName,
     required this.studyMemberId,
     required this.content,
     required this.completed,
@@ -25,6 +27,7 @@ class ChecklistItemDetailResponse {
       type: json['type'],
       studyId: json['studyId'],
       studyMemberId: json['studyMemberId'],
+      studyName: json['studyName'],
       content: json['content'],
       completed: json['completed'],
       targetDate: DateTime.parse(json['targetDate']),
@@ -36,6 +39,7 @@ class ChecklistItemDetailResponse {
     int? id,
     String? type,
     int? studyId,
+    String? studyName,
     int? studyMemberId,
     String? content,
     bool? completed,
@@ -46,6 +50,7 @@ class ChecklistItemDetailResponse {
       id: id ?? this.id,
       type: type ?? this.type,
       studyId: studyId ?? this.studyId,
+      studyName: studyName ?? this.studyName,
       studyMemberId: studyMemberId ?? this.studyMemberId,
       content: content ?? this.content,
       completed: completed ?? this.completed,

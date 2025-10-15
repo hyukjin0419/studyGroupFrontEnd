@@ -103,7 +103,7 @@ Future<void> prefetch() async {
 
 //--------------------Optimistic Update--------------------//
 
-  Future<void> create(int studyId, ChecklistItemCreateRequest request) async {
+  Future<void> create(int studyId, ChecklistItemCreateRequest request, String studyName) async {
     final key = _key(studyId, request.targetDate);
     final tempId = -DateTime.now().millisecondsSinceEpoch;
 
@@ -111,6 +111,7 @@ Future<void> prefetch() async {
         id: tempId,
         type: "STUDY",
         studyId: studyId,
+        studyName: studyName,
         studyMemberId: request.assigneeId,
         content: request.content,
         targetDate: request.targetDate,
@@ -190,11 +191,11 @@ Future<void> prefetch() async {
       rethrow;
     }
   }
-  
+
   Future<void> reorder(List<ChecklistItemReorderRequest> requests, int studyId, DateTime date) async {
     final key = _key(studyId, date);
     final list = _cache[key]!;
-    
+
     final oldList = List.of(list);
 
     for (final req in requests) {

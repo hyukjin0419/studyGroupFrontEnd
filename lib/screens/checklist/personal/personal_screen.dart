@@ -2,13 +2,11 @@ import 'dart:developer';
 
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
-import 'package:study_group_front_end/dto/study/detail/study_detail_response.dart';
+import 'package:study_group_front_end/dto/checklist_item/detail/checklist_item_detail_response.dart';
 import 'package:study_group_front_end/providers/checklist_item_provider.dart';
 import 'package:study_group_front_end/providers/personal_checklist_provider.dart';
-import 'package:study_group_front_end/screens/checklist/personal/header/personal_header_card.dart';
-import 'package:study_group_front_end/screens/checklist/team/header/study_header_card.dart';
 import 'package:study_group_front_end/screens/checklist/common/header/weekly_calendar.dart';
-import 'package:study_group_front_end/screens/checklist/team/view_models/member_check_list_group_view.dart';
+import 'package:study_group_front_end/screens/checklist/personal/header/personal_header_card.dart';
 
 //여기서 부터는 디자인이 없음.. 디자이너가 자기 졸업 프로젝트 폭파되었다고 일을 안함..ㅠ
 class PersonalScreen extends StatefulWidget {
@@ -30,7 +28,6 @@ class _PersonalScreenState extends State<PersonalScreen> {
     });
   }
 
-  //Inmemory Repo로 바꿔야 함.
   Future<void> updateSelectedDate(DateTime newDate) async {
     _personalChecklistProvider.updateSelectedDate(newDate);
   }
@@ -70,6 +67,36 @@ class _PersonalScreenState extends State<PersonalScreen> {
               },
             ),
             const SizedBox(height: 12),
+            Consumer<PersonalChecklistProvider>(
+              builder: (context, provider, _) {
+                if (provider.isLoading) {
+                  return const Center(child: CircularProgressIndicator());
+                } else if (provider.personalChecklists.isEmpty) {
+                  return const Center(child: Text('체크리스트가 없습니다.'));
+                }
+
+                final List<ChecklistItemDetailResponse> items = provider.personalChecklists;
+                return ListView.builder(
+                  itemCount: items.length,
+                  itemBuilder: (_, i) {
+                    final item = items[i];
+                    return Card(
+                      margin: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+                      child: ListTile(
+                        leading: Icon(
+                          item.completed ? Icons.check_circle : Icons.circle_outlined,
+                          color: item.completed ? Colors.green : Colors.grey,
+                        ),
+                        title: Text(item.content),
+                        subtitle: Text(
+                          '마감일: ${item.targetDate.toString().split("T").first}',
+                        ),
+                      ),
+                    );
+                  },
+                );
+              },
+            ),
             // MemberChecklistGroupView(
             //   study: widget.study,
             //   selectedDate: provider.selectedDate,

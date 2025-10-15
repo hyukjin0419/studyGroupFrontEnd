@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
-import 'package:study_group_front_end/dto/personal_checklist/personal_checklist_detail_response.dart';
+import 'package:study_group_front_end/dto/checklist_item/detail/checklist_item_detail_response.dart';
 import 'package:study_group_front_end/providers/personal_checklist_provider.dart';
 
 class PersonalScreen extends StatefulWidget {
@@ -28,7 +28,7 @@ class _PersonalScreenState extends State<PersonalScreen> {
             return const Center(child: Text('체크리스트가 없습니다.'));
           }
 
-          final List<PersonalChecklistDetailResponse> items = provider.personalChecklists;
+          final List<ChecklistItemDetailResponse> items = provider.personalChecklists;
           return ListView.builder(
             itemCount: items.length,
             itemBuilder: (_, i) {

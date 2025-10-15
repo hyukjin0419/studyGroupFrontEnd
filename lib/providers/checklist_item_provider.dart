@@ -59,7 +59,6 @@ class ChecklistItemProvider with ChangeNotifier, LoadingNotifier{
   }
 
   // ================= exit =================
-
   void clear() {
     _studyId = null;
     _groups = [];
@@ -67,9 +66,9 @@ class ChecklistItemProvider with ChangeNotifier, LoadingNotifier{
     notifyListeners();
   }
   // ================= Optimistic mutation =================
-  Future<void> createChecklistItem(ChecklistItemCreateRequest request) async {
+  Future<void> createChecklistItem(ChecklistItemCreateRequest request, String studyName) async {
     if (_studyId == null) return;
-    await repository.create(_studyId!, request);
+    await repository.create(_studyId!, request, studyName);
   }
 
   Future<void> updateChecklistItemContent(int checklistItemId, ChecklistItemContentUpdateRequest request) async {
