@@ -1,6 +1,5 @@
 import 'dart:developer';
 import 'package:flutter/material.dart';
-import 'package:go_router/go_router.dart';
 import 'package:provider/provider.dart';
 import 'package:study_group_front_end/providers/me_provider.dart';
 import 'package:study_group_front_end/providers/personal_checklist_provider.dart';
@@ -12,8 +11,6 @@ Future<bool> prefetchAll(BuildContext context) async {
   final meProvider = context.read<MeProvider>();
   final studyProvider = context.read<StudyProvider>();
   final personalChecklistProvider = context.read<PersonalChecklistProvider>();
-
-  personalChecklistProvider.setSelectedDate(DateTime.parse("2025-10-02"));
 
   final isLoggedIn = await meProvider.loadCurrentMember();
 

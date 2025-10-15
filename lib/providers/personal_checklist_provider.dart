@@ -14,7 +14,10 @@ class PersonalChecklistProvider with ChangeNotifier, LoadingNotifier {
 
   DateTime _selectedDate = DateTime.now();
   DateTime get selectedDate => _selectedDate;
-  void setSelectedDate(DateTime date) => _selectedDate = date;
+  void updateSelectedDate(DateTime newDate) {
+    _selectedDate = newDate;
+    notifyListeners();
+  }
 
 
   Future<void> fetchPersonalChecklists() async {

@@ -10,13 +10,13 @@ class WeeklyCalendar extends StatefulWidget{
   final DateTime? initialSelectedDay;
   //날짜가 되었을 때 외부로 콜백 전달 -> cia를 target_date로 필터링
   final Function(DateTime selectedDay)? onDaySelected;
-  final StudyDetailResponse study;
+  final StudyDetailResponse? study;
 
   const WeeklyCalendar({
     super.key,
     this.initialSelectedDay,
     this.onDaySelected,
-    required this.study
+    this.study
   });
 
   @override
@@ -34,7 +34,10 @@ class _WeeklyCalendarState extends State<WeeklyCalendar> {
     super.initState();
     _focusedDay = getMondayOfWeek(widget.initialSelectedDay ?? DateTime.now());
     _selectedDay = widget.initialSelectedDay ?? DateTime.now();
-    _color = hexToColor(widget.study.personalColor);
+    _color = widget.study != null
+      ? hexToColor(widget.study!.personalColor)
+      //색상 어떻게 할건지 생각해봐야 함.
+      : Colors.teal;
     // log("Focused Day : $_focusedDay");
   }
 
