@@ -2,7 +2,6 @@ import 'dart:developer';
 
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
-import 'package:study_group_front_end/dto/checklist_item/detail/checklist_item_detail_response.dart';
 import 'package:study_group_front_end/providers/checklist_item_provider.dart';
 import 'package:study_group_front_end/providers/personal_checklist_provider.dart';
 import 'package:study_group_front_end/screens/checklist/common/header/weekly_calendar.dart';
@@ -26,6 +25,7 @@ class _PersonalScreenState extends State<PersonalScreen> {
 
     WidgetsBinding.instance.addPostFrameCallback((_) async{
       _personalChecklistProvider = context.read<PersonalChecklistProvider>();
+      _personalChecklistProvider.initialize();
     });
   }
 
@@ -49,8 +49,8 @@ class _PersonalScreenState extends State<PersonalScreen> {
           children: [
             // 일단 하드코딩, 나중에 provider에서 계산
             PersonalStatsCard(
-              completedCount: 4,
-              totalCount: 6,
+              completedCount: 8,
+              totalCount: 10,
               streakDays: 5,
             ),
             WeeklyCalendar(
@@ -60,12 +60,7 @@ class _PersonalScreenState extends State<PersonalScreen> {
                 updateSelectedDate(date);
               },
             ),
-            //TODO: GROUPVIEW를 생성하자
             PersonalChecklistGroupView(selectedDate: provider.selectedDate, primaryColor: Colors.teal)
-            // MemberChecklistGroupView(
-            //   study: widget.study,
-            //   selectedDate: provider.selectedDate,
-            // ),
           ],
         ),
       ),

@@ -69,9 +69,7 @@ class ChecklistItemProvider with ChangeNotifier, LoadingNotifier{
 
   // ================= External Call =================
   Future<void> refresh(int studyId, DateTime date) async {
-
     final items = await repository.getChecklistItems(studyId, date, force: true);
-
     updateGroups(items);
   }
 
@@ -86,7 +84,7 @@ class ChecklistItemProvider with ChangeNotifier, LoadingNotifier{
   }
 
   Future<void> updateChecklistItemContent(int checklistItemId, ChecklistItemContentUpdateRequest request) async {
-    await repository.updateContent(checklistItemId, _studyId!, _selectedDate, request,);
+    await repository.updateContent(checklistItemId, _studyId!, _selectedDate, request);
   }
 
   Future<void> updateChecklistItemStatus(int checklistItemId) async {
@@ -227,7 +225,7 @@ class ChecklistItemProvider with ChangeNotifier, LoadingNotifier{
   }
 
   void sortChecklistGroupsByCompletedThenOrder() {
-    // log("complete로 그룹 reordre");
+    log("complete로 그룹 reordre");
     for (final group in _groups) {
       group.items.sort((a, b) {
         if (a.completed == b.completed) {

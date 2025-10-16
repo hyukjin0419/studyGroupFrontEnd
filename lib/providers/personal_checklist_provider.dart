@@ -1,3 +1,4 @@
+import 'dart:async';
 import 'dart:developer';
 
 import 'package:flutter/cupertino.dart';
@@ -27,6 +28,34 @@ class PersonalChecklistProvider with ChangeNotifier, LoadingNotifier {
   //Getters
   DateTime get selectedDate => _selectedDate;
   List<ChecklistItemDetailResponse> get personalChecklists => _personalChecklists;
+
+  //Stream 구독
+  StreamSubscription? _subscription;
+
+  //변경 감지 및 상태 추적
+  Set<int> _modifiedStudyIds = {};
+  Set<int> get modifiedStudyIds => _modifiedStudyIds;
+
+
+
+
+  Future<void> _subscribeToDate(DateTime date) async{
+    await _subscription?.cancel();
+
+    final stream = repository.watch(date);
+
+    _subscription = stream.listen((items) {
+      _personalChecklists = items;
+      sortPersonalChecklistsByCompletedThenOrder();
+      notifyListeners();
+    });
+
+    // 초기 데이터 로드
+    final items = await repository.getMyChecklistsOfDay(date);
+    _personalChecklists = items;
+    sortPersonalChecklistsByCompletedThenOrder();
+    notifyListeners();
+  }
 
   //완료 상태별 분리
   List<ChecklistItemDetailResponse> get incompleteItems =>
@@ -71,8 +100,8 @@ class PersonalChecklistProvider with ChangeNotifier, LoadingNotifier {
 
 
   // =============================== 데이터 로드 ===========================//
-  Future<void> initialize() async{
-    await getMyChecklists();
+  Future<void> initialize() async {
+    await _subscribeToDate(_selectedDate);
   }
 
   void updateSelectedDate(DateTime newDate) {
@@ -130,26 +159,52 @@ class PersonalChecklistProvider with ChangeNotifier, LoadingNotifier {
          _personalChecklists[index] = created;
          notifyListeners();
       }
+
+      _modifiedStudyIds.add(studyId);
     } catch (e) {
       _personalChecklists.removeWhere((e) => e.id == tempItem.id);
       notifyListeners();
       rethrow;
     }
+  }
 
+  //버튼 에러 해결될때까지 일단 보류
+  /*Future<void> updateContent (int checklistItemId, String content) async {
+    final index = _personalChecklists.indexWhere((e) => e.id == checklistItemId);
+    if (index < 0) return;
 
+    final oldItem = _personalChecklists[index];
+    _personalChecklists[index] = oldItem.copyWith(content: content);
+    notifyListeners();
+
+    try {
+      await repository.updateContent(checklistItemId, oldItem.targetDate, content);
+    } catch (e) {
+      _personalChecklists[index] = oldItem;
+      notifyListeners();
+      rethrow;
+    }
+  }*/
+
+  Future<void> updateChecklistItemStatus(int checklistItemId, int studyId) async {
+    await repository.toggleStatus(checklistItemId, _selectedDate);
+    _modifiedStudyIds.add(studyId);
+    // repository.clearDateCache(_selectedDate);
   }
 
 
+  // =====================================================================================//
+  void sortPersonalChecklistsByCompletedThenOrder() {
+    _personalChecklists.sort((a, b) {
+      if (a.studyId != b.studyId) return a.studyId.compareTo(b.studyId);
+      if (a.completed != b.completed) return a.completed ? 1 : -1;
+      return (a.orderIndex ?? 0).compareTo(b.orderIndex ?? 0);
+    });
 
+    notifyListeners();
+  }
 
-
-
-
-
-
-
-
-
-
-
+  void clearModifiedTracking(){
+    _modifiedStudyIds.clear();
+  }
 }

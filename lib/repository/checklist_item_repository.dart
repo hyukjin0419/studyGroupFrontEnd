@@ -57,7 +57,7 @@ class InMemoryChecklistItemRepository{
     for (int i = 0; i < 7; i++) {
       final d = startOfWeek.add(Duration(days: i));
       final key = _key(studyId, d);
-      _cache.putIfAbsent(key, () => []); // ✅ 없으면 빈 리스트라도 넣음
+      _cache.putIfAbsent(key, () => []);
       if (pushToStream && _streams.containsKey(key)) {
         _streams[key]!.add(_cache[key]!);
       }

@@ -3,22 +3,32 @@ import 'dart:developer';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:study_group_front_end/providers/checklist_item_provider.dart';
+import 'package:study_group_front_end/providers/personal_checklist_provider.dart';
 import 'package:study_group_front_end/screens/checklist/common/tile/parts/customized_check_box.dart';
+
+enum ChecklistContext{
+  TEAM,
+  PERSONAL,
+}
 
 class ChecklistItemTile extends StatefulWidget {
   final int itemId;
+  final int studyId;
   final String title;
   final bool completed;
   final Color color;
   final VoidCallback onMore;
+  final ChecklistContext context;
 
   const ChecklistItemTile({
     super.key,
     required this.itemId,
+    required this.studyId,
     required this.title,
     required this.completed,
     required this.color,
     required this.onMore,
+    required this.context,
   });
 
   @override
@@ -36,14 +46,37 @@ class _ChecklistItemTileState extends State<ChecklistItemTile> {
     _title = widget.title;
   }
 
+  @override
+  void didUpdateWidget(ChecklistItemTile oldWidget) {
+    super.didUpdateWidget(oldWidget);
+    // props 변경시 로컬 상태 동기화
+    if (oldWidget.completed != widget.completed) {
+      setState(() {
+        _completed = widget.completed;
+      });
+    }
+    if (oldWidget.title != widget.title) {
+      setState(() {
+        _title = widget.title;
+      });
+    }
+  }
+
   void _toggleCompleted() async {
     setState(() {
       _completed = !_completed;
     });
     try {
+      log("id? ${widget.itemId}");
       final provider = context.read<ChecklistItemProvider>();
-      await provider.updateChecklistItemStatus(widget.itemId);
-      provider.sortChecklistGroupsByCompletedThenOrder();
+      final personalProvider = context.read<PersonalChecklistProvider>();
+
+      if (widget.context == ChecklistContext.TEAM){
+        await provider.updateChecklistItemStatus(widget.itemId);
+      } else {
+        await personalProvider.updateChecklistItemStatus(widget.itemId, widget.studyId);
+      }
+
     } catch (e) {
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(content: Text("체크리스트 content 업데이트 실패: $e")),

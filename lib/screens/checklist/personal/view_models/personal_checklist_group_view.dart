@@ -36,6 +36,10 @@ class _PersonalChecklistGroupViewState extends State<PersonalChecklistGroupView>
   final TextEditingController _controller = TextEditingController();
   final FocusNode _focusNode = FocusNode();
 
+  //Providers
+  late PersonalChecklistProvider personalProvider;
+  late ChecklistItemProvider teamProvider;
+
   @override
   void initState() {
     super.initState();
@@ -52,7 +56,26 @@ class _PersonalChecklistGroupViewState extends State<PersonalChecklistGroupView>
   }
 
   @override
+  void didChangeDependencies() {
+    super.didChangeDependencies();
+    personalProvider = context.read<PersonalChecklistProvider>();
+    teamProvider = context.read<ChecklistItemProvider>();
+  }
+
+  @override
   void dispose() {
+    final modifiedStudyIds = personalProvider.modifiedStudyIds.toList();
+    final selectedDate = personalProvider.selectedDate;
+
+    Future.microtask(() async {
+      for (final studyId in modifiedStudyIds) {
+        log("변경된 studyI $studyId");
+
+        await teamProvider.refresh(studyId, selectedDate);
+      }
+      personalProvider.clearModifiedTracking();
+    });
+
     _focusNode.dispose();
     _controller.dispose();
     super.dispose();
@@ -77,7 +100,7 @@ class _PersonalChecklistGroupViewState extends State<PersonalChecklistGroupView>
         physics: const NeverScrollableScrollPhysics(),
         padding: const EdgeInsets.fromLTRB(22, 8, 16, 24),
         itemCount: groups.length,
-        separatorBuilder: (_, __) => const SizedBox(height: 16),
+        separatorBuilder: (_, __) => const SizedBox.shrink(),
         itemBuilder: (context, index) {
           final entry = groups.entries.elementAt(index);
           final group = entry.value;
@@ -86,19 +109,15 @@ class _PersonalChecklistGroupViewState extends State<PersonalChecklistGroupView>
           return Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              // 스터디 헤더
               StudyHeaderChip(
                 name: group.studyName,
                 color: color,
                 onAddPressed: () => _startEditing(group.studyId),
               ),
-
               const SizedBox(height: 10),
 
-              // 체크리스트 아이템들
               _buildChecklistItems(group, isEditing),
 
-              // 새 아이템 입력 필드
               if (isEditing) _buildNewItemInputField(group.studyId),
             ],
           );
@@ -107,6 +126,7 @@ class _PersonalChecklistGroupViewState extends State<PersonalChecklistGroupView>
     );
   }
 
+  // ==================== Widget Builders ====================
   Widget _buildEmptyState() {
     return Center(
       child: Padding(
@@ -116,7 +136,7 @@ class _PersonalChecklistGroupViewState extends State<PersonalChecklistGroupView>
             Icon(Icons.checklist, size: 64, color: Colors.grey[400]),
             const SizedBox(height: 16),
             Text(
-              '오늘의 체크리스트가 없습니다',
+              '화면이 로딩 중에 있습니다. 잠시만 기다려 주세요!',
               style: TextStyle(color: Colors.grey[600], fontSize: 16),
             ),
           ],
@@ -128,17 +148,8 @@ class _PersonalChecklistGroupViewState extends State<PersonalChecklistGroupView>
   Widget _buildChecklistItems(group, bool isEditing) {
     return Column(
       children: [
-        // 미완료 아이템들
-        ...group.incomplete.map((item) =>
+        ...[...group.incomplete, ...group.completed].map((item) =>
             _buildChecklistItemWidget(item, group.studyId)
-        ),
-
-        // 완료 아이템들
-        ...group.completed.map((item) =>
-            Opacity(
-              opacity: 0.5,
-              child: _buildChecklistItemWidget(item, group.studyId),
-            )
         ),
       ],
     );
@@ -151,20 +162,21 @@ class _PersonalChecklistGroupViewState extends State<PersonalChecklistGroupView>
     }
 
     // 일반 체크리스트 타일
-    return Padding(
-      padding: const EdgeInsets.only(bottom: 0),
-      child: ChecklistItemTile(
-        itemId: item.id,
-        title: item.content,
-        completed: item.completed,
-        color: widget.primaryColor,
-        onMore: () => _showItemOptions(item, studyId),
-      ),
+    return ChecklistItemTile(
+      itemId: item.id,
+      studyId: studyId,
+      key: ValueKey('title-${item.id}'),
+      context: ChecklistContext.PERSONAL,
+      title: item.content,
+      completed: item.completed,
+      color: widget.primaryColor,
+      onMore: () => _showItemOptions(item, studyId),
     );
   }
 
   Widget _buildEditingField(item) {
     return ChecklistItemInputField(
+      key: ValueKey('editing-${item.id}'),
       color: widget.primaryColor,
       completed: item.completed,
       controller: _controller,
@@ -190,7 +202,6 @@ class _PersonalChecklistGroupViewState extends State<PersonalChecklistGroupView>
   }
 
   // ==================== Business Logic ====================
-  //TODO
   Future<void> _createChecklistItem(int studyId, String content) async {
     try {
       final provider = context.read<PersonalChecklistProvider>();

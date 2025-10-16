@@ -1,5 +1,6 @@
 // repository/personal_checklist_repository.dart
 
+import 'dart:async';
 import 'dart:developer';
 import 'package:study_group_front_end/api_service/checklist_item_api_service.dart';
 import 'package:study_group_front_end/api_service/personal_checklist_api_service.dart';
@@ -12,11 +13,20 @@ class PersonalChecklistRepository {
 
   PersonalChecklistRepository(this.personalApi, this.commonApi);
 
-  // 심플한 캐시 - 날짜별 데이터만 저장
   final Map<String, List<ChecklistItemDetailResponse>> _cache = {};
+  final Map<String, StreamController<List<ChecklistItemDetailResponse>>> _streams = {};
 
   String _key(DateTime date) =>
       'personal-${date.year}-${date.month.toString().padLeft(2,'0')}-${date.day.toString().padLeft(2,'0')}';
+
+  Stream<List<ChecklistItemDetailResponse>> watch(DateTime date){
+    final key = _key(date);
+    _streams.putIfAbsent(key, () => StreamController.broadcast());
+
+    if(_cache.containsKey(key)) _streams[key]!.add(_cache[key]!);
+
+    return _streams[key]!.stream;
+  }
 
   // ==================== READ ====================
 
@@ -30,6 +40,7 @@ class PersonalChecklistRepository {
     }
 
     // 캐시 미스 - 주간 데이터 가져오기
+    log("personal cache miss");
     log("PersonalRepo: API 호출");
     await _fetchAndCacheWeek(startOfWeek);
 
@@ -40,14 +51,25 @@ class PersonalChecklistRepository {
     try {
       final items = await personalApi.getMyChecklistsByWeek(startOfWeek);
 
+      //7일 캐시 초기화
       for(int i=0;i<7;i++) {
         final day = startOfWeek.add(Duration(days: i));
         _cache[_key(day)] = [];
       }
 
+      //캐시에 체크리스트의 targetDate 확인해서 날짜별로 채워넣기
       for (final item in items) {
         final itemKey = _key(item.targetDate);
         _cache[itemKey]!.add(item);
+      }
+
+      //업데이트 된 내용 Stream에 전파하기
+      for(int i=0;i<7;i++) {
+        final day = startOfWeek.add(Duration(days: i));
+        final dayKey = _key(day);
+        if(_streams.containsKey(dayKey)) {
+          _streams[dayKey]!.add(List.from(_cache[dayKey]!));
+        }
       }
 
       log("PersonalRepo: 주간 데이터 캐싱 완료");
@@ -59,24 +81,23 @@ class PersonalChecklistRepository {
 
 //TODO Check CRUD of Repository
   // ==================== UPDATE ====================
-  Future<ChecklistItemDetailResponse?> toggleStatus(int checklistItemId, DateTime date) async {
-    await commonApi.updateChecklistItemStatus(checklistItemId);
-
-    // 캐시 업데이트
+  Future<void> toggleStatus(int checklistItemId, DateTime date) async {
     final key = _key(date);
-    if (_cache.containsKey(key)) {
-      final item = _cache[key]!.firstWhere(
-            (e) => e.id == checklistItemId,
-        orElse: () => throw Exception('Item not found'),
-      );
+    final list = _cache[key];
+    final index = list!.indexWhere((e) => e.id == checklistItemId);
+    if(index < 0) return;
 
-      final updatedItem = item.copyWith(completed: !item.completed);
-      final index = _cache[key]!.indexOf(item);
-      _cache[key]![index] = updatedItem;
+    final oldCompleted = list[index].completed;
+    list[index] = list[index].copyWith(completed: !oldCompleted);
+    _streams[key]?.add(List.from(list));
 
-      return updatedItem;
+    try{
+      await commonApi.updateChecklistItemStatus(checklistItemId);
+    } catch (e) {
+      list[index] = list[index].copyWith(completed: oldCompleted);
+      _streams[key]?.add(List.from(list));
+      rethrow;
     }
-    return null;
   }
 
   Future<void> updateContent(int checklistItemId, DateTime date, String content) async {
@@ -111,6 +132,7 @@ class PersonalChecklistRepository {
   }
 
   void clearDateCache(DateTime date) {
+    log("clear cache");
     _cache.remove(_key(date));
   }
 }

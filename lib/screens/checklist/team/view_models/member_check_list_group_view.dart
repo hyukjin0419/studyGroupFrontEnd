@@ -80,6 +80,12 @@ class _MemberChecklistGroupViewState extends State<MemberChecklistGroupView> {
   @override
   Widget build(BuildContext context) {
     final provider = context.watch<ChecklistItemProvider>();
+    final groups = provider.groups;
+
+    if (groups.isEmpty) {
+      return _buildEmptyState();
+    }
+
     return GestureDetector(
       behavior: HitTestBehavior.translucent,
       onTap: _quitEditing,
@@ -88,10 +94,10 @@ class _MemberChecklistGroupViewState extends State<MemberChecklistGroupView> {
         shrinkWrap: true,
         physics: const NeverScrollableScrollPhysics(),
         padding: const EdgeInsets.fromLTRB(22, 8, 16, 24),
-        itemCount: provider.groups.length,
+        itemCount: groups.length,
         separatorBuilder: (_, __) => const SizedBox.shrink(),
         itemBuilder: (context, i) {
-          final g = provider.groups[i];
+          final g = groups[i];
           final isEditing = (_editingMemberId == g.studyMemberId);
 
           return Column(
@@ -103,7 +109,9 @@ class _MemberChecklistGroupViewState extends State<MemberChecklistGroupView> {
                 onAddPressed: () => _startEditing(g.studyMemberId),
               ),
               const SizedBox(height: 10),
+
               _buildChecklistItems(g, isEditing),
+
               if (isEditing) _buildNewItemInputField(g),
             ],
           );
@@ -113,6 +121,24 @@ class _MemberChecklistGroupViewState extends State<MemberChecklistGroupView> {
   }
 
   // ==================== Widget Builders ====================
+
+  Widget _buildEmptyState() {
+    return Center(
+      child: Padding(
+        padding: const EdgeInsets.all(40),
+        child: Column(
+          children: [
+            Icon(Icons.checklist, size: 64, color: Colors.grey[400]),
+            const SizedBox(height: 16),
+            Text(
+              '화면이 로딩 중에 있습니다. 잠시만 기다려 주세요!',
+              style: TextStyle(color: Colors.grey[600], fontSize: 16),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
 
   Widget _buildChecklistItems(MemberChecklistGroupVM g, bool isEditing) {
     return Column(
@@ -240,7 +266,9 @@ class _MemberChecklistGroupViewState extends State<MemberChecklistGroupView> {
   Widget _buildChecklistTile(MemberChecklistItemVM item, {bool showOptions = false}) {
     return ChecklistItemTile(
       itemId: item.id,
+      studyId: widget.study.id,
       key: ValueKey('title-${item.id}'),
+      context: ChecklistContext.TEAM,
       title: item.content,
       completed: item.completed,
       color: _personalColor,
