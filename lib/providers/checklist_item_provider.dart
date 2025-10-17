@@ -47,16 +47,24 @@ class ChecklistItemProvider with ChangeNotifier, LoadingNotifier{
   Future<void> _subscribeToDate(DateTime date) async {
     log("_subscribeTodate 호출");
     if (_studyId == null) return;
+    _groups=[];
 
     await _subscription?.cancel();
 
-    final stream = repository.watch(_studyId!, date);
+    final stream = repository.watchTeam(_studyId!, date);
+
     _subscription = stream.listen((items) {
+      // log("📡 Stream 수신: ${items.length}개 아이템");
+      // for (final item in items) {
+      // //   log("   ↳ id=${item.id}, member=${item.studyMemberId}, done=${item.completed}, content=${item.content}");
+      // }
       updateGroups(items);
+      // log("✅ updateGroups 호출 후 _groups 길이: ${_groups.length}");
     });
 
-    final items = await repository.getChecklistItems(_studyId!, date);
-    updateGroups(items);
+    //listen이 watch 구독 후 초기 api 호출
+    await repository.getTeamChecklist(_studyId!, date);
+    // updateGroups(items);
   }
 
   // ================= exit =================
@@ -67,11 +75,11 @@ class ChecklistItemProvider with ChangeNotifier, LoadingNotifier{
     notifyListeners();
   }
 
-  // ================= External Call =================
-  Future<void> refresh(int studyId, DateTime date) async {
-    final items = await repository.getChecklistItems(studyId, date, force: true);
-    updateGroups(items);
-  }
+  // // ================= External Call =================
+  // Future<void> refresh(int studyId, DateTime date) async {
+  //   final items = await repository.getChecklistItems(studyId, date, force: true);
+  //   updateGroups(items);
+  // }
 
 
 
@@ -130,7 +138,6 @@ class ChecklistItemProvider with ChangeNotifier, LoadingNotifier{
           items: [],
         )
     };
-
     for (final item in items){
       final studyMemberId = item.studyMemberId;
       if (groupMap.containsKey(studyMemberId)) {
@@ -241,6 +248,7 @@ enum HoverStatus{
   hovering,
   notHovering,
 }
+
 
 
 

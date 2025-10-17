@@ -51,8 +51,24 @@ Future<void> main() async {
           ChangeNotifierProvider(
               create: (_) => StudyJoinProvider(StudyJoinApiService()),
           ),
-          ChangeNotifierProvider(
-            create: (_) => ChecklistItemProvider(InMemoryChecklistItemRepository(ChecklistItemApiService())),
+          ChangeNotifierProxyProvider<MeProvider, ChecklistItemProvider>(
+            create: (context) => ChecklistItemProvider(
+              InMemoryChecklistItemRepository(
+                ChecklistItemApiService(),
+                PersonalChecklistApiService(),
+                0,
+              ),
+            ),
+            update: (context,me,previous) {
+              if(me.currentMember == null) return previous!;
+                return ChecklistItemProvider(
+                    InMemoryChecklistItemRepository(
+                      ChecklistItemApiService(),
+                      PersonalChecklistApiService(),
+                      me.currentMember!.id
+                    )
+                );
+              }
           ),
           ChangeNotifierProvider(
             create: (_) => PersonalChecklistProvider(PersonalChecklistApiService(),ChecklistItemApiService(),PersonalChecklistRepository(PersonalChecklistApiService(),ChecklistItemApiService(),)),

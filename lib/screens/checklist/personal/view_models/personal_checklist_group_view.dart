@@ -71,7 +71,7 @@ class _PersonalChecklistGroupViewState extends State<PersonalChecklistGroupView>
       for (final studyId in modifiedStudyIds) {
         log("변경된 studyI $studyId");
 
-        await teamProvider.refresh(studyId, selectedDate);
+        // await teamProvider.refresh(studyId, selectedDate);
       }
       personalProvider.clearModifiedTracking();
     });
@@ -215,7 +215,7 @@ class _PersonalChecklistGroupViewState extends State<PersonalChecklistGroupView>
       log("studyID: $studyId");
 
       final teamProvider = context.read<ChecklistItemProvider>();
-      await teamProvider.refresh(studyId, widget.selectedDate);
+      // await teamProvider.refresh(studyId, widget.selectedDate);
       _quitEditing();
 
 

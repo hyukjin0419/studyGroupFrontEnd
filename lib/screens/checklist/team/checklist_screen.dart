@@ -27,6 +27,7 @@ class _ChecklistScreenState extends State<ChecklistScreen> {
     WidgetsBinding.instance.addPostFrameCallback((_) async{
       _checklistItemProvider = context.read<ChecklistItemProvider>();
       _checklistItemProvider.initializeContext(widget.study.id, widget.study.members);
+      log("스터디 화면 진입 ${_checklistItemProvider.selectedDate}");
     });
   }
 
