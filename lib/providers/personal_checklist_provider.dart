@@ -32,13 +32,8 @@ class PersonalChecklistProvider with ChangeNotifier, LoadingNotifier {
   //Stream 구독
   StreamSubscription? _subscription;
 
-  //변경 감지 및 상태 추적
-  Set<int> _modifiedStudyIds = {};
-  Set<int> get modifiedStudyIds => _modifiedStudyIds;
 
-
-
-
+  //TODO 구독 다시 설정 해야 함
   Future<void> _subscribeToDate(DateTime date) async{
     await _subscription?.cancel();
 
@@ -92,11 +87,11 @@ class PersonalChecklistProvider with ChangeNotifier, LoadingNotifier {
   }
 
   // =============================== 외부 호출 ===========================//
-  Future<void> refresh() async {
-    await runWithLoading(() async{
-      _personalChecklists = await repository.getMyChecklistsOfDay(_selectedDate, force: true);
-    });
-  }
+  // Future<void> refresh() async {
+  //   await runWithLoading(() async{
+  //     _personalChecklists = await repository.getMyChecklistsOfDay(_selectedDate, force: true);
+  //   });
+  // }
 
 
   // =============================== 데이터 로드 ===========================//
@@ -160,7 +155,6 @@ class PersonalChecklistProvider with ChangeNotifier, LoadingNotifier {
          notifyListeners();
       }
 
-      _modifiedStudyIds.add(studyId);
     } catch (e) {
       _personalChecklists.removeWhere((e) => e.id == tempItem.id);
       notifyListeners();
@@ -188,23 +182,18 @@ class PersonalChecklistProvider with ChangeNotifier, LoadingNotifier {
 
   Future<void> updateChecklistItemStatus(int checklistItemId, int studyId) async {
     await repository.toggleStatus(checklistItemId, _selectedDate);
-    _modifiedStudyIds.add(studyId);
     // repository.clearDateCache(_selectedDate);
   }
 
 
   // =====================================================================================//
-  void sortPersonalChecklistsByCompletedThenOrder() {
-    _personalChecklists.sort((a, b) {
-      if (a.studyId != b.studyId) return a.studyId.compareTo(b.studyId);
-      if (a.completed != b.completed) return a.completed ? 1 : -1;
-      return (a.orderIndex ?? 0).compareTo(b.orderIndex ?? 0);
-    });
-
-    notifyListeners();
-  }
-
-  void clearModifiedTracking(){
-    _modifiedStudyIds.clear();
-  }
+  // void sortPersonalChecklistsByCompletedThenOrder() {
+  //   _personalChecklists.sort((a, b) {
+  //     if (a.studyId != b.studyId) return a.studyId.compareTo(b.studyId);
+  //     if (a.completed != b.completed) return a.completed ? 1 : -1;
+  //     return (a.orderIndex ?? 0).compareTo(b.orderIndex ?? 0);
+  //   });
+  //
+  //   notifyListeners();
+  // }
 }

@@ -64,18 +64,6 @@ class _PersonalChecklistGroupViewState extends State<PersonalChecklistGroupView>
 
   @override
   void dispose() {
-    final modifiedStudyIds = personalProvider.modifiedStudyIds.toList();
-    final selectedDate = personalProvider.selectedDate;
-
-    Future.microtask(() async {
-      for (final studyId in modifiedStudyIds) {
-        log("변경된 studyI $studyId");
-
-        // await teamProvider.refresh(studyId, selectedDate);
-      }
-      personalProvider.clearModifiedTracking();
-    });
-
     _focusNode.dispose();
     _controller.dispose();
     super.dispose();

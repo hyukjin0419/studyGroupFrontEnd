@@ -344,7 +344,7 @@ class _MemberChecklistGroupViewState extends State<MemberChecklistGroupView> {
 
 
       final personalProvider = context.read<PersonalChecklistProvider>();
-      await personalProvider.refresh();
+      // await personalProvider.refresh();
     } catch (e) {
       if (mounted) {
         _showErrorSnackBar("생성 실패: $e");
