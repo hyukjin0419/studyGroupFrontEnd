@@ -41,14 +41,14 @@ class PersonalChecklistProvider with ChangeNotifier, LoadingNotifier {
 
     _subscription = stream.listen((items) {
       _personalChecklists = items;
-      sortPersonalChecklistsByCompletedThenOrder();
+      // sortPersonalChecklistsByCompletedThenOrder();
       notifyListeners();
     });
 
     // 초기 데이터 로드
     final items = await repository.getMyChecklistsOfDay(date);
     _personalChecklists = items;
-    sortPersonalChecklistsByCompletedThenOrder();
+    // sortPersonalChecklistsByCompletedThenOrder();
     notifyListeners();
   }
 
