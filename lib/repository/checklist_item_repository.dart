@@ -128,12 +128,20 @@ class InMemoryChecklistItemRepository{
 
     _cache.forEach((dateKey, list) {
       // --- 팀별 스트림 전송 ---
-      for (final item in list) {
-        final teamStreamKey = 'team_${item.studyId}_$dateKey';
-        _streams.putIfAbsent(teamStreamKey, () => StreamController.broadcast());
-        final teamItems = list.where((e) => e.studyId == item.studyId).toList();
-        _streams[teamStreamKey]!.add(teamItems);
-        // log("   🔸 team_stream → $teamStreamKey (${teamItems.length} items)");
+      if (list.isEmpty) {
+        // 캐시만 있고 체크리스트 없는 날짜 → 모든 studyId에 대해 빈 리스트라도 push
+        for (final streamKey in _streams.keys.where((k) => k.contains(dateKey))) {
+          _streams[streamKey]?.add([]);
+          log("   ⚪️ empty push → $streamKey");
+        }
+      } else {
+        for (final item in list) {
+          final teamStreamKey = 'team_${item.studyId}_$dateKey';
+          _streams.putIfAbsent(teamStreamKey, () => StreamController.broadcast());
+          final teamItems = list.where((e) => e.studyId == item.studyId).toList();
+          _streams[teamStreamKey]!.add(teamItems);
+          // log("   🔸 team_stream → $teamStreamKey (${teamItems.length} items)");
+        }
       }
 
       // // --- 개인 스트림 전송 ---
@@ -288,16 +296,15 @@ class InMemoryChecklistItemRepository{
 
     _cache.putIfAbsent(dateKey, () => []);
     _cache[dateKey]!.add(newItem);
-    _saveToCacheAndStream([newItem]);
+    _cacheToAllStreams();
 
     try {
       final created = await teamApi.createChecklistItemOfStudy(request, studyId);
       final idx = _cache[dateKey]!.indexWhere((e) => e.id == tempId);
       if (idx >= 0) _cache[dateKey]![idx] = created;
-      _saveToCacheAndStream([newItem]);
     } catch (_) {
       _cache[dateKey]!.removeWhere((e) => e.id == tempId);
-      _saveToCacheAndStream([newItem]);
+      _cacheToAllStreams();
       rethrow;
     }
   }
