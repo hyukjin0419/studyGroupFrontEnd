@@ -70,8 +70,24 @@ Future<void> main() async {
                 );
               }
           ),
-          ChangeNotifierProvider(
-            create: (_) => PersonalChecklistProvider(PersonalChecklistApiService(),ChecklistItemApiService(),PersonalChecklistRepository(PersonalChecklistApiService(),ChecklistItemApiService(),)),
+          ChangeNotifierProxyProvider<MeProvider, PersonalChecklistProvider>(
+              create: (context) => PersonalChecklistProvider(
+                InMemoryChecklistItemRepository(
+                  ChecklistItemApiService(),
+                  PersonalChecklistApiService(),
+                  0,
+                ),
+              ),
+              update: (context,me,previous) {
+                if(me.currentMember == null) return previous!;
+                return PersonalChecklistProvider(
+                    InMemoryChecklistItemRepository(
+                        ChecklistItemApiService(),
+                        PersonalChecklistApiService(),
+                        me.currentMember!.id
+                    )
+                );
+              }
           ),
         ],
         child: MaterialApp.router(

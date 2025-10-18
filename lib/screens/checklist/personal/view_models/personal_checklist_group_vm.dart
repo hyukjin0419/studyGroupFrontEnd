@@ -4,18 +4,16 @@ class PersonalCheckListGroupVM{
   final int studyId;
   final String? studyName;
   final int studyMemberId;
-  final List<ChecklistItemDetailResponse> incomplete;
-  final List<ChecklistItemDetailResponse> completed;
+  final List<ChecklistItemDetailResponse> items;
 
   PersonalCheckListGroupVM({
     required this.studyId,
     required this.studyName,
     required this.studyMemberId,
-    required this.incomplete,
-    required this.completed,
+    required this.items,
   });
 
-  int get totalCount => incomplete.length + completed.length;
-  int get completedCount => completed.length;
-  double get progress => totalCount > 0 ? completedCount / totalCount : 0.0;
+  // int get totalCount => incomplete.length + completed.length;
+  // int get completedCount => completed.length;
+  // double get progress => totalCount > 0 ? completedCount / totalCount : 0.0;
 }

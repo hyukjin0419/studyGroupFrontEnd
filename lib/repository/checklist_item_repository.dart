@@ -37,16 +37,20 @@ class InMemoryChecklistItemRepository{
     }
   }
 
-  Future<void> getPersonalChecklist(DateTime date ,{bool force = false}) async {
+  Future<List<ChecklistItemDetailResponse>> getPersonalChecklist(DateTime date ,{bool force = false}) async {
     final dateKey = _dateKey(date);
 
     if(!_cache.containsKey(dateKey) || force){
       log("getPersonal Checklist 캐시 miss or 강제 fetch");
       await fetchWeekForPersonal(date);
     } else {
-      log("getTeamChecklist 캐시 히트");
+      log("getPersonal 캐시 히트");
       _cacheToAllStreams();
     }
+
+    final cachedList = _cache[dateKey] ?? [];
+
+    return cachedList;
   }
 
   // 팀용 체크리스트를 공통 캐시에 fetch
@@ -64,10 +68,11 @@ class InMemoryChecklistItemRepository{
   }
 
   // //개인용 체크리스트를 공통 캐시에 fetch
-  Future<void> fetchWeekForPersonal(DateTime date) async{
+  Future<List<ChecklistItemDetailResponse>> fetchWeekForPersonal(DateTime date) async{
+    final List<ChecklistItemDetailResponse> list;
     try{
       final startOfWeek = date.subtract(Duration(days: date.weekday - 1));
-      final list = await personalApi.getMyChecklistsByWeek(startOfWeek);
+      list = await personalApi.getMyChecklistsByWeek(startOfWeek);
       _apiToCache(list);
       _fillEmptyDaysInCache(startOfWeek);
       _cacheToAllStreams();
@@ -75,7 +80,13 @@ class InMemoryChecklistItemRepository{
       log('❌ [ChecklistRepo] fetchWeekForPersonal 실패: $e');
       rethrow;
     }
+
+    return List.of(list);
   }
+
+  //개인용 init fetch
+
+
 
   // ===========================================================
   // 📡 STREAM  단순 채널 열고 캐시 데이터 방출 -> 캐시 데이터 로드 여기서 금지 -> 채널 열기만 하기
@@ -89,7 +100,7 @@ class InMemoryChecklistItemRepository{
     return _teamStreams[streamKey]!.stream;
   }
 
-  Future<Stream<List<ChecklistItemDetailResponse>>> watchPersonal(DateTime date) async{
+  Stream<List<ChecklistItemDetailResponse>> watchPersonal(DateTime date) {
     final streamKey = 'personal_${_dateKey(date)}';
     _personalStreams.putIfAbsent(streamKey, () => StreamController.broadcast());
 
@@ -128,12 +139,12 @@ class InMemoryChecklistItemRepository{
         //ui에 빈 배열 만들어 줘야지 headerchip이 렌더링 되고 작동함.
         for (final streamKey in _teamStreams.keys.where((k) => k.contains(dateKey))) {
           _teamStreams[streamKey]?.add([]);
-          log("   ⚪️ empty push → $streamKey to teamStream");
+          // log("   ⚪️ empty push → $streamKey to teamStream");
         }
 
         for(final streamKey in _personalStreams.keys.where((k) => k.contains(dateKey))) {
           _personalStreams[streamKey]?.add([]);
-          log("   ⚪️ empty push → $streamKey to personalStream");
+          // log("   ⚪️ empty push → $streamKey to personalStream");
         }
       } else {
         for (final item in list) {
@@ -147,12 +158,12 @@ class InMemoryChecklistItemRepository{
           final personalItems = list.where((e) => e.studyMemberId == currentMemberId).toList();
           _personalStreams[personalStreamKey]!.add(personalItems);
           // log("   🔸 team_stream → $teamStreamKey (${teamItems.length} items)");
-          log("   🔸 personal_stream → $personalStreamKey (${personalItems.length} items)");
+          // log("   🔸 personal_stream → $personalStreamKey (${personalItems.length} items)");
         }
       }
     });
 
-    log("✅ [cacheToAllStreams] 전체 캐시 재전송 완료 (총 ${_cache.length}일)");
+    // log("✅ [cacheToAllStreams] 전체 캐시 재전송 완료 (총 ${_cache.length}일)");
   }
 
 

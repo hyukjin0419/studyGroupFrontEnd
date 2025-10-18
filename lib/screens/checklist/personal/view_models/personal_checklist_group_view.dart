@@ -1,16 +1,14 @@
-// screens/checklist/personal/widgets/personal_checklist_list_view.dart
-
 import 'dart:developer';
+
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
-import 'package:study_group_front_end/dto/checklist_item/create/checklist_item_create_request.dart';
-import 'package:study_group_front_end/dto/checklist_item/update/checklist_item_content_update_request.dart';
 import 'package:study_group_front_end/providers/checklist_item_provider.dart';
 import 'package:study_group_front_end/providers/personal_checklist_provider.dart';
 import 'package:study_group_front_end/screens/checklist/common/bottom/show_checklist_item_options_bottom_sheet.dart';
 import 'package:study_group_front_end/screens/checklist/common/tile/parts/checklist_item_input_field.dart';
 import 'package:study_group_front_end/screens/checklist/common/tile/parts/checklist_item_tile.dart';
 import 'package:study_group_front_end/screens/checklist/personal/tile/parts/study_header_chip.dart';
+import 'package:study_group_front_end/screens/checklist/personal/view_models/personal_checklist_group_vm.dart';
 
 
 class PersonalChecklistGroupView extends StatefulWidget {
@@ -55,12 +53,6 @@ class _PersonalChecklistGroupViewState extends State<PersonalChecklistGroupView>
     });
   }
 
-  @override
-  void didChangeDependencies() {
-    super.didChangeDependencies();
-    personalProvider = context.read<PersonalChecklistProvider>();
-    teamProvider = context.read<ChecklistItemProvider>();
-  }
 
   @override
   void dispose() {
@@ -72,8 +64,8 @@ class _PersonalChecklistGroupViewState extends State<PersonalChecklistGroupView>
   @override
   Widget build(BuildContext context) {
     final provider = context.watch<PersonalChecklistProvider>();
-    final groups = provider.groupByStudy;
-    //색상 어떻게 할건지 생각해봐야 함.
+    final groups = provider.groups;
+    //색상 어떻게 할건지 생각해봐야 함. -> 나중에 title 옆에 색상 변경 버튼 추가
     final color = Colors.teal;
 
     if (groups.isEmpty) {
@@ -89,9 +81,8 @@ class _PersonalChecklistGroupViewState extends State<PersonalChecklistGroupView>
         padding: const EdgeInsets.fromLTRB(22, 8, 16, 24),
         itemCount: groups.length,
         separatorBuilder: (_, __) => const SizedBox.shrink(),
-        itemBuilder: (context, index) {
-          final entry = groups.entries.elementAt(index);
-          final group = entry.value;
+        itemBuilder: (context, i) {
+          final group = groups[i];
           final isEditing = (_editingStudyId == group.studyId);
 
           return Column(
@@ -133,11 +124,11 @@ class _PersonalChecklistGroupViewState extends State<PersonalChecklistGroupView>
     );
   }
 
-  Widget _buildChecklistItems(group, bool isEditing) {
+  Widget _buildChecklistItems(PersonalCheckListGroupVM g, bool isEditing) {
     return Column(
       children: [
-        ...[...group.incomplete, ...group.completed].map((item) =>
-            _buildChecklistItemWidget(item, group.studyId)
+        ...[...g.items].map((item) =>
+            _buildChecklistItemWidget(item, g.studyId),
         ),
       ],
     );
@@ -193,12 +184,12 @@ class _PersonalChecklistGroupViewState extends State<PersonalChecklistGroupView>
   Future<void> _createChecklistItem(int studyId, String content) async {
     try {
       final provider = context.read<PersonalChecklistProvider>();
-      await provider.createPersonalChecklist(
-        content: content,
-        targetDate: widget.selectedDate,
-        studyId: studyId,
-
-      );
+      // await provider.createPersonalChecklist(
+      //   content: content,
+      //   targetDate: widget.selectedDate,
+      //   studyId: studyId,
+      //
+      // );
 
       log("studyID: $studyId");
 

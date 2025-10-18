@@ -74,7 +74,7 @@ class _ChecklistItemTileState extends State<ChecklistItemTile> {
       if (widget.context == ChecklistContext.TEAM){
         await provider.updateChecklistItemStatus(widget.itemId);
       } else {
-        await personalProvider.updateChecklistItemStatus(widget.itemId, widget.studyId);
+        // await personalProvider.updateChecklistItemStatus(widget.itemId, widget.studyId);
       }
 
     } catch (e) {

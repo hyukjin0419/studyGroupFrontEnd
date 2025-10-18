@@ -23,7 +23,7 @@ class _SplashScreenState extends State<SplashScreen> {
   }
 
   Future<void> _initApp() async {
-    final isLoggedIn = await prefetchAll(context);
+    final isLoggedIn = await initIfLoggedIn(context);
 
     if (!mounted) return;
 

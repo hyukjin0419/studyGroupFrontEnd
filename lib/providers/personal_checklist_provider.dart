@@ -6,161 +6,163 @@ import 'package:study_group_front_end/api_service/checklist_item_api_service.dar
 import 'package:study_group_front_end/api_service/personal_checklist_api_service.dart';
 import 'package:study_group_front_end/dto/checklist_item/create/checklist_item_create_request.dart';
 import 'package:study_group_front_end/dto/checklist_item/detail/checklist_item_detail_response.dart';
+import 'package:study_group_front_end/dto/study/detail/study_detail_response.dart';
 import 'package:study_group_front_end/providers/loading_notifier.dart';
+import 'package:study_group_front_end/repository/checklist_item_repository.dart';
 import 'package:study_group_front_end/repository/personal_checklist_repository.dart';
 import 'package:study_group_front_end/screens/checklist/personal/view_models/personal_checklist_group_vm.dart';
 
 class PersonalChecklistProvider with ChangeNotifier, LoadingNotifier {
-  final PersonalChecklistApiService personalChecklistApiService;
-  final ChecklistItemApiService checklistItemApiService;
-  final PersonalChecklistRepository repository;
+  final InMemoryChecklistItemRepository repository;
+  PersonalChecklistProvider(this.repository);
 
-  PersonalChecklistProvider(
-      this.personalChecklistApiService,
-      this.checklistItemApiService,
-      this.repository
-  );
+  List<PersonalCheckListGroupVM> _groups = [];
+  List<PersonalCheckListGroupVM> get groups => _groups;
 
-  //State
+  List<StudyDetailResponse> _myStudies = [];
+  void setMyStudies(List<StudyDetailResponse> studies) => (_myStudies = studies);
+
   DateTime _selectedDate = DateTime.now();
-  List<ChecklistItemDetailResponse> _personalChecklists = [];
-
-  //Getters
   DateTime get selectedDate => _selectedDate;
-  List<ChecklistItemDetailResponse> get personalChecklists => _personalChecklists;
-
-  //Stream 구독
-  StreamSubscription? _subscription;
 
 
-  //TODO 구독 다시 설정 해야 함
-  Future<void> _subscribeToDate(DateTime date) async{
-    await _subscription?.cancel();
+  StreamSubscription<List<ChecklistItemDetailResponse>>? _subscription;
 
-    final stream = repository.watch(date);
+  //=================Init======================//
+  //해당 메소드는 로그인 후 앱 진입시 실행
 
-    _subscription = stream.listen((items) {
-      _personalChecklists = items;
-      // sortPersonalChecklistsByCompletedThenOrder();
-      notifyListeners();
-    });
-
-    // 초기 데이터 로드
-    final items = await repository.getMyChecklistsOfDay(date);
-    _personalChecklists = items;
-    // sortPersonalChecklistsByCompletedThenOrder();
-    notifyListeners();
+  void initializeContext() async{
+    _groups=[];
+    
+    await _subscribeToDate(DateTime.now());
   }
 
-  //완료 상태별 분리
-  List<ChecklistItemDetailResponse> get incompleteItems =>
-      _personalChecklists.where((item) => !item.completed).toList();
-
-  List<ChecklistItemDetailResponse> get completeItems =>
-      _personalChecklists.where((item) => item.completed).toList();
-
-  //통계 (PersonalStatus Card용)
-  int get completedCount => completeItems.length;
-  int get totalCount => _personalChecklists.length;
-  double get progress => totalCount > 0 ? completedCount / totalCount : 0.0;
-
-  //스터디별 그룹화 (완료 상태 분리)
-  Map<int, PersonalCheckListGroupVM> get groupByStudy {
-    final grouped = <int, PersonalCheckListGroupVM> {};
-
-    for (final item in _personalChecklists){
-      grouped.putIfAbsent(item.studyId,() => PersonalCheckListGroupVM(
-          studyId: item.studyId,
-          studyMemberId: item.studyMemberId,
-          studyName: item.studyName,
-          incomplete: [],
-          completed: []
-      ));
-
-      if (item.completed){
-        grouped[item.studyId]!.completed.add(item);
-      } else {
-        grouped[item.studyId]!.incomplete.add(item);
-      }
-    }
-    return grouped;
-  }
-
-  // =============================== 외부 호출 ===========================//
-  // Future<void> refresh() async {
-  //   await runWithLoading(() async{
-  //     _personalChecklists = await repository.getMyChecklistsOfDay(_selectedDate, force: true);
-  //   });
-  // }
-
-
-  // =============================== 데이터 로드 ===========================//
-  Future<void> initialize() async {
+  Future<void> updateSelectedDate(DateTime newDate) async {
+    _groups=[];
+    _selectedDate = newDate;
     await _subscribeToDate(_selectedDate);
   }
 
-  void updateSelectedDate(DateTime newDate) {
-    _selectedDate = newDate;
-    getMyChecklists();
+  Future<void> _subscribeToDate(DateTime date) async{
+    log("_subscribeTodate 호출");
+    _groups=[];
+    notifyListeners();
+
+    await _subscription?.cancel();
+
+    final stream = repository.watchPersonal(date);
+
+    _subscription = stream.listen((items) {
+      updateGroups(items);
+    });
+
+    await repository.getPersonalChecklist(date);
+  }
+
+  //완료 상태별 분리
+  // List<ChecklistItemDetailResponse> get incompleteItems =>
+  //     _personalChecklists.where((item) => !item.completed).toList();
+  //
+  // List<ChecklistItemDetailResponse> get completeItems =>
+  //     _personalChecklists.where((item) => item.completed).toList();
+  //
+  // //통계 (PersonalStatus Card용)
+  // int get completedCount => completeItems.length;
+  // int get totalCount => _personalChecklists.length;
+  // double get progress => totalCount > 0 ? completedCount / totalCount : 0.0;
+  //
+  // //스터디별 그룹화 (완료 상태 분리)
+  // Map<int, PersonalCheckListGroupVM> get groupByStudy {
+  //   final grouped = <int, PersonalCheckListGroupVM> {};
+  //
+  //   for (final item in _personalChecklists){
+  //     grouped.putIfAbsent(item.studyId,() => PersonalCheckListGroupVM(
+  //         studyId: item.studyId,
+  //         studyMemberId: item.studyMemberId,
+  //         studyName: item.studyName,
+  //         incomplete: [],
+  //         completed: []
+  //     ));
+  //
+  //     if (item.completed){
+  //       grouped[item.studyId]!.completed.add(item);
+  //     } else {
+  //       grouped[item.studyId]!.incomplete.add(item);
+  //     }
+  //   }
+  //   return grouped;
+  // }
+
+  //========================== Grouping =========================
+  void updateGroups(List<ChecklistItemDetailResponse> items){
+    final Map<int, PersonalCheckListGroupVM> groupMap = {};
+
+    for (final item in items){
+      groupMap.putIfAbsent(
+        item.studyId,
+        ()=> PersonalCheckListGroupVM(
+          studyId: item.studyId,
+          studyName: item.studyName,
+          studyMemberId: item.studyMemberId,
+          items: [],
+        ),
+      );
+        groupMap[item.studyId]!.items.add(item);
+      }
+
+    _groups = groupMap.values.toList()
+      ..sort((a, b) => a.studyName?.compareTo(b.studyName ?? '') ?? 0);
     notifyListeners();
   }
-
-  //우선 -> repo에서 캐시 확인 -> 캐시 미스시 api 호출
-  Future<void> getMyChecklists() async {
-    await runWithLoading(() async{
-      _personalChecklists = await repository.getMyChecklistsOfDay(_selectedDate);
-    });
-  }
-
 
 //TODO CRUD Provider
   // =============================== CRUD (Optimistic) ===========================//
 
-  Future<void> createPersonalChecklist({
-    required String content,
-    required DateTime targetDate,
-    required int studyId
-  }) async {
-    final group = groupByStudy[studyId];
-
-    final tempItem = ChecklistItemDetailResponse(
-      id: -DateTime.now().millisecondsSinceEpoch, //임시 ID
-      studyId: studyId,
-      type: "STUDY",
-      studyMemberId:group!.studyMemberId,
-      studyName: group.studyName,
-      content: content,
-      targetDate: targetDate,
-      completed: false,
-      orderIndex: group.totalCount,
-    );
-
-    _personalChecklists.add(tempItem);
-    notifyListeners();
-
-    try{
-      final request = ChecklistItemCreateRequest(
-        content: content,
-        assigneeId: group.studyMemberId,
-        type: "STUDY",
-        targetDate: targetDate,
-        orderIndex: group.totalCount,
-      );
-
-      final created = await checklistItemApiService.createChecklistItemOfStudy(request, studyId);
-
-      final index= _personalChecklists.indexWhere((e) => e.id == tempItem.id);
-      if(index >= 0){
-         _personalChecklists[index] = created;
-         notifyListeners();
-      }
-
-    } catch (e) {
-      _personalChecklists.removeWhere((e) => e.id == tempItem.id);
-      notifyListeners();
-      rethrow;
-    }
-  }
+  // Future<void> createPersonalChecklist({
+  //   required String content,
+  //   required DateTime targetDate,
+  //   required int studyId
+  // }) async {
+  //   final group = groupByStudy[studyId];
+  //
+  //   final tempItem = ChecklistItemDetailResponse(
+  //     id: -DateTime.now().millisecondsSinceEpoch, //임시 ID
+  //     studyId: studyId,
+  //     type: "STUDY",
+  //     studyMemberId:group!.studyMemberId,
+  //     studyName: group.studyName,
+  //     content: content,
+  //     targetDate: targetDate,
+  //     completed: false,
+  //     orderIndex: group.totalCount,
+  //   );
+  //
+  //   _personalChecklists.add(tempItem);
+  //   notifyListeners();
+  //
+  //   try{
+  //     final request = ChecklistItemCreateRequest(
+  //       content: content,
+  //       assigneeId: group.studyMemberId,
+  //       type: "STUDY",
+  //       targetDate: targetDate,
+  //       orderIndex: group.totalCount,
+  //     );
+  //
+  //     final created = await checklistItemApiService.createChecklistItemOfStudy(request, studyId);
+  //
+  //     final index= _personalChecklists.indexWhere((e) => e.id == tempItem.id);
+  //     if(index >= 0){
+  //        _personalChecklists[index] = created;
+  //        notifyListeners();
+  //     }
+  //
+  //   } catch (e) {
+  //     _personalChecklists.removeWhere((e) => e.id == tempItem.id);
+  //     notifyListeners();
+  //     rethrow;
+  //   }
+  // }
 
   //버튼 에러 해결될때까지 일단 보류
   /*Future<void> updateContent (int checklistItemId, String content) async {
@@ -180,10 +182,10 @@ class PersonalChecklistProvider with ChangeNotifier, LoadingNotifier {
     }
   }*/
 
-  Future<void> updateChecklistItemStatus(int checklistItemId, int studyId) async {
-    await repository.toggleStatus(checklistItemId, _selectedDate);
-    // repository.clearDateCache(_selectedDate);
-  }
+  // Future<void> updateChecklistItemStatus(int checklistItemId, int studyId) async {
+  //   await repository.toggleStatus(checklistItemId, _selectedDate);
+  //   // repository.clearDateCache(_selectedDate);
+  // }
 
 
   // =====================================================================================//

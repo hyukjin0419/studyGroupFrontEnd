@@ -30,6 +30,7 @@ class ChecklistItemProvider with ChangeNotifier, LoadingNotifier{
   StreamSubscription<List<ChecklistItemDetailResponse>>? _subscription;
 
   //--------------------Init--------------------//
+  //해당 Init은 특정 study화면에 들어갔을 때 실행됨
   void initializeContext(int studyId, List<StudyMemberSummaryResponse> members) async {
     _studyId = studyId;
     _studyMembers = members;
@@ -64,7 +65,6 @@ class ChecklistItemProvider with ChangeNotifier, LoadingNotifier{
 
     //listen이 watch 구독 후 초기 api 호출
     await repository.getTeamChecklist(_studyId!, date);
-    // updateGroups(items);
   }
 
   // ================= exit =================
@@ -74,16 +74,6 @@ class ChecklistItemProvider with ChangeNotifier, LoadingNotifier{
     _selectedDate = DateTime.now();
     notifyListeners();
   }
-
-  // // ================= External Call =================
-  // Future<void> refresh(int studyId, DateTime date) async {
-  //   final items = await repository.getChecklistItems(studyId, date, force: true);
-  //   updateGroups(items);
-  // }
-
-
-
-
 
   // ================= Optimistic mutation =================
   Future<void> createChecklistItem(ChecklistItemCreateRequest request, String studyName) async {

@@ -25,12 +25,8 @@ class _PersonalScreenState extends State<PersonalScreen> {
 
     WidgetsBinding.instance.addPostFrameCallback((_) async{
       _personalChecklistProvider = context.read<PersonalChecklistProvider>();
-      _personalChecklistProvider.initialize();
+      _personalChecklistProvider.initializeContext();
     });
-  }
-
-  Future<void> updateSelectedDate(DateTime newDate) async {
-    _personalChecklistProvider.updateSelectedDate(newDate);
   }
 
   @override
@@ -57,7 +53,7 @@ class _PersonalScreenState extends State<PersonalScreen> {
               initialSelectedDay: provider.selectedDate,
               onDaySelected: (date) {
                 log(" 날짜: $date");
-                updateSelectedDate(date);
+                _personalChecklistProvider.updateSelectedDate(date);
               },
             ),
             PersonalChecklistGroupView(selectedDate: provider.selectedDate, primaryColor: Colors.teal)

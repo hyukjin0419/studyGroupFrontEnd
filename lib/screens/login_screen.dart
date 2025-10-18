@@ -203,7 +203,7 @@ class _LoginScreenState extends State<LoginScreen> {
         ),
       );
 
-      await prefetchAll(context);
+      await initIfLoggedIn(context);
 
       if (mounted) {
         context.go('/personal');

@@ -7,10 +7,10 @@ import 'package:study_group_front_end/providers/study_provider.dart';
 
 //return true -> 로그인 유지중
 //return false -> 로그인 필요
-Future<bool> prefetchAll(BuildContext context) async {
+Future<bool> initIfLoggedIn(BuildContext context) async {
   final meProvider = context.read<MeProvider>();
   final studyProvider = context.read<StudyProvider>();
-  final personalChecklistProvider = context.read<PersonalChecklistProvider>();
+  // final personalChecklistProvider = context.read<PersonalChecklistProvider>();
 
   final isLoggedIn = await meProvider.loadCurrentMember();
 
@@ -21,7 +21,7 @@ Future<bool> prefetchAll(BuildContext context) async {
   try {
     await Future.wait([
       studyProvider.getMyStudies(),
-      personalChecklistProvider.getMyChecklists(),
+      // personalChecklistProvider.initApp(),
     ]);
     return true;
   } catch (e) {
