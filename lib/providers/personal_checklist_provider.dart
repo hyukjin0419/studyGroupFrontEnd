@@ -116,8 +116,19 @@ class PersonalChecklistProvider with ChangeNotifier, LoadingNotifier {
       }
 
     _groups = groupMap.values.toList();
-      // ..sort((a, b) => a.studyName?.compareTo(b.studyName ?? '') ?? 0);
+    _sortGroups();
     notifyListeners();
+  }
+
+  void _sortGroups(){
+    for (final group in _groups){
+      group.items.sort((a,b) {
+        if(a.completed == b.completed){
+          return (a.orderIndex ?? 0).compareTo(b.orderIndex ?? 0);
+        }
+        return a.completed ? 1: -1;
+      });
+    }
   }
 
 //TODO CRUD Provider
