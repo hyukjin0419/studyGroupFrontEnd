@@ -1,3 +1,4 @@
+//TODO 이거 detail로 바꿀껀지 그대로 갈건지?
 class MemberChecklistItemVM{
   final int id;
   int studyMemberId;

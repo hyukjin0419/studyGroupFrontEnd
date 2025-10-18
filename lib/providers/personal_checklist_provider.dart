@@ -2,19 +2,19 @@ import 'dart:async';
 import 'dart:developer';
 
 import 'package:flutter/cupertino.dart';
-import 'package:study_group_front_end/api_service/checklist_item_api_service.dart';
-import 'package:study_group_front_end/api_service/personal_checklist_api_service.dart';
-import 'package:study_group_front_end/dto/checklist_item/create/checklist_item_create_request.dart';
 import 'package:study_group_front_end/dto/checklist_item/detail/checklist_item_detail_response.dart';
 import 'package:study_group_front_end/dto/study/detail/study_detail_response.dart';
 import 'package:study_group_front_end/providers/loading_notifier.dart';
 import 'package:study_group_front_end/repository/checklist_item_repository.dart';
-import 'package:study_group_front_end/repository/personal_checklist_repository.dart';
 import 'package:study_group_front_end/screens/checklist/personal/view_models/personal_checklist_group_vm.dart';
 
 class PersonalChecklistProvider with ChangeNotifier, LoadingNotifier {
-  final InMemoryChecklistItemRepository repository;
-  PersonalChecklistProvider(this.repository);
+  late InMemoryChecklistItemRepository _repository;
+  PersonalChecklistProvider(this._repository);
+  InMemoryChecklistItemRepository get repository => _repository;
+  void updateRepository(InMemoryChecklistItemRepository newRepo) {
+    _repository = newRepo;
+  }
 
   List<PersonalCheckListGroupVM> _groups = [];
   List<PersonalCheckListGroupVM> get groups => _groups;
@@ -33,7 +33,6 @@ class PersonalChecklistProvider with ChangeNotifier, LoadingNotifier {
 
   void initializeContext() async{
     _groups=[];
-    
     await _subscribeToDate(DateTime.now());
   }
 
@@ -95,7 +94,14 @@ class PersonalChecklistProvider with ChangeNotifier, LoadingNotifier {
 
   //========================== Grouping =========================
   void updateGroups(List<ChecklistItemDetailResponse> items){
-    final Map<int, PersonalCheckListGroupVM> groupMap = {};
+    final Map<int, PersonalCheckListGroupVM> groupMap = {
+      for (var s in _myStudies)
+        s.id : PersonalCheckListGroupVM(
+          studyId: s.id,
+          studyName: s.name,
+          items: [],
+        ),
+    };
 
     for (final item in items){
       groupMap.putIfAbsent(
@@ -103,15 +109,14 @@ class PersonalChecklistProvider with ChangeNotifier, LoadingNotifier {
         ()=> PersonalCheckListGroupVM(
           studyId: item.studyId,
           studyName: item.studyName,
-          studyMemberId: item.studyMemberId,
           items: [],
         ),
       );
         groupMap[item.studyId]!.items.add(item);
       }
 
-    _groups = groupMap.values.toList()
-      ..sort((a, b) => a.studyName?.compareTo(b.studyName ?? '') ?? 0);
+    _groups = groupMap.values.toList();
+      // ..sort((a, b) => a.studyName?.compareTo(b.studyName ?? '') ?? 0);
     notifyListeners();
   }
 
