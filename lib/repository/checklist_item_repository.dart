@@ -15,7 +15,8 @@ class InMemoryChecklistItemRepository{
   InMemoryChecklistItemRepository(this.teamApi, this.personalApi, this.currentMemberId);
 
   final Map<String, List<ChecklistItemDetailResponse>> _cache = {};
-  final Map<String, StreamController<List<ChecklistItemDetailResponse>>> _streams = {};
+  final Map<String, StreamController<List<ChecklistItemDetailResponse>>> _teamStreams = {};
+  final Map<String, StreamController<List<ChecklistItemDetailResponse>>> _personalStreams = {};
 
   String _dateKey(DateTime date) =>
       '${date.year}-${date.month.toString().padLeft(2,'0')}-${date.day.toString().padLeft(2,'0')}';
@@ -28,10 +29,22 @@ class InMemoryChecklistItemRepository{
     final dateKey = _dateKey(date);
 
     if(!_cache.containsKey(dateKey) || force){
-      log("캐시 or 강제 Fetch");
+      log("getTeamChecklist 캐시 Miss or 강제 Fetch");
       await fetchWeekForTeam(studyId, date);
     } else {
-      log("캐시 히트");
+      log("getTeamChecklist 캐시 히트");
+      _cacheToAllStreams();
+    }
+  }
+
+  Future<void> getPersonalChecklist(DateTime date ,{bool force = false}) async {
+    final dateKey = _dateKey(date);
+
+    if(!_cache.containsKey(dateKey) || force){
+      log("getPersonal Checklist 캐시 miss or 강제 fetch");
+      await fetchWeekForPersonal(date);
+    } else {
+      log("getTeamChecklist 캐시 히트");
       _cacheToAllStreams();
     }
   }
@@ -51,57 +64,39 @@ class InMemoryChecklistItemRepository{
   }
 
   // //개인용 체크리스트를 공통 캐시에 fetch
-  // Future<void> fetchWeekForPersonal(DateTime date) async{
-  //   try{
-  //     final startOfWeek = date.subtract(Duration(days: date.weekday - 1));
-  //     final list = await personalApi.getMyChecklistsByWeek(startOfWeek);
-  //     _saveToCacheAndStream(list);
-  //   } catch (e) {
-  //     log('❌ [ChecklistRepo] fetchWeekForPersonal 실패: $e');
-  //     rethrow;
-  //   }
-  // }
+  Future<void> fetchWeekForPersonal(DateTime date) async{
+    try{
+      final startOfWeek = date.subtract(Duration(days: date.weekday - 1));
+      final list = await personalApi.getMyChecklistsByWeek(startOfWeek);
+      _apiToCache(list);
+      _fillEmptyDaysInCache(startOfWeek);
+      _cacheToAllStreams();
+    } catch (e) {
+      log('❌ [ChecklistRepo] fetchWeekForPersonal 실패: $e');
+      rethrow;
+    }
+  }
 
   // ===========================================================
-  // 📡 STREAM  단순 채널 열고 캐시 데이터 방출 -> 캐시 데이터 로드 여기서 금지
+  // 📡 STREAM  단순 채널 열고 캐시 데이터 방출 -> 캐시 데이터 로드 여기서 금지 -> 채널 열기만 하기
   // ===========================================================
   Stream<List<ChecklistItemDetailResponse>> watchTeam(int studyId, DateTime date) {
     final streamKey = 'team_${studyId}_${_dateKey(date)}';
-    _streams.putIfAbsent(streamKey, () => StreamController.broadcast());
+    _teamStreams.putIfAbsent(streamKey, () => StreamController.broadcast());
 
-    // final dateKey = _dateKey(date);
-    //
-    // if (_cache.containsKey(dateKey)){
-    //   final filtered = _cache[dateKey]!
-    //       .where((item) => item.studyId == studyId)
-    //       .toList();
-    //
-    //   for (var item in filtered){
-    //     log("item: $item");
-    //   }
-    //   _streams[streamKey]!.add(filtered);
-    // }
+    log("✅ watchTeam 리턴 직전: ${_teamStreams[streamKey]!.hasListener ? "리스너 있음" : "리스너 없음"}");
 
-    log("✅ watchTeam 리턴 직전: ${_streams[streamKey]!.hasListener ? "리스너 있음" : "리스너 없음"}");
-
-    return _streams[streamKey]!.stream;
+    return _teamStreams[streamKey]!.stream;
   }
 
-  // Future<Stream<List<ChecklistItemDetailResponse>>> watchPersonal(DateTime date) async{
-  //   final streamKey = 'personal_${_dateKey(date)}';
-  //   _streams.putIfAbsent(streamKey, () => StreamController.broadcast());
-  //
-  //   final dateKey = _dateKey(date);
-  //   if (_cache.containsKey(dateKey)){
-  //     final filtered = _cache[dateKey]!
-  //         .where((item) => item.studyMemberId == currentMemberId)
-  //         .toList();
-  //     _streams[streamKey]!.add(filtered);
-  //   } else {
-  //     await fetchWeekForPersonal(date);
-  //   }
-  //   return _streams[streamKey]!.stream;
-  // }
+  Future<Stream<List<ChecklistItemDetailResponse>>> watchPersonal(DateTime date) async{
+    final streamKey = 'personal_${_dateKey(date)}';
+    _personalStreams.putIfAbsent(streamKey, () => StreamController.broadcast());
+
+    log("✅ watchPersonal 리턴 직전: ${_personalStreams[streamKey]!.hasListener ? "리스너 있음" : "리스너 없음"}");
+
+    return _personalStreams[streamKey]!.stream;
+  }
   // ===========================================================
   // 🧠 CACHE + STREAM SYNC
   // ===========================================================
@@ -129,27 +124,32 @@ class InMemoryChecklistItemRepository{
     _cache.forEach((dateKey, list) {
       // --- 팀별 스트림 전송 ---
       if (list.isEmpty) {
-        // 캐시만 있고 체크리스트 없는 날짜 → 모든 studyId에 대해 빈 리스트라도 push
-        for (final streamKey in _streams.keys.where((k) => k.contains(dateKey))) {
-          _streams[streamKey]?.add([]);
-          log("   ⚪️ empty push → $streamKey");
+        //캐시에 빈 배열도 일단은 빈 그대로 Push 한ㄷ다
+        //ui에 빈 배열 만들어 줘야지 headerchip이 렌더링 되고 작동함.
+        for (final streamKey in _teamStreams.keys.where((k) => k.contains(dateKey))) {
+          _teamStreams[streamKey]?.add([]);
+          log("   ⚪️ empty push → $streamKey to teamStream");
+        }
+
+        for(final streamKey in _personalStreams.keys.where((k) => k.contains(dateKey))) {
+          _personalStreams[streamKey]?.add([]);
+          log("   ⚪️ empty push → $streamKey to personalStream");
         }
       } else {
         for (final item in list) {
           final teamStreamKey = 'team_${item.studyId}_$dateKey';
-          _streams.putIfAbsent(teamStreamKey, () => StreamController.broadcast());
+          _teamStreams.putIfAbsent(teamStreamKey, () => StreamController.broadcast());
           final teamItems = list.where((e) => e.studyId == item.studyId).toList();
-          _streams[teamStreamKey]!.add(teamItems);
+          _teamStreams[teamStreamKey]!.add(teamItems);
+
+          final personalStreamKey = 'personal_$dateKey';
+          _personalStreams.putIfAbsent(personalStreamKey, () => StreamController.broadcast());
+          final personalItems = list.where((e) => e.studyMemberId == currentMemberId).toList();
+          _personalStreams[personalStreamKey]!.add(personalItems);
           // log("   🔸 team_stream → $teamStreamKey (${teamItems.length} items)");
+          log("   🔸 personal_stream → $personalStreamKey (${personalItems.length} items)");
         }
       }
-
-      // // --- 개인 스트림 전송 ---
-      // final personalStreamKey = 'personal_$dateKey';
-      // _streams.putIfAbsent(personalStreamKey, () => StreamController.broadcast());
-      // final personalItems = list.where((e) => e.studyMemberId == currentMemberId).toList();
-      // _streams[personalStreamKey]!.add(personalItems);
-      // log("   🔸 personal_stream → $personalStreamKey (${personalItems.length} items)");
     });
 
     log("✅ [cacheToAllStreams] 전체 캐시 재전송 완료 (총 ${_cache.length}일)");
