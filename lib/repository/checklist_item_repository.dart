@@ -56,7 +56,7 @@ class InMemoryChecklistItemRepository{
   // 팀용 체크리스트를 공통 캐시에 fetch
   Future<void> fetchWeekForTeam(int studyId, DateTime date) async{
     try {
-      final startOfWeek = date.subtract(Duration(days: date.weekday - 1));
+      final startOfWeek = date.subtract(Duration(days: date.weekday % 7));
       final list = await teamApi.getChecklistItemsOfStudyByWeek(studyId, startOfWeek);
       _apiToCache(list);
       _fillEmptyDaysInCache(startOfWeek);
@@ -71,7 +71,7 @@ class InMemoryChecklistItemRepository{
   Future<List<ChecklistItemDetailResponse>> fetchWeekForPersonal(DateTime date) async{
     final List<ChecklistItemDetailResponse> list;
     try{
-      final startOfWeek = date.subtract(Duration(days: date.weekday - 1));
+      final startOfWeek = date.subtract(Duration(days: date.weekday % 7));
       list = await personalApi.getMyChecklistsByWeek(startOfWeek);
       _apiToCache(list);
       _fillEmptyDaysInCache(startOfWeek);

@@ -32,7 +32,7 @@ class _WeeklyCalendarState extends State<WeeklyCalendar> {
   @override
   void initState(){
     super.initState();
-    _focusedDay = getMondayOfWeek(widget.initialSelectedDay ?? DateTime.now());
+    _focusedDay = getSundayOfWeek(widget.initialSelectedDay ?? DateTime.now());
     _selectedDay = widget.initialSelectedDay ?? DateTime.now();
     _color = widget.study != null
       ? hexToColor(widget.study!.personalColor)
