@@ -43,7 +43,7 @@ class _PersonalScreenState extends State<PersonalScreen> {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            // 일단 하드코딩, 나중에 provider에서 계산
+            // TODO 일단 하드코딩, 나중에 provider에서 계산
             PersonalStatsCard(
               completedCount: 8,
               totalCount: 10,

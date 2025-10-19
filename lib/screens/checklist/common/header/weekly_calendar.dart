@@ -1,3 +1,5 @@
+import 'dart:developer';
+
 import 'package:flutter/material.dart';
 import 'package:study_group_front_end/dto/study/detail/study_detail_response.dart';
 import 'package:study_group_front_end/util/color_converters.dart';
@@ -50,18 +52,6 @@ class _WeeklyCalendarState extends State<WeeklyCalendar> {
         _buildCalendar(),
       ],
     );
-  }
-
-  @override
-  void didUpdateWidget(WeeklyCalendar oldWidget) {
-    super.didUpdateWidget(oldWidget);
-    // initialSelectedDay가 변경되면 _selectedDay와 _focusedDay 업데이트
-    if (widget.initialSelectedDay != oldWidget.initialSelectedDay) {
-      setState(() {
-        _selectedDay = widget.initialSelectedDay ?? DateTime.now();
-        _focusedDay = getSundayOfWeek(widget.initialSelectedDay ?? DateTime.now());
-      });
-    }
   }
 
   Widget _buildCustomHeader() {
