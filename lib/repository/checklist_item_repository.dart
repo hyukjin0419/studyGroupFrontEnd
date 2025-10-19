@@ -21,14 +21,17 @@ class InMemoryChecklistItemRepository{
   String _dateKey(DateTime date) =>
       '${date.year}-${date.month.toString().padLeft(2,'0')}-${date.day.toString().padLeft(2,'0')}';
 
+  String _studyIdDateKey(int studyId, DateTime date) =>
+      '${studyId}_${date.year}-${date.month.toString().padLeft(2,'0')}-${date.day.toString().padLeft(2,'0')}';
+
   // ===========================================================
   // 🧭 FETCH
   // ===========================================================
   //우선적 캐시 호출
   Future<void> getTeamChecklist(int studyId, DateTime date, {bool force = false}) async {
-    final dateKey = _dateKey(date);
+    final cacheKey = _studyIdDateKey(studyId, date);
 
-    if(!_cache.containsKey(dateKey) || force){
+    if(!_cache.containsKey(cacheKey) || force){
       log("getTeamChecklist 캐시 Miss or 강제 Fetch");
       await fetchWeekForTeam(studyId, date);
     } else {
@@ -39,8 +42,9 @@ class InMemoryChecklistItemRepository{
 
   Future<List<ChecklistItemDetailResponse>> getPersonalChecklist(DateTime date ,{bool force = false}) async {
     final dateKey = _dateKey(date);
+    final matchedKeys = _cache.keys.where((key) => key.endsWith(dateKey)).toList();
 
-    if(!_cache.containsKey(dateKey) || force){
+    if(matchedKeys.isEmpty|| force){
       log("getPersonal Checklist 캐시 miss or 강제 fetch");
       await fetchWeekForPersonal(date);
     } else {
@@ -49,8 +53,12 @@ class InMemoryChecklistItemRepository{
     }
 
     final cachedList = _cache[dateKey] ?? [];
+    final List<ChecklistItemDetailResponse> combined =
+    matchedKeys.expand<ChecklistItemDetailResponse>(
+          (key) => _cache[key] ?? [],
+    ).toList();
 
-    return cachedList;
+    return combined;
   }
 
   // 팀용 체크리스트를 공통 캐시에 fetch
@@ -59,7 +67,7 @@ class InMemoryChecklistItemRepository{
       final startOfWeek = date.subtract(Duration(days: date.weekday % 7));
       final list = await teamApi.getChecklistItemsOfStudyByWeek(studyId, startOfWeek);
       _apiToCache(list);
-      _fillEmptyDaysInCache(startOfWeek);
+      _fillEmptyDaysInCache(studyId,startOfWeek);
       _cacheToAllStreams();
     } catch (e) {
       log('❌ [ChecklistRepo] fetchWeekForTeam 실패: $e');
@@ -74,7 +82,7 @@ class InMemoryChecklistItemRepository{
       final startOfWeek = date.subtract(Duration(days: date.weekday % 7));
       list = await personalApi.getMyChecklistsByWeek(startOfWeek);
       _apiToCache(list);
-      _fillEmptyDaysInCache(startOfWeek);
+      // _fillEmptyDaysInCache(startOfWeek);
       _cacheToAllStreams();
     } catch (e) {
       log('❌ [ChecklistRepo] fetchWeekForPersonal 실패: $e');
@@ -88,7 +96,7 @@ class InMemoryChecklistItemRepository{
   // 📡 STREAM  단순 채널 열고 캐시 데이터 방출 -> 캐시 데이터 로드 여기서 금지 -> 채널 열기만 하기
   // ===========================================================
   Stream<List<ChecklistItemDetailResponse>> watchTeam(int studyId, DateTime date) {
-    final streamKey = 'team_${studyId}_${_dateKey(date)}';
+    final streamKey = 'team_${studyId}_${_studyIdDateKey(studyId, date)}';
     _teamStreams.putIfAbsent(streamKey, () => StreamController.broadcast());
 
     log("✅ watchTeam 리턴 직전: ${_teamStreams[streamKey]!.hasListener ? "리스너 있음" : "리스너 없음"}");
@@ -110,9 +118,9 @@ class InMemoryChecklistItemRepository{
   //api to cache
   void _apiToCache(List<ChecklistItemDetailResponse> items){
     for (final item in items){
-      final dateKey = _dateKey(item.targetDate);
-      _cache.putIfAbsent(dateKey, () => []);
-      final list = _cache[dateKey]!;
+      final cacheKey = _studyIdDateKey(item.studyId, item.targetDate);
+      _cache.putIfAbsent(cacheKey, () => []);
+      final list = _cache[cacheKey]!;
 
       final idx = list.indexWhere((e) => e.id == item.id);
       if(idx >= 0){
@@ -128,32 +136,32 @@ class InMemoryChecklistItemRepository{
   void _cacheToAllStreams() {
     log("📡 [cacheToAllStreams] 전체 캐시를 Stream으로 재전송 시작");
 
-    _cache.forEach((dateKey, list) {
+    _cache.forEach((cacheKey, list) {
       // --- 팀별 스트림 전송 ---
       if (list.isEmpty) {
         //캐시에 빈 배열도 일단은 빈 그대로 Push 한ㄷ다
         //ui에 빈 배열 만들어 줘야지 headerchip이 렌더링 되고 작동함.
-        for (final streamKey in _teamStreams.keys.where((k) => k.contains(dateKey))) {
+        for (final streamKey in _teamStreams.keys.where((k) => k.contains(cacheKey))) {
           _teamStreams[streamKey]?.add([]);
           // log("   ⚪️ empty push → $streamKey to teamStream");
         }
 
-        for(final streamKey in _personalStreams.keys.where((k) => k.contains(dateKey))) {
+        for(final streamKey in _personalStreams.keys.where((k) => k.contains(cacheKey))) {
           _personalStreams[streamKey]?.add([]);
           // log("   ⚪️ empty push → $streamKey to personalStream");
         }
       } else {
         for (final item in list) {
-          final teamStreamKey = 'team_${item.studyId}_$dateKey';
+          final teamStreamKey = 'team_${item.studyId}_$cacheKey';
           _teamStreams.putIfAbsent(teamStreamKey, () => StreamController.broadcast());
           final teamItems = list.where((e) => e.studyId == item.studyId).toList();
           _teamStreams[teamStreamKey]!.add(teamItems);
 
-          final personalStreamKey = 'personal_$dateKey';
+          final personalStreamKey = 'personal_$cacheKey';
           _personalStreams.putIfAbsent(personalStreamKey, () => StreamController.broadcast());
           final personalItems = list.where((e) => e.studyMemberId == currentMemberId).toList();
           _personalStreams[personalStreamKey]!.add(personalItems);
-          // log("   🔸 team_stream → $teamStreamKey (${teamItems.length} items)");
+          log("   🔸 team_stream → $teamStreamKey (${teamItems.length} items)");
           // log("   🔸 personal_stream → $personalStreamKey (${personalItems.length} items)");
         }
       }
@@ -170,11 +178,11 @@ class InMemoryChecklistItemRepository{
   }
 
 
-  void _fillEmptyDaysInCache(DateTime startOfWeek) {
+  void _fillEmptyDaysInCache(int studyId, DateTime startOfWeek) {
     for (int i = 0; i < 7; i++) {
-      final d = startOfWeek.add(Duration(days: i));
-      final key = _dateKey(d);
-      _cache.putIfAbsent(key, () => []);
+      final day = startOfWeek.add(Duration(days: i));
+      final cacheKey = _studyIdDateKey(studyId, day);
+      _cache.putIfAbsent(cacheKey, () => []);
     }
     log("🗓️ [Cache] ${startOfWeek.toString().split(' ').first} 주차의 7일 캐시 초기화 완료 (총 ${_cache.length}일)");
   }
@@ -185,7 +193,7 @@ class InMemoryChecklistItemRepository{
   // ✏️ CRUD / REORDER
   // ===========================================================
   Future<void> create(int studyId, ChecklistItemCreateRequest request, String studyName) async {
-    final dateKey = _dateKey(request.targetDate);
+    final key = _studyIdDateKey(studyId, request.targetDate);
     final tempId = -DateTime.now().millisecondsSinceEpoch;
 
     final newItem = ChecklistItemDetailResponse(
@@ -197,26 +205,26 @@ class InMemoryChecklistItemRepository{
         content: request.content,
         targetDate: request.targetDate,
         completed: false,
-        orderIndex: (_cache[dateKey]?.length ?? 0),
+        orderIndex: (_cache[key]?.length ?? 0),
     );
 
-    _cache.putIfAbsent(dateKey, () => []);
-    _cache[dateKey]!.add(newItem);
+    _cache.putIfAbsent(key, () => []);
+    _cache[key]!.add(newItem);
     _cacheToAllStreams();
 
     try {
       final created = await teamApi.createChecklistItemOfStudy(request, studyId);
-      final idx = _cache[dateKey]!.indexWhere((e) => e.id == tempId);
-      if (idx >= 0) _cache[dateKey]![idx] = created;
+      final idx = _cache[key]!.indexWhere((e) => e.id == tempId);
+      if (idx >= 0) _cache[key]![idx] = created;
     } catch (_) {
-      _cache[dateKey]!.removeWhere((e) => e.id == tempId);
+      _cache[key]!.removeWhere((e) => e.id == tempId);
       _cacheToAllStreams();
       rethrow;
     }
   }
 
   Future<void> updateContent(int checklistItemId, int studyId, DateTime date, ChecklistItemContentUpdateRequest request) async {
-    final key = _dateKey(date);
+    final key = _studyIdDateKey(studyId, date);
     final list = _cache[key]!;
 
     final idx = list.indexWhere((e) => e.id == checklistItemId);
@@ -237,7 +245,7 @@ class InMemoryChecklistItemRepository{
   }
 
   Future<void> toggleStatus(int checklistItemId, int studyId, DateTime date) async {
-    final key = _dateKey(date);
+    final key = _studyIdDateKey(studyId, date);
     final list = _cache[key]!;
     final idx = list.indexWhere((e) => e.id == checklistItemId);
     if(idx < 0) return;
@@ -256,7 +264,7 @@ class InMemoryChecklistItemRepository{
   }
 
   Future<void> softDelete(int checklistItemId, int studyId, DateTime date) async {
-    final key = _dateKey(date);
+    final key = _studyIdDateKey(studyId, date);
     final list = _cache[key]!;
     final idx = list.indexWhere((e) => e.id == checklistItemId);
     if (idx < 0) return;
@@ -275,7 +283,7 @@ class InMemoryChecklistItemRepository{
   }
 
   Future<void> reorder(List<ChecklistItemReorderRequest> requests, int studyId, DateTime date) async {
-    final key = _dateKey(date);
+    final key = _studyIdDateKey(studyId, date);
     final list = _cache[key]!;
 
     final oldList = List.of(list);
