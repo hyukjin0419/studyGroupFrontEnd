@@ -65,9 +65,11 @@ class InMemoryChecklistItemRepository{
   Future<void> fetchWeekForTeam(int studyId, DateTime date) async{
     try {
       final startOfWeek = date.subtract(Duration(days: date.weekday % 7));
+
       final list = await teamApi.getChecklistItemsOfStudyByWeek(studyId, startOfWeek);
+
+      _initializeWeekStreams(studyId,startOfWeek);
       _apiToCache(list);
-      _fillEmptyDaysInCache(studyId,startOfWeek);
       _cacheToAllStreams();
     } catch (e) {
       log('❌ [ChecklistRepo] fetchWeekForTeam 실패: $e');
@@ -96,7 +98,7 @@ class InMemoryChecklistItemRepository{
   // 📡 STREAM  단순 채널 열고 캐시 데이터 방출 -> 캐시 데이터 로드 여기서 금지 -> 채널 열기만 하기
   // ===========================================================
   Stream<List<ChecklistItemDetailResponse>> watchTeam(int studyId, DateTime date) {
-    final streamKey = 'team_${studyId}_${_studyIdDateKey(studyId, date)}';
+    final streamKey = 'team_${_studyIdDateKey(studyId, date)}';
     _teamStreams.putIfAbsent(streamKey, () => StreamController.broadcast());
 
     log("✅ watchTeam 리턴 직전: ${_teamStreams[streamKey]!.hasListener ? "리스너 있음" : "리스너 없음"}");
@@ -115,6 +117,24 @@ class InMemoryChecklistItemRepository{
   // ===========================================================
   // 🧠 CACHE + STREAM SYNC
   // ===========================================================
+  //일주일 치 빈배열 초기화 (stream key 별로)
+  void _initializeWeekStreams(int studyId, DateTime startOfWeek) {
+    for (int i = 0; i < 7; i++) {
+      final d = startOfWeek.add(Duration(days: i));
+      final key = _studyIdDateKey(studyId, d);
+
+      final teamStreamKey = 'team_$key';
+      _teamStreams.putIfAbsent(teamStreamKey, () => StreamController.broadcast());
+      _teamStreams[teamStreamKey]!.add([]); // ✅ UI 초기화용 빈 리스트 push
+
+      final personalStreamKey = 'personal_$key';
+      _personalStreams.putIfAbsent(personalStreamKey, () => StreamController.broadcast());
+      _personalStreams[personalStreamKey]!.add([]); // ✅ 개인 스트림도 빈 초기 상태 push
+    }
+
+    log("📡 [StreamInit] studyId=$studyId 주차 스트림 초기화 완료");
+  }
+
   //api to cache
   void _apiToCache(List<ChecklistItemDetailResponse> items){
     for (final item in items){
@@ -137,33 +157,18 @@ class InMemoryChecklistItemRepository{
     log("📡 [cacheToAllStreams] 전체 캐시를 Stream으로 재전송 시작");
 
     _cache.forEach((cacheKey, list) {
-      // --- 팀별 스트림 전송 ---
-      if (list.isEmpty) {
-        //캐시에 빈 배열도 일단은 빈 그대로 Push 한ㄷ다
-        //ui에 빈 배열 만들어 줘야지 headerchip이 렌더링 되고 작동함.
-        for (final streamKey in _teamStreams.keys.where((k) => k.contains(cacheKey))) {
-          _teamStreams[streamKey]?.add([]);
-          // log("   ⚪️ empty push → $streamKey to teamStream");
-        }
+      for (final item in list) {
+        final teamStreamKey = 'team_$cacheKey';
+        _teamStreams.putIfAbsent(teamStreamKey, () => StreamController.broadcast());
+        final teamItems = list.where((e) => e.studyId == item.studyId).toList();
+        _teamStreams[teamStreamKey]!.add(teamItems);
 
-        for(final streamKey in _personalStreams.keys.where((k) => k.contains(cacheKey))) {
-          _personalStreams[streamKey]?.add([]);
-          // log("   ⚪️ empty push → $streamKey to personalStream");
-        }
-      } else {
-        for (final item in list) {
-          final teamStreamKey = 'team_${item.studyId}_$cacheKey';
-          _teamStreams.putIfAbsent(teamStreamKey, () => StreamController.broadcast());
-          final teamItems = list.where((e) => e.studyId == item.studyId).toList();
-          _teamStreams[teamStreamKey]!.add(teamItems);
-
-          final personalStreamKey = 'personal_$cacheKey';
-          _personalStreams.putIfAbsent(personalStreamKey, () => StreamController.broadcast());
-          final personalItems = list.where((e) => e.studyMemberId == currentMemberId).toList();
-          _personalStreams[personalStreamKey]!.add(personalItems);
-          log("   🔸 team_stream → $teamStreamKey (${teamItems.length} items)");
-          // log("   🔸 personal_stream → $personalStreamKey (${personalItems.length} items)");
-        }
+        final personalStreamKey = 'personal_$cacheKey';
+        _personalStreams.putIfAbsent(personalStreamKey, () => StreamController.broadcast());
+        final personalItems = list.where((e) => e.studyMemberId == currentMemberId).toList();
+        _personalStreams[personalStreamKey]!.add(personalItems);
+        // log("   🔸 team_stream → $teamStreamKey (${teamItems.length} items)");
+        // log("   🔸 personal_stream → $personalStreamKey (${personalItems.length} items)");
       }
     });
 
@@ -177,15 +182,6 @@ class InMemoryChecklistItemRepository{
     _cacheToAllStreams();
   }
 
-
-  void _fillEmptyDaysInCache(int studyId, DateTime startOfWeek) {
-    for (int i = 0; i < 7; i++) {
-      final day = startOfWeek.add(Duration(days: i));
-      final cacheKey = _studyIdDateKey(studyId, day);
-      _cache.putIfAbsent(cacheKey, () => []);
-    }
-    log("🗓️ [Cache] ${startOfWeek.toString().split(' ').first} 주차의 7일 캐시 초기화 완료 (총 ${_cache.length}일)");
-  }
 
 
 //--------------------Optimistic Update--------------------//
