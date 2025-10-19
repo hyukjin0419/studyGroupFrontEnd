@@ -55,9 +55,9 @@ class ChecklistItemProvider with ChangeNotifier, LoadingNotifier{
     final stream = repository.watchTeam(_studyId!, date);
 
     _subscription = stream.listen((items) {
-      log("📡 Stream 수신: ${items.length}개 아이템");
+      log("📡 Team Stream 수신: ${items.length}개 아이템");
       for (final item in items) {
-        log("   ↳ id=${item.id}, member=${item.studyMemberId}, done=${item.completed}, content=${item.content}");
+        log("   ㄴitem: studyId = ${item.studyId}, checklistItemId = ${item.id}, content = ${item.content}");
       }
       updateGroups(items);
       log("✅ updateGroups 호출 후 _groups 길이: ${_groups.length}");

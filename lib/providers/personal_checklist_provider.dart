@@ -12,9 +12,6 @@ class PersonalChecklistProvider with ChangeNotifier, LoadingNotifier {
   late InMemoryChecklistItemRepository _repository;
   PersonalChecklistProvider(this._repository);
   InMemoryChecklistItemRepository get repository => _repository;
-  void updateRepository(InMemoryChecklistItemRepository newRepo) {
-    _repository = newRepo;
-  }
 
   List<PersonalCheckListGroupVM> _groups = [];
   List<PersonalCheckListGroupVM> get groups => _groups;
@@ -29,30 +26,32 @@ class PersonalChecklistProvider with ChangeNotifier, LoadingNotifier {
   StreamSubscription<List<ChecklistItemDetailResponse>>? _subscription;
 
   //=================Init======================//
-  //해당 메소드는 로그인 후 앱 진입시 실행
-
   void initializeContext() async{
-    _groups=[];
-    await _subscribeToDate(DateTime.now());
+    _selectedDate = DateTime.now();
+    await _subscribeToDate(selectedDate);
   }
 
   Future<void> updateSelectedDate(DateTime newDate) async {
-    _groups=[];
     _selectedDate = newDate;
     await _subscribeToDate(_selectedDate);
+    notifyListeners();
   }
 
   Future<void> _subscribeToDate(DateTime date) async{
     log("_subscribeTodate 호출");
     _groups=[];
-    notifyListeners();
 
     await _subscription?.cancel();
 
-    final stream = repository.watchPersonal(date);
+    final stream = repository.watchPersonal(date,_myStudies);
 
     _subscription = stream.listen((items) {
+      log("📡 Personal Stream 수신: ${items.length}개 아이템");
+      for (final item in items) {
+        log("   ㄴitem: studyId = ${item.studyId}, checklistItemId = ${item.id}, content = ${item.content}");
+      }
       updateGroups(items);
+      log("✅ updateGroups 호출 후 _groups 길이: ${_groups.length}");
     });
 
     await repository.getPersonalChecklist(date);

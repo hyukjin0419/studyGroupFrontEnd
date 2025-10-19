@@ -1,20 +1,23 @@
 import 'dart:async';
 import 'dart:developer';
-
+import 'package:rxdart/rxdart.dart';
 import 'package:study_group_front_end/api_service/checklist_item_api_service.dart';
 import 'package:study_group_front_end/api_service/personal_checklist_api_service.dart';
 import 'package:study_group_front_end/dto/checklist_item/create/checklist_item_create_request.dart';
 import 'package:study_group_front_end/dto/checklist_item/detail/checklist_item_detail_response.dart';
 import 'package:study_group_front_end/dto/checklist_item/update/checklist_item_content_update_request.dart';
 import 'package:study_group_front_end/dto/checklist_item/update/checklist_item_reorder_request.dart';
+import 'package:study_group_front_end/dto/study/detail/study_detail_response.dart';
 
 class InMemoryChecklistItemRepository{
   final ChecklistItemApiService teamApi;
   final PersonalChecklistApiService personalApi;
-  final int currentMemberId;
+  int currentMemberId;
+  void setCurrentMemberId(int memberId) => currentMemberId = memberId;
   InMemoryChecklistItemRepository(this.teamApi, this.personalApi, this.currentMemberId);
 
-  final Map<String, List<ChecklistItemDetailResponse>> _cache = {};
+
+  static final Map<String, List<ChecklistItemDetailResponse>> _cache = {};
   final Map<String, StreamController<List<ChecklistItemDetailResponse>>> _teamStreams = {};
   final Map<String, StreamController<List<ChecklistItemDetailResponse>>> _personalStreams = {};
 
@@ -36,10 +39,12 @@ class InMemoryChecklistItemRepository{
       await fetchWeekForTeam(studyId, date);
     } else {
       log("getTeamChecklist 캐시 히트");
-      _cacheToAllStreams();
+      _cacheToAllStreams(studyId);
     }
   }
 
+
+  //TODO
   Future<void> getPersonalChecklist(DateTime date ,{bool force = false}) async {
     final dateKey = _dateKey(date);
     final matchedKeys = _cache.keys.where((key) => key.endsWith(dateKey)).toList();
@@ -56,6 +61,7 @@ class InMemoryChecklistItemRepository{
 
   // 팀용 체크리스트를 공통 캐시에 fetch
   Future<void> fetchWeekForTeam(int studyId, DateTime date) async{
+    log("fetchWeekForTeam 실행");
     try {
       final startOfWeek = date.subtract(Duration(days: date.weekday % 7));
 
@@ -71,6 +77,7 @@ class InMemoryChecklistItemRepository{
 
   //개인용 체크리스트를 공통 캐시에 fetch
   Future<List<ChecklistItemDetailResponse>> fetchWeekForPersonal(DateTime date) async{
+    log("fetchWeekForPersonal 실행");
     final List<ChecklistItemDetailResponse> list;
     try{
       final startOfWeek = date.subtract(Duration(days: date.weekday % 7));
@@ -97,13 +104,33 @@ class InMemoryChecklistItemRepository{
     return _teamStreams[streamKey]!.stream;
   }
 
-  Stream<List<ChecklistItemDetailResponse>> watchPersonal(DateTime date) {
-    final streamKey = 'personal_${_dateKey(date)}';
-    _personalStreams.putIfAbsent(streamKey, () => StreamController.broadcast());
+  //TODO studyId를 리스트로 넣어줘야 할듯
+  Stream<List<ChecklistItemDetailResponse>> watchPersonal(DateTime date, List<StudyDetailResponse> studies) {
 
-    log("✅ watchPersonal 리턴 직전: ${_personalStreams[streamKey]!.hasListener ? "리스너 있음" : "리스너 없음"}");
+    final dateKey = _dateKey(date);
+    log("🎬 watchPersonal 호출됨! date: $dateKey, studies: ${studies.length}개");
 
-    return _personalStreams[streamKey]!.stream;
+    final personalStreams = <Stream<List<ChecklistItemDetailResponse>>>[];
+
+    for (final study in studies){
+      final streamKey = 'personal_${_studyIdDateKey(study.id, date)}';
+      _personalStreams.putIfAbsent(streamKey, () => StreamController.broadcast());
+      personalStreams.add(_personalStreams[streamKey]!.stream);
+    }
+
+    log("   personalStreams 크기: ${personalStreams.length}");  // ← 이게 0이면?
+
+    return Rx.combineLatest(
+        personalStreams,
+        (List<List<ChecklistItemDetailResponse>> allLists) {
+          log("🔀 combineLatest 트리거!");
+          final merged = <ChecklistItemDetailResponse>[];
+          for (final list in allLists) {
+            merged.addAll(list);
+          }
+          return merged;
+        }
+    );
   }
   // ===========================================================
   // 🧠 CACHE + STREAM SYNC
@@ -129,7 +156,7 @@ class InMemoryChecklistItemRepository{
 
     for (final entry in groupedByStudy.entries){
       final studyId = entry.key;
-      log("is studyId null? $studyId");
+      // log("is studyId null? $studyId");
 
       final studyItems = entry.value;
 
@@ -152,49 +179,63 @@ class InMemoryChecklistItemRepository{
         }
       }
     }
-    log("💾 [Cache] ${items.length}개 저장 완료");
+
+    // for (var entry in _cache.entries){
+    //   log("keys: ${entry.key}");
+    //   final list = entry.value;
+    //
+    //   for(var item in list){
+    //     log("   ㄴitem: studyId = ${item.studyId}, checklistItemId = ${item.id}, content = ${item.content}");
+    //   }
+    // }
+    // log("💾 [Cache] ${_cache.length}개 저장 중");
   }
 
   //이건 cache hit시 cache를 stream으로 흘려보내기
-  void _cacheToAllStreams() {
+  void _cacheToAllStreams([int studyId = -1]) {
     log("📡 [cacheToAllStreams] 전체 캐시를 Stream으로 재전송 시작");
+
+    // for (var entry in _cache.entries){
+    //   log("keys: ${entry.key}");
+    //   final list = entry.value;
+    //
+    //   for(var item in list){
+    //     log("   ㄴitem: studyId = ${item.studyId}, checklistItemId = ${item.id}, content = ${item.content}");
+    //   }
+    // }
+    // log("💾 [Cache] ${_cache.length}개 송신 준비 중");
 
     for(final entry in _cache.entries){
       final cacheKey = entry.key;
       final list = entry.value;
 
       if (list.isEmpty) {
-        //캐시에 빈 배열도 일단은 빈 그대로 Push 한다
-        //ui에 빈 배열 만들어 줘야지 headerchip이 렌더링 되고 작동함.
         for (final streamKey in _teamStreams.keys.where((k) => k == 'team_$cacheKey')) {
           _teamStreams[streamKey]?.add([]);
-          // log("   ⚪️ empty push → $streamKey to teamStream");
         }
 
-        final dateKey = cacheKey.split('_').last;
-
-        for (final streamKey in _personalStreams.keys.where((k) => k == 'personal_$dateKey')) {
+        for (final streamKey in _personalStreams.keys.where((k) => k == 'personal_$cacheKey')) {
           _personalStreams[streamKey]?.add([]);
           // log("   ⚪️ empty push → $streamKey to teamStream");
         }
         continue;
-      }
-      for (final item in list) {
+      } else {
+        // for (final item in list) {
         final teamStreamKey = 'team_$cacheKey';
-        _teamStreams.putIfAbsent(teamStreamKey, () => StreamController.broadcast());
-        final teamItems = list.where((e) => e.studyId == item.studyId).toList();
+        _teamStreams.putIfAbsent(
+            teamStreamKey, () => StreamController.broadcast());
+        final teamItems = list.where((e) => e.studyId == studyId).toList();
         _teamStreams[teamStreamKey]!.add(teamItems);
 
-        final dateKey = cacheKey.split('_').last;
+        // final dateKey = cacheKey.split('_').last;
 
-        final personalStreamKey = 'personal_$dateKey';
-        _personalStreams.putIfAbsent(personalStreamKey, () => StreamController.broadcast());
+        final personalStreamKey = 'personal_$cacheKey';
+        _personalStreams.putIfAbsent(
+            personalStreamKey, () => StreamController.broadcast());
 
-        //TODO studyMemberId->memberId로 바꾸기 -> response에 해당 필드 추가 + 백엔드 수정
-        final personalItems = list.where((e) => e.studyMemberId == currentMemberId).toList();
-        _personalStreams[personalStreamKey]!.add(list);
-        // log("   🔸 team_stream → $teamStreamKey (${teamItems.length} items)");
-        log("   🔸 personal_stream → $personalStreamKey (${list.length} items)");
+        final personalItems = list.where((e) => e.memberId == currentMemberId)
+            .toList();
+        _personalStreams[personalStreamKey]!.add(personalItems);
       }
     }
 
@@ -222,8 +263,9 @@ class InMemoryChecklistItemRepository{
         id: tempId,
         type: "STUDY",
         studyId: studyId,
+        memberId: request.assigneeId,
+        studyMemberId: -1,
         studyName: studyName,
-        studyMemberId: request.assigneeId,
         content: request.content,
         targetDate: request.targetDate,
         completed: false,

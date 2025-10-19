@@ -49,6 +49,7 @@ dependencies:
   intl: ^0.20.2
   lucide_icons: ^0.257.0
   material_symbols_icons: ^4.2867.0
+  rxdart: ^0.28.0
 
 dev_dependencies:
   flutter_test:

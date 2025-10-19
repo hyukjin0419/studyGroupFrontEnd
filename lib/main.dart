@@ -42,6 +42,13 @@ Future<void> main() async {
   runApp(
       MultiProvider(
         providers: [
+          Provider<InMemoryChecklistItemRepository>(
+            create: (_) => InMemoryChecklistItemRepository(
+              ChecklistItemApiService(),
+              PersonalChecklistApiService(),
+              0,  // 초기값
+            ),
+          ),
           ChangeNotifierProvider(
             create: (_) => MeProvider(AuthApiService(), MeApiService()),
           ),
@@ -53,44 +60,30 @@ Future<void> main() async {
           ),
           ChangeNotifierProxyProvider<MeProvider, ChecklistItemProvider>(
             create: (context) => ChecklistItemProvider(
-              InMemoryChecklistItemRepository(
-                ChecklistItemApiService(),
-                PersonalChecklistApiService(),
-                0,
-              ),
+              context.read<InMemoryChecklistItemRepository>(),
             ),
             update: (context,me,previous) {
               if(me.currentMember == null) return previous!;
-                return ChecklistItemProvider(
-                    InMemoryChecklistItemRepository(
-                      ChecklistItemApiService(),
-                      PersonalChecklistApiService(),
-                      me.currentMember!.id
-                    )
-                );
+
+              final repo = context.read<InMemoryChecklistItemRepository>();
+              repo.setCurrentMemberId(me.currentMember!.id);
+
+              return ChecklistItemProvider(repo);
               }
           ),
           ChangeNotifierProxyProvider2<MeProvider, StudyProvider, PersonalChecklistProvider>(
             create: (context) => PersonalChecklistProvider(
-              InMemoryChecklistItemRepository(
-                ChecklistItemApiService(),
-                PersonalChecklistApiService(),
-                0, // 초기 id (로그인 전)
-              ),
+              context.read<InMemoryChecklistItemRepository>(),
             ),
             update: (context, me, study, previous) {
               final memberId = me.currentMember?.id ?? 0;
               final studies = study.studies;
 
-              final newRepository = InMemoryChecklistItemRepository(
-                ChecklistItemApiService(),
-                PersonalChecklistApiService(),
-                memberId,
-              );
+              final repo = context.read<InMemoryChecklistItemRepository>();
+              repo.setCurrentMemberId(me.currentMember!.id);
 
               // ✅ 매번 최신 memberId, study 목록 반영
-              final provider = previous ?? PersonalChecklistProvider(newRepository);
-              provider.updateRepository(newRepository);
+              final provider = previous ?? PersonalChecklistProvider(repo);
               provider.setMyStudies(studies);
 
               return provider;
