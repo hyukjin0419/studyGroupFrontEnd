@@ -42,8 +42,12 @@ class InMemoryChecklistItemRepository{
 
   Future<List<ChecklistItemDetailResponse>> getPersonalChecklist(DateTime date ,{bool force = false}) async {
     final dateKey = _dateKey(date);
-    final matchedKeys = _cache.keys.where((key) => key.endsWith(dateKey)).toList();
+    final matchedKeys = _cache.keys.where(
+          (key) => key.split('_').last == dateKey,
+    ).toList();
 
+//TODO: 문제가 matchedKeys가 빈다 -> cache가 비어있기 때문
+//cache가 아니라 stream을 참조해야하는 게 맞는 방향성 아닌가?
     if(matchedKeys.isEmpty|| force){
       log("getPersonal Checklist 캐시 miss or 강제 fetch");
       await fetchWeekForPersonal(date);
@@ -52,11 +56,14 @@ class InMemoryChecklistItemRepository{
       _cacheToAllStreams();
     }
 
-    final cachedList = _cache[dateKey] ?? [];
     final List<ChecklistItemDetailResponse> combined =
     matchedKeys.expand<ChecklistItemDetailResponse>(
           (key) => _cache[key] ?? [],
     ).toList();
+
+    for (final item in combined) {
+      log('Item Founded :$item');
+    }
 
     return combined;
   }
@@ -68,7 +75,7 @@ class InMemoryChecklistItemRepository{
 
       final list = await teamApi.getChecklistItemsOfStudyByWeek(studyId, startOfWeek);
 
-      _initializeWeekStreams(studyId,startOfWeek);
+      _initializeTeamWeekStreams(studyId,startOfWeek);
       _apiToCache(list);
       _cacheToAllStreams();
     } catch (e) {
@@ -83,8 +90,8 @@ class InMemoryChecklistItemRepository{
     try{
       final startOfWeek = date.subtract(Duration(days: date.weekday % 7));
       list = await personalApi.getMyChecklistsByWeek(startOfWeek);
+      _initializePersonalWeekStreams(startOfWeek);
       _apiToCache(list);
-      // _fillEmptyDaysInCache(startOfWeek);
       _cacheToAllStreams();
     } catch (e) {
       log('❌ [ChecklistRepo] fetchWeekForPersonal 실패: $e');
@@ -118,21 +125,25 @@ class InMemoryChecklistItemRepository{
   // 🧠 CACHE + STREAM SYNC
   // ===========================================================
   //일주일 치 빈배열 초기화 (stream key 별로)
-  void _initializeWeekStreams(int studyId, DateTime startOfWeek) {
+  void _initializeTeamWeekStreams(int studyId, DateTime startOfWeek) {
     for (int i = 0; i < 7; i++) {
       final d = startOfWeek.add(Duration(days: i));
-      final key = _studyIdDateKey(studyId, d);
+      final teamKey = _studyIdDateKey(studyId, d);
 
-      final teamStreamKey = 'team_$key';
+      final teamStreamKey = 'team_$teamKey';
       _teamStreams.putIfAbsent(teamStreamKey, () => StreamController.broadcast());
       _teamStreams[teamStreamKey]!.add([]); // ✅ UI 초기화용 빈 리스트 push
+    }
+  }
 
-      final personalStreamKey = 'personal_$key';
+  void _initializePersonalWeekStreams(DateTime startOfWeek) {
+    for (int i = 0; i < 7; i++) {
+      final d = startOfWeek.add(Duration(days: i));
+      final personalKey = _dateKey(d);
+      final personalStreamKey = 'personal_$personalKey';
       _personalStreams.putIfAbsent(personalStreamKey, () => StreamController.broadcast());
       _personalStreams[personalStreamKey]!.add([]); // ✅ 개인 스트림도 빈 초기 상태 push
     }
-
-    log("📡 [StreamInit] studyId=$studyId 주차 스트림 초기화 완료");
   }
 
   //api to cache
@@ -163,7 +174,8 @@ class InMemoryChecklistItemRepository{
         final teamItems = list.where((e) => e.studyId == item.studyId).toList();
         _teamStreams[teamStreamKey]!.add(teamItems);
 
-        final personalStreamKey = 'personal_$cacheKey';
+        final dateKey = cacheKey.split('_').last;
+        final personalStreamKey = 'personal_$dateKey';
         _personalStreams.putIfAbsent(personalStreamKey, () => StreamController.broadcast());
         final personalItems = list.where((e) => e.studyMemberId == currentMemberId).toList();
         _personalStreams[personalStreamKey]!.add(personalItems);
