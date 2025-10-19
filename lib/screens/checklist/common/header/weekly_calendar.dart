@@ -59,7 +59,7 @@ class _WeeklyCalendarState extends State<WeeklyCalendar> {
     if (widget.initialSelectedDay != oldWidget.initialSelectedDay) {
       setState(() {
         _selectedDay = widget.initialSelectedDay ?? DateTime.now();
-        _focusedDay = getMondayOfWeek(widget.initialSelectedDay ?? DateTime.now());
+        _focusedDay = getSundayOfWeek(widget.initialSelectedDay ?? DateTime.now());
       });
     }
   }

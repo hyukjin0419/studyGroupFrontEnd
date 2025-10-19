@@ -31,10 +31,6 @@ class _ChecklistScreenState extends State<ChecklistScreen> {
     });
   }
 
-  Future<void> updateSelectedDate(DateTime newDate) async {
-    _checklistItemProvider.updateSelectedDate(newDate);
-  }
-
   @override
   Widget build(BuildContext context) {
     final provider = context.watch<ChecklistItemProvider>();
@@ -62,7 +58,7 @@ class _ChecklistScreenState extends State<ChecklistScreen> {
               initialSelectedDay: provider.selectedDate,
               onDaySelected: (date) {
                 log(" 날짜: $date");
-                updateSelectedDate(date);
+                _checklistItemProvider.updateSelectedDate(date);
               },
             ),
             const SizedBox(height: 12),
