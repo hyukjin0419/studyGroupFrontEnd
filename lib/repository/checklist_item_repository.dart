@@ -50,14 +50,34 @@ class InMemoryChecklistItemRepository{
   static final BehaviorSubject<List<ChecklistItemDetailResponse>> _subject = BehaviorSubject.seeded([]);
   Stream<List<ChecklistItemDetailResponse>> get stream => _subject.stream;
 
-  void _emitFromCache() {
+  // void _emitFromCache() {
+  //   final nonNullItems = _cache.values
+  //       .whereType<ChecklistItemDetailResponse>()
+  //       .toList();
+  //
+  //   log("📤 emit: ${nonNullItems.length}개 (null 제외)", name: "InMemoryChecklistItemRepository");
+  //   _subject.add(nonNullItems);
+  // }
+
+  void _emitFromCache({ChecklistItemDetailResponse? newItem}) {
+    if (newItem != null) {
+      // ✅ 개별 아이템만 추가 발행
+      log("📤 emit(단일): ${newItem.id} (${newItem.content})",
+          name: "InMemoryChecklistItemRepository");
+      _subject.add([newItem]); // Stream<List<...>> 형태 유지 시, 단일 리스트로 래핑
+      return;
+    }
+
+    // ✅ 초기 동기화나 캐시 전체 반영 시 (fallback)
     final nonNullItems = _cache.values
         .whereType<ChecklistItemDetailResponse>()
         .toList();
 
-    log("📤 emit: ${nonNullItems.length}개 (null 제외)", name: "InMemoryChecklistItemRepository");
+    log("📤 emit(전체): ${nonNullItems.length}개 (null 제외)",
+        name: "InMemoryChecklistItemRepository");
     _subject.add(nonNullItems);
   }
+
 
   Future<void> fetchChecklistByWeek({required DateTime date, int? studyId, int? memberId, bool force = false}) async {
     final keyDate = DateTime(date.year, date.month, date.day);
@@ -121,17 +141,19 @@ class InMemoryChecklistItemRepository{
     try {
       final created = await teamApi.createChecklistItemOfStudy(request, studyId);
 
-      // String tempKey = "";
-      // if(fromStudy){
-      //   tempKey =_studyIdMemberIdChecklistIdDateKey(studyId: studyId, date: request.targetDate);
-      // }
-      // _cache.remove(tempKey);
-      //
+      //기존에 있던 dummy key 삭제 - from study
+      String tempKey = "";
+      if(fromStudy){
+        tempKey =_studyIdMemberIdChecklistIdDateKey(studyId: studyId, date: request.targetDate);
+      }
+      //TODO form personal도 필요함
+      _cache.remove(tempKey);
+
       log("realkey 만들어서 캐시에 아이템 추가", name: "InMemoryChecklistItemRepository");
       final realKey = _studyIdMemberIdChecklistIdDateKey(studyId: created.studyId, memberId: created.memberId, checklistId: created.id, date: created.targetDate);
       _cache[realKey] = created;
 
-      _emitFromCache();
+      _emitFromCache(newItem: created);
     } catch (e, stackTrace) {
       log("createdChecklistItem error $e", name: "InMemoryChecklistItemRepository");
       log("📍 Stack trace: $stackTrace", name: "InMemoryChecklistItemRepository");
@@ -140,42 +162,6 @@ class InMemoryChecklistItemRepository{
       rethrow;
     }
   }
-
-  // Future<void> create(int studyId, ChecklistItemCreateRequest request, String studyName) async {
-  //   final tempKey = _studyIdMemberIdChecklistIdDateKey(studyId: studyId, date: request.targetDate);
-  //   final tempId = -DateTime.now().millisecondsSinceEpoch;
-  //   final tempOrderIndex = DateTime.now().millisecondsSinceEpoch;
-  //
-  //   final newItem = ChecklistItemDetailResponse(
-  //       id: tempId,
-  //       type: "STUDY",
-  //       studyId: studyId,
-  //       memberId: -1,
-  //       studyMemberId: request.assigneeId,
-  //       studyName: studyName,
-  //       content: request.content,
-  //       targetDate: request.targetDate,
-  //       completed: false,
-  //       orderIndex: tempOrderIndex,
-  //   );
-  //
-  //   //TODO 캐시 값을 지워주어야 함
-  //
-  //   _cache[tempKey] = newItem;
-  //   _emitFromCache();
-  //
-  //   try {
-  //     final created = await teamApi.createChecklistItemOfStudy(request, studyId);
-  //     final realKey = _studyIdMemberIdChecklistIdDateKey(studyId: created.studyId, memberId: created.memberId, checklistId: created.id, date: created.targetDate);
-  //     _cache.remove(tempKey);
-  //     _cache[realKey] = created;
-  //     _emitFromCache();
-  //   } catch (_) {
-  //     _cache.remove(tempKey);
-  //     _emitFromCache();
-  //     rethrow;
-  //   }
-  // }
 
   // Future<void> updateContent(int checklistItemId, int studyId, DateTime date, ChecklistItemContentUpdateRequest request) async {
   //   final key = _studyIdDateKey(studyId, date);

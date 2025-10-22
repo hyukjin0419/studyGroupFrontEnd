@@ -35,6 +35,10 @@ class ChecklistItemProvider with ChangeNotifier, LoadingNotifier{
 
   StreamSubscription<List<ChecklistItemDetailResponse>>? _subscription;
 
+  Map<int, ChecklistItemDetailResponse> _filteredMap = {};
+  List<ChecklistItemDetailResponse> get filteredItems => _filteredMap.values.toList();
+
+
   //--------------로딩---------------------------//
   bool _isLoading = false;
   bool get isLoading => _isLoading;
@@ -43,7 +47,6 @@ class ChecklistItemProvider with ChangeNotifier, LoadingNotifier{
     _isLoading = value;
     notifyListeners();
   }
-
 
   //--------------------Init--------------------//
   //해당 Init은 특정 study화면에 들어갔을 때 실행됨
@@ -57,9 +60,10 @@ class ChecklistItemProvider with ChangeNotifier, LoadingNotifier{
 
     _selectedDate = DateTime.now();
 
-    _subscription = repository.stream.listen((allItems) {
-      log("📡 stream 데이터 수신: ${allItems.length}개", name: "ChecklistItemProvider");
-      _applyFiltering(allItems);
+    _subscription = repository.stream.listen((newItems) {
+      log("📡 stream 데이터 수신: ${newItems.length}개", name: "ChecklistItemProvider");
+
+      _applyFiltering(newItems);
       _setLoading(false);
     });
 
@@ -69,6 +73,7 @@ class ChecklistItemProvider with ChangeNotifier, LoadingNotifier{
 
   Future<void> updateSelectedDate(DateTime newDate) async {
     if (!isSameDate(_selectedDate, newDate)) {
+      _filteredMap = {};
       clearGroups();
       _selectedDate = newDate;
 
@@ -77,57 +82,71 @@ class ChecklistItemProvider with ChangeNotifier, LoadingNotifier{
     }
   }
 
-  void _applyFiltering(List<ChecklistItemDetailResponse> allItems){
+
+  void _applyFiltering(List<ChecklistItemDetailResponse> newItems){
     log("applying Filter! studyId ${_study!.id}, date${_selectedDate}", name: "ChecklistItemProvider");
 
-    final filtered = allItems.where((item) {
+    final filtered = newItems.where((item) {
       final sameDate = isSameDate(item.targetDate, _selectedDate);
       final inThisStudy = _study!.id == item.studyId;
       return sameDate && inThisStudy;
     }).toList();
 
+
     for (var item in filtered){
-      log("Today: ${item.targetDate}, studyId: ${item.studyId}, content: ${item.content}", name: "ChecklistItemProvider");
+      log("Today: ${item.targetDate}, studyId: ${item.studyId}, checklistId: ${item.id}, content: ${item.content}", name: "ChecklistItemProvider");
+      final id = item.id;
+      final tempId = item.tempId;
+
+      //임시 체크리스트 -> db 체크리스트로 교체
+      if (tempId != null && _filteredMap.containsKey(tempId)) {
+        final old = _filteredMap.remove(tempId)!;
+        _filteredMap[id] = item.copyWith(orderIndex: old.orderIndex);
+        continue;
+      }
+
+      //기존에 있는데 업데이트되는 경우를 위해
+      if(_filteredMap.containsKey(item.id)){
+        _filteredMap[item.id] = item;
+        continue;
+      }
+
+      //신규 아이템
+      _filteredMap[item.id] = item;
     }
 
-    // _filteredItems = filtered;
-    updateGroups(filtered);
-
+    _updateGroups(_filteredMap.values.toList());
+    _sortGroups();
     notifyListeners();
   }
-
-
-  // ================= exit =================
-  // //TODO 이후에 좀 더 명확하게 설정.
-  // @override
-  // void dispose(){
-  //   log("Team Checklist Provider 구독 취소", name: "ChecklistItemProvider");
-  //   _studyId = null;
-  //   clearGroups();
-  //   _subscription?.cancel();
-  //   super.dispose();
-  // }
-
 
   // ================= Optimistic mutation =================
   Future<void> createChecklistItem(int studyMemberId, String content) async {
     final MemberChecklistGroupVM group = _groups.firstWhere((g) => g.studyMemberId == studyMemberId);
     final tempId = -DateTime.now().millisecondsSinceEpoch;
 
-    final tempItem = MemberChecklistItemVM(
+    final tempItem = ChecklistItemDetailResponse(
         id: tempId,
+        tempId: null,
+        type: "STUDY",
+        studyId: _study!.id,
+        studyName: _study!.name,
+        memberId: -1,
         studyMemberId: studyMemberId,
         content: content,
         completed:false,
+        targetDate: _selectedDate,
         orderIndex: group.totalCount
     );
 
     log("createdChecklistItem시 Optimistic 하게 Item 추가", name: "ChecklistItemProvider");
-    group.items.add(tempItem);
+    _filteredMap[tempId] = tempItem;
+    _updateGroups(_filteredMap.values.toList());
     notifyListeners();
 
     try{
       final request = ChecklistItemCreateRequest(
+        tempId: tempId,
         content: content,
         assigneeId: studyMemberId,
         type: "STUDY",
@@ -137,8 +156,14 @@ class ChecklistItemProvider with ChangeNotifier, LoadingNotifier{
 
       await repository.createChecklistItem(studyId: study!.id, request: request, fromStudy: true);
     } catch (e, stackTrace) {
+      //TODO 여기도 filteredItem에서 삭제
+      if (_filteredMap.containsKey(tempId)) {
+        _filteredMap.remove(tempId);
+        _updateGroups(_filteredMap.values.toList());
+        notifyListeners();
+      }
       log("createdChecklistItem error $e", name: "ChecklistItemProvider");
-      log("📍 Stack trace: $stackTrace"); // ← 어디서 에러났는지 확인!
+      log("📍 Stack trace: $stackTrace");
       rethrow;
     }
   }
@@ -180,7 +205,7 @@ class ChecklistItemProvider with ChangeNotifier, LoadingNotifier{
     }).toList();
   }
 
-  // ================= Grouping =================
+// ================= Grouping =================
   void clearGroups(){
     final Map<int, MemberChecklistGroupVM> groupMap = {
       for (var sm in _studyMembers)
@@ -194,7 +219,7 @@ class ChecklistItemProvider with ChangeNotifier, LoadingNotifier{
     notifyListeners();
   }
 
-  void updateGroups(List<ChecklistItemDetailResponse> items) {
+  void _updateGroups(List<ChecklistItemDetailResponse> items) {
     final Map<int, MemberChecklistGroupVM> groupMap = {
       for (var sm in _studyMembers)
         sm.studyMemberId : MemberChecklistGroupVM(
@@ -219,8 +244,6 @@ class ChecklistItemProvider with ChangeNotifier, LoadingNotifier{
     }
 
     _groups = groupMap.values.toList();
-    _sortGroups();
-    notifyListeners();
   }
 
   void _sortGroups() {
