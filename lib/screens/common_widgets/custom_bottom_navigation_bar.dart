@@ -23,6 +23,9 @@ class CustomBottomNavigationBar extends StatelessWidget {
         surfaceTintColor: Colors.transparent,
         selectedIndex: selectedIndex,
         onDestinationSelected: (index) {
+          while (GoRouter.of(context).canPop()) {
+            GoRouter.of(context).pop();
+          }
           switch (index) {
             case 0:
               context.go('/personal');
