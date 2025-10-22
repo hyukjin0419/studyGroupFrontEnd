@@ -54,12 +54,12 @@ class _PersonalChecklistGroupViewState extends State<PersonalChecklistGroupView>
   }
 
 
-  @override
-  void dispose() {
-    _focusNode.dispose();
-    _controller.dispose();
-    super.dispose();
-  }
+  // @override
+  // void dispose() {
+  //   _focusNode.dispose();
+  //   _controller.dispose();
+  //   super.dispose();
+  // }
 
   @override
   Widget build(BuildContext context) {

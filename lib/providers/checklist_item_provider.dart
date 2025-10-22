@@ -44,7 +44,12 @@ class ChecklistItemProvider with ChangeNotifier, LoadingNotifier{
   //해당 Init은 특정 study화면에 들어갔을 때 실행됨
   void initializeContext(int studyId, List<StudyMemberSummaryResponse> members) async {
     _studyId = studyId;
-    _studyMembers = members;
+    setStudyMembers(members);
+    log("해당 스터디 $studyId의 members", name: "ChecklistItemProvider");
+    for(var member in _studyMembers) {
+      log("ㄴ ${member.userName}", name: "ChecklistItemProvider");
+    }
+
     _selectedDate = DateTime.now();
 
     _subscription = repository.stream.listen((allItems) {
@@ -88,15 +93,15 @@ class ChecklistItemProvider with ChangeNotifier, LoadingNotifier{
 
 
   // ================= exit =================
-  //TODO 이후에 좀 더 명확하게 설정.
-  @override
-  void dispose(){
-    log("Team Checklist Provider 구독 취소", name: "ChecklistItemProvider");
-    _studyId = null;
-    clearGroups();
-    _subscription?.cancel();
-    super.dispose();
-  }
+  // //TODO 이후에 좀 더 명확하게 설정.
+  // @override
+  // void dispose(){
+  //   log("Team Checklist Provider 구독 취소", name: "ChecklistItemProvider");
+  //   _studyId = null;
+  //   clearGroups();
+  //   _subscription?.cancel();
+  //   super.dispose();
+  // }
 
 
   // ================= Optimistic mutation =================
