@@ -147,7 +147,13 @@ class InMemoryChecklistItemRepository{
         tempKey =_studyIdMemberIdChecklistIdDateKey(studyId: studyId, date: request.targetDate);
       }
       //TODO form personal도 필요함
+
+      bool keyExisted = _cache.containsKey(tempKey);
+      log("삭제전 $keyExisted", name: "InMemoryChecklistItemRepository");
       _cache.remove(tempKey);
+      keyExisted = _cache.containsKey(tempKey);
+      log("삭제후 $keyExisted", name: "InMemoryChecklistItemRepository");
+
 
       log("realkey 만들어서 캐시에 아이템 추가", name: "InMemoryChecklistItemRepository");
       final realKey = _studyIdMemberIdChecklistIdDateKey(studyId: created.studyId, memberId: created.memberId, checklistId: created.id, date: created.targetDate);
