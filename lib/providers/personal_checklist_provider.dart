@@ -7,92 +7,89 @@ import 'package:study_group_front_end/dto/study/detail/study_detail_response.dar
 import 'package:study_group_front_end/providers/loading_notifier.dart';
 import 'package:study_group_front_end/repository/checklist_item_repository.dart';
 import 'package:study_group_front_end/screens/checklist/personal/view_models/personal_checklist_group_vm.dart';
+import 'package:study_group_front_end/util/date_calculator.dart';
 
 class PersonalChecklistProvider with ChangeNotifier, LoadingNotifier {
-  late InMemoryChecklistItemRepository _repository;
+  final InMemoryChecklistItemRepository _repository;
   PersonalChecklistProvider(this._repository);
   InMemoryChecklistItemRepository get repository => _repository;
-
-  List<PersonalCheckListGroupVM> _groups = [];
-  List<PersonalCheckListGroupVM> get groups => _groups;
 
   List<StudyDetailResponse> _myStudies = [];
   void setMyStudies(List<StudyDetailResponse> studies) => (_myStudies = studies);
 
+  int _currentMemberId = 0;
+  void setCurrentMemberId(int memberId) => _currentMemberId = memberId;
+
   DateTime _selectedDate = DateTime.now();
   DateTime get selectedDate => _selectedDate;
 
-
   StreamSubscription<List<ChecklistItemDetailResponse>>? _subscription;
+
+  List<ChecklistItemDetailResponse> _filteredItems = [];
+  List<ChecklistItemDetailResponse> get filteredItems => _filteredItems;
+
+  List<PersonalCheckListGroupVM> _groups = [];
+  List<PersonalCheckListGroupVM> get groups => _groups;
 
   //=================Init======================//
   void initializeContext() async{
     _selectedDate = DateTime.now();
-    await _subscribeToDate(selectedDate);
+    _subscription = repository.stream.listen((allItems) {
+      log("📡 [PersonalProvider] stream 데이터 수신: ${allItems.length}개");
+      _applyFiltering(allItems);
+    });
+
+    await repository.fetchChecklistByWeek(date: _selectedDate,memberId: _currentMemberId);
   }
 
   Future<void> updateSelectedDate(DateTime newDate) async {
-    _selectedDate = newDate;
-    await _subscribeToDate(_selectedDate);
+    if (!isSameDate(_selectedDate, newDate)) {
+      clearGroups();
+      _selectedDate = newDate;
+
+      await repository.fetchChecklistByWeek(date: newDate, memberId: _currentMemberId);
+    }
+  }
+
+  void _applyFiltering(List<ChecklistItemDetailResponse> allItems){
+    log("applying Filter! currentMemberId ${_currentMemberId}, date${_selectedDate}");
+    log("mystudies = ");
+    for(var studyId in _myStudies){
+      log("ㄴ ${studyId.id}");
+    }
+    final filtered = allItems.where((item) {
+      final sameMember = item.memberId == _currentMemberId;
+      final sameDate = isSameDate(item.targetDate, _selectedDate);
+      final inMyStudy = _myStudies.any((s)=>s.id == item.studyId);
+      return sameMember && sameDate && inMyStudy;
+    }).toList();
+
+    for (var item in filtered){
+      log("Today: ${item.targetDate}, studyId: ${item.studyId}, content: ${item.content}");
+    }
+
+    _filteredItems = filtered;
+    _groupByStudy(filtered);
+
     notifyListeners();
   }
 
-  Future<void> _subscribeToDate(DateTime date) async{
-    log("_subscribeTodate 호출");
-    _groups=[];
+  //========================== Grouping =========================
+  void clearGroups(){
+    final Map<int, PersonalCheckListGroupVM> groupMap = {
+      for (var s in _myStudies)
+        s.id : PersonalCheckListGroupVM(
+          studyId: s.id,
+          studyName: s.name,
+          items: [],
+        ),
+    };
 
-    await _subscription?.cancel();
-
-    final stream = repository.watchPersonal(date,_myStudies);
-
-    _subscription = stream.listen((items) {
-      log("📡 Personal Stream 수신: ${items.length}개 아이템");
-      for (final item in items) {
-        log("   ㄴitem: studyId = ${item.studyId}, checklistItemId = ${item.id}, content = ${item.content}");
-      }
-      updateGroups(items);
-      log("✅ updateGroups 호출 후 _groups 길이: ${_groups.length}");
-    });
-
-    await repository.getPersonalChecklist(date);
+    _groups = groupMap.values.toList();
+    notifyListeners();
   }
 
-  //완료 상태별 분리
-  // List<ChecklistItemDetailResponse> get incompleteItems =>
-  //     _personalChecklists.where((item) => !item.completed).toList();
-  //
-  // List<ChecklistItemDetailResponse> get completeItems =>
-  //     _personalChecklists.where((item) => item.completed).toList();
-  //
-  // //통계 (PersonalStatus Card용)
-  // int get completedCount => completeItems.length;
-  // int get totalCount => _personalChecklists.length;
-  // double get progress => totalCount > 0 ? completedCount / totalCount : 0.0;
-  //
-  // //스터디별 그룹화 (완료 상태 분리)
-  // Map<int, PersonalCheckListGroupVM> get groupByStudy {
-  //   final grouped = <int, PersonalCheckListGroupVM> {};
-  //
-  //   for (final item in _personalChecklists){
-  //     grouped.putIfAbsent(item.studyId,() => PersonalCheckListGroupVM(
-  //         studyId: item.studyId,
-  //         studyMemberId: item.studyMemberId,
-  //         studyName: item.studyName,
-  //         incomplete: [],
-  //         completed: []
-  //     ));
-  //
-  //     if (item.completed){
-  //       grouped[item.studyId]!.completed.add(item);
-  //     } else {
-  //       grouped[item.studyId]!.incomplete.add(item);
-  //     }
-  //   }
-  //   return grouped;
-  // }
-
-  //========================== Grouping =========================
-  void updateGroups(List<ChecklistItemDetailResponse> items){
+  void _groupByStudy(List<ChecklistItemDetailResponse> items){
     final Map<int, PersonalCheckListGroupVM> groupMap = {
       for (var s in _myStudies)
         s.id : PersonalCheckListGroupVM(

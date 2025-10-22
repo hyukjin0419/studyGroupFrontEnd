@@ -85,6 +85,7 @@ Future<void> main() async {
               // ✅ 매번 최신 memberId, study 목록 반영
               final provider = previous ?? PersonalChecklistProvider(repo);
               provider.setMyStudies(studies);
+              provider.setCurrentMemberId(memberId);
 
               return provider;
             },
