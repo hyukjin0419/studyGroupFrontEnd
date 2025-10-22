@@ -31,6 +31,7 @@ class ChecklistItemProvider with ChangeNotifier, LoadingNotifier{
   StreamSubscription<List<ChecklistItemDetailResponse>>? _subscription;
 
   //--------------로딩---------------------------//
+  //로딩 화면에 추가할 수 있을 듯..?
   bool _isLoading = false;
   bool get isLoading => _isLoading;
 
@@ -88,12 +89,16 @@ class ChecklistItemProvider with ChangeNotifier, LoadingNotifier{
 
 
   // ================= exit =================
-  void clear() {
+  //TODO 이후에 좀 더 명확하게 설정.
+  @override
+  void dispose(){
+    log("Team Checklist Provider 구독 취소");
     _studyId = null;
     clearGroups();
-    _selectedDate = DateTime.now();
-    notifyListeners();
+    _subscription?.cancel();
+    super.dispose();
   }
+
 
   // ================= Optimistic mutation =================
   Future<void> createChecklistItem(ChecklistItemCreateRequest request, String studyName) async {

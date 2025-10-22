@@ -74,6 +74,14 @@ class PersonalChecklistProvider with ChangeNotifier, LoadingNotifier {
     notifyListeners();
   }
 
+  // ================= exit =================
+  @override
+  void dispose(){
+    log("Personal Checklist Provider 구독 취소");
+    clearGroups();
+    _subscription?.cancel();
+    super.dispose();
+  }
   //========================== Grouping =========================
   void clearGroups(){
     final Map<int, PersonalCheckListGroupVM> groupMap = {

@@ -45,8 +45,7 @@ Future<void> main() async {
           Provider<InMemoryChecklistItemRepository>(
             create: (_) => InMemoryChecklistItemRepository(
               ChecklistItemApiService(),
-              PersonalChecklistApiService(),
-              0,  // 초기값
+              PersonalChecklistApiService()
             ),
           ),
           ChangeNotifierProvider(
@@ -58,6 +57,7 @@ Future<void> main() async {
           ChangeNotifierProvider(
               create: (_) => StudyJoinProvider(StudyJoinApiService()),
           ),
+          //TODO inmemory 수정 바람
           ChangeNotifierProxyProvider<MeProvider, ChecklistItemProvider>(
             create: (context) => ChecklistItemProvider(
               context.read<InMemoryChecklistItemRepository>(),
@@ -66,7 +66,6 @@ Future<void> main() async {
               if(me.currentMember == null) return previous!;
 
               final repo = context.read<InMemoryChecklistItemRepository>();
-              repo.setCurrentMemberId(me.currentMember!.id);
 
               return ChecklistItemProvider(repo);
               }
@@ -80,7 +79,6 @@ Future<void> main() async {
               final studies = study.studies;
 
               final repo = context.read<InMemoryChecklistItemRepository>();
-              repo.setCurrentMemberId(me.currentMember!.id);
 
               // ✅ 매번 최신 memberId, study 목록 반영
               final provider = previous ?? PersonalChecklistProvider(repo);

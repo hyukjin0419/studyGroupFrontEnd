@@ -14,10 +14,10 @@ class InMemoryChecklistItemRepository{
   final PersonalChecklistApiService personalApi;
 
   //xxxxxx//
-  int currentMemberId;
-  void setCurrentMemberId(int memberId) => currentMemberId = memberId;
+  // int currentMemberId;
+  // void setCurrentMemberId(int memberId) => currentMemberId = memberId;
   //xxxxxx//
-  InMemoryChecklistItemRepository(this.teamApi, this.personalApi, this.currentMemberId);
+  InMemoryChecklistItemRepository(this.teamApi, this.personalApi);
 
   //[key: checklistItem.id, value
   final Map<String, ChecklistItemDetailResponse?> _cache = {};
@@ -108,6 +108,7 @@ class InMemoryChecklistItemRepository{
         if (studyId != null && memberId == null) {
           final key = _studyIdMemberIdChecklistIdDateKey(studyId, null, null, d);
           //TODO create시 더미값은 지우고 바꾸어 주어야 함!!
+          //TODO 상대방과의 연동은 pull to refresh 및 주기적 캐시 업데이트를 통해!
           _cache[key] = null;
         } else if (studyId == null && memberId != null) {
           final key = _studyIdMemberIdChecklistIdDateKey(null, memberId, null, d);
