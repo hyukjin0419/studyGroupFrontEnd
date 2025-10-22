@@ -31,7 +31,6 @@ class ChecklistItemProvider with ChangeNotifier, LoadingNotifier{
   StreamSubscription<List<ChecklistItemDetailResponse>>? _subscription;
 
   //--------------로딩---------------------------//
-  //로딩 화면에 추가할 수 있을 듯..?
   bool _isLoading = false;
   bool get isLoading => _isLoading;
 

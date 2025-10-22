@@ -68,7 +68,7 @@ class _PersonalChecklistGroupViewState extends State<PersonalChecklistGroupView>
     //색상 어떻게 할건지 생각해봐야 함. -> 나중에 title 옆에 색상 변경 버튼 추가
     final color = Colors.teal;
 
-    if (groups.isEmpty) {
+    if (provider.isLoading) {
       return _buildEmptyState();
     }
 

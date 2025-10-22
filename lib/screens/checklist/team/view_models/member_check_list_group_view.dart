@@ -82,7 +82,7 @@ class _MemberChecklistGroupViewState extends State<MemberChecklistGroupView> {
     final provider = context.watch<ChecklistItemProvider>();
     final groups = provider.groups;
 
-    if (groups.isEmpty) {
+    if (provider.isLoading) {
       return _buildEmptyState();
     }
 

@@ -25,11 +25,19 @@ class PersonalChecklistProvider with ChangeNotifier, LoadingNotifier {
 
   StreamSubscription<List<ChecklistItemDetailResponse>>? _subscription;
 
-  List<ChecklistItemDetailResponse> _filteredItems = [];
-  List<ChecklistItemDetailResponse> get filteredItems => _filteredItems;
-
   List<PersonalCheckListGroupVM> _groups = [];
   List<PersonalCheckListGroupVM> get groups => _groups;
+
+  //--------------로딩---------------------------//
+  bool _isLoading = false;
+  bool get isLoading => _isLoading;
+
+  void _setLoading(bool value) {
+    _isLoading = value;
+    notifyListeners();
+  }
+
+
 
   //=================Init======================//
   void initializeContext() async{
@@ -37,8 +45,10 @@ class PersonalChecklistProvider with ChangeNotifier, LoadingNotifier {
     _subscription = repository.stream.listen((allItems) {
       log("📡 [PersonalProvider] stream 데이터 수신: ${allItems.length}개");
       _applyFiltering(allItems);
+      _setLoading(false);
     });
 
+    _setLoading(true);
     await repository.fetchChecklistByWeek(date: _selectedDate,memberId: _currentMemberId);
   }
 
@@ -47,6 +57,7 @@ class PersonalChecklistProvider with ChangeNotifier, LoadingNotifier {
       clearGroups();
       _selectedDate = newDate;
 
+      _setLoading(true);
       await repository.fetchChecklistByWeek(date: newDate, memberId: _currentMemberId);
     }
   }
@@ -68,7 +79,6 @@ class PersonalChecklistProvider with ChangeNotifier, LoadingNotifier {
       log("Today: ${item.targetDate}, studyId: ${item.studyId}, content: ${item.content}");
     }
 
-    _filteredItems = filtered;
     _groupByStudy(filtered);
 
     notifyListeners();
