@@ -48,7 +48,7 @@ class ChecklistItemProvider with ChangeNotifier, LoadingNotifier{
     _selectedDate = DateTime.now();
 
     _subscription = repository.stream.listen((allItems) {
-      log("📡 [PersonalProvider] stream 데이터 수신: ${allItems.length}개");
+      log("📡 stream 데이터 수신: ${allItems.length}개", name: "ChecklistItemProvider");
       _applyFiltering(allItems);
       _setLoading(false);
     });
@@ -68,7 +68,7 @@ class ChecklistItemProvider with ChangeNotifier, LoadingNotifier{
   }
 
   void _applyFiltering(List<ChecklistItemDetailResponse> allItems){
-    log("applying Filter! studyId ${studyId}, date${_selectedDate}");
+    log("applying Filter! studyId ${studyId}, date${_selectedDate}", name: "ChecklistItemProvider");
 
     final filtered = allItems.where((item) {
       final sameDate = isSameDate(item.targetDate, _selectedDate);
@@ -77,7 +77,7 @@ class ChecklistItemProvider with ChangeNotifier, LoadingNotifier{
     }).toList();
 
     for (var item in filtered){
-      log("Today: ${item.targetDate}, studyId: ${item.studyId}, content: ${item.content}");
+      log("Today: ${item.targetDate}, studyId: ${item.studyId}, content: ${item.content}", name: "ChecklistItemProvider");
     }
 
     // _filteredItems = filtered;
@@ -91,7 +91,7 @@ class ChecklistItemProvider with ChangeNotifier, LoadingNotifier{
   //TODO 이후에 좀 더 명확하게 설정.
   @override
   void dispose(){
-    log("Team Checklist Provider 구독 취소");
+    log("Team Checklist Provider 구독 취소", name: "ChecklistItemProvider");
     _studyId = null;
     clearGroups();
     _subscription?.cancel();

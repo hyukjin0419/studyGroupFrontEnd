@@ -52,7 +52,7 @@ class _PersonalScreenState extends State<PersonalScreen> {
             WeeklyCalendar(
               initialSelectedDay: provider.selectedDate,
               onDaySelected: (date) {
-                log(" 날짜: $date");
+                log(" 날짜: $date", name: "PersonalScreen");
                 _personalChecklistProvider.updateSelectedDate(date);
               },
             ),

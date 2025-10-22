@@ -37,13 +37,11 @@ class PersonalChecklistProvider with ChangeNotifier, LoadingNotifier {
     notifyListeners();
   }
 
-
-
   //=================Init======================//
   void initializeContext() async{
     _selectedDate = DateTime.now();
     _subscription = repository.stream.listen((allItems) {
-      log("📡 [PersonalProvider] stream 데이터 수신: ${allItems.length}개");
+      log("📡 stream 데이터 수신: ${allItems.length}개", name: "PersonalProvider");
       _applyFiltering(allItems);
       _setLoading(false);
     });
@@ -63,10 +61,10 @@ class PersonalChecklistProvider with ChangeNotifier, LoadingNotifier {
   }
 
   void _applyFiltering(List<ChecklistItemDetailResponse> allItems){
-    log("applying Filter! currentMemberId ${_currentMemberId}, date${_selectedDate}");
-    log("mystudies = ");
+    log("applying Filter! currentMemberId ${_currentMemberId}, date${_selectedDate}", name: "PersonalProvider");
+    log("mystudies = ", name: "PersonalProvider");
     for(var studyId in _myStudies){
-      log("ㄴ ${studyId.id}");
+      log("ㄴ ${studyId.id}", name: "PersonalProvider");
     }
     final filtered = allItems.where((item) {
       final sameMember = item.memberId == _currentMemberId;
@@ -76,7 +74,7 @@ class PersonalChecklistProvider with ChangeNotifier, LoadingNotifier {
     }).toList();
 
     for (var item in filtered){
-      log("Today: ${item.targetDate}, studyId: ${item.studyId}, content: ${item.content}");
+      log("Today: ${item.targetDate}, studyId: ${item.studyId}, content: ${item.content}", name: "PersonalProvider");
     }
 
     _groupByStudy(filtered);
@@ -87,7 +85,7 @@ class PersonalChecklistProvider with ChangeNotifier, LoadingNotifier {
   // ================= exit =================
   @override
   void dispose(){
-    log("Personal Checklist Provider 구독 취소");
+    log("Personal Checklist Provider 구독 취소", name: "PersonalProvider");
     clearGroups();
     _subscription?.cancel();
     super.dispose();

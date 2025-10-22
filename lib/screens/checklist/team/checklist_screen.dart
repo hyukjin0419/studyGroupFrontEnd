@@ -57,7 +57,7 @@ class _ChecklistScreenState extends State<ChecklistScreen> {
               study: widget.study,
               initialSelectedDay: provider.selectedDate,
               onDaySelected: (date) {
-                log(" 날짜: $date");
+                log(" 날짜: $date",name: "ChecklistScreen");
                 _checklistItemProvider.updateSelectedDate(date);
               },
             ),
