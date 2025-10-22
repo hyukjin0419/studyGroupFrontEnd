@@ -11,7 +11,7 @@ class PersonalCheckListGroupVM{
     required this.items,
   });
 
-  // int get totalCount => incomplete.length + completed.length;
+  int get totalCount => items.length;
   // int get completedCount => completed.length;
   // double get progress => totalCount > 0 ? completedCount / totalCount : 0.0;
 }

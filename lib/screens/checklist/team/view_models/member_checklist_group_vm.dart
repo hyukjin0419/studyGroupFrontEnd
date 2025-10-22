@@ -12,4 +12,6 @@ class MemberChecklistGroupVM{
     required this.memberName,
     required this.items
   });
+
+  int get totalCount => items.length;
 }

@@ -4,6 +4,7 @@ import 'dart:developer';
 import 'package:rxdart/rxdart.dart';
 import 'package:study_group_front_end/api_service/checklist_item_api_service.dart';
 import 'package:study_group_front_end/api_service/personal_checklist_api_service.dart';
+import 'package:study_group_front_end/dto/checklist_item/create/checklist_item_create_request.dart';
 import 'package:study_group_front_end/dto/checklist_item/detail/checklist_item_detail_response.dart';
 
 class InMemoryChecklistItemRepository{
@@ -17,7 +18,7 @@ class InMemoryChecklistItemRepository{
   String _dateKey(DateTime date) =>
       '${date.year}-${date.month.toString().padLeft(2,'0')}-${date.day.toString().padLeft(2,'0')}';
 
-  String _studyIdMemberIdChecklistIdDateKey(int? studyId, int ?memberId, int? checklistId, DateTime date) =>
+  String _studyIdMemberIdChecklistIdDateKey({int? studyId, int ?memberId, int? checklistId,required DateTime date}) =>
       '${studyId}_${memberId}_${checklistId}_${date.year}-${date.month.toString().padLeft(2, '0')}-${date.day.toString().padLeft(2, '0')}';
 
   bool cacheHit({int? studyId, int? memberId, required DateTime date}) {
@@ -58,10 +59,6 @@ class InMemoryChecklistItemRepository{
     _subject.add(nonNullItems);
   }
 
-  // ===========================================================
-  // 🧭 FETCH
-  // ===========================================================
-  //우선적 캐시 호출 통합
   Future<void> fetchChecklistByWeek({required DateTime date, int? studyId, int? memberId, bool force = false}) async {
     final keyDate = DateTime(date.year, date.month, date.day);
     log("studyId $studyId, memberId $memberId", name: "InMemoryChecklistItemRepository");
@@ -88,18 +85,18 @@ class InMemoryChecklistItemRepository{
         throw ArgumentError("study Id 또는 MemberId 중 하나는 반드시 지정되어야 합니다.");
       }
       for (var item in fetched){
-        final key = _studyIdMemberIdChecklistIdDateKey(item.studyId, item.memberId, item.id, item.targetDate);
+        final key = _studyIdMemberIdChecklistIdDateKey(studyId: item.studyId, memberId: item.memberId, checklistId: item.id, date: item.targetDate);
         _cache[key] = item;
       }
       for(int i=0;i<7;i++) {
         final d = startOfWeek.add(Duration(days: i));
         if (studyId != null && memberId == null) {
-          final key = _studyIdMemberIdChecklistIdDateKey(studyId, null, null, d);
+          final key = _studyIdMemberIdChecklistIdDateKey(studyId: studyId,date: d);
           //TODO create시 더미값은 지우고 바꾸어 주어야 함!!
           //TODO 상대방과의 연동은 pull to refresh 및 주기적 캐시 업데이트를 통해!
           _cache[key] = null;
         } else if (studyId == null && memberId != null) {
-          final key = _studyIdMemberIdChecklistIdDateKey(null, memberId, null, d);
+          final key = _studyIdMemberIdChecklistIdDateKey(memberId: memberId,date: d);
           _cache[key] = null;
         }
       }
@@ -110,44 +107,76 @@ class InMemoryChecklistItemRepository{
       rethrow;
     }
   }
-}
 
-//--------------------Optimistic Update--------------------//
+
+//--------------------Optimistic Update x--------------------//
   // ===========================================================
   // ✏️ CRUD / REORDER
   // ===========================================================
+  Future<void> createChecklistItem({
+    required int studyId,
+    required ChecklistItemCreateRequest request,
+    required bool fromStudy,
+  }) async {
+    try {
+      final created = await teamApi.createChecklistItemOfStudy(request, studyId);
+
+      // String tempKey = "";
+      // if(fromStudy){
+      //   tempKey =_studyIdMemberIdChecklistIdDateKey(studyId: studyId, date: request.targetDate);
+      // }
+      // _cache.remove(tempKey);
+      //
+      log("realkey 만들어서 캐시에 아이템 추가", name: "InMemoryChecklistItemRepository");
+      final realKey = _studyIdMemberIdChecklistIdDateKey(studyId: created.studyId, memberId: created.memberId, checklistId: created.id, date: created.targetDate);
+      _cache[realKey] = created;
+
+      _emitFromCache();
+    } catch (e, stackTrace) {
+      log("createdChecklistItem error $e", name: "InMemoryChecklistItemRepository");
+      log("📍 Stack trace: $stackTrace", name: "InMemoryChecklistItemRepository");
+
+      _emitFromCache();
+      rethrow;
+    }
+  }
+
   // Future<void> create(int studyId, ChecklistItemCreateRequest request, String studyName) async {
-  //   final key = _studyIdDateKey(studyId, request.targetDate);
+  //   final tempKey = _studyIdMemberIdChecklistIdDateKey(studyId: studyId, date: request.targetDate);
   //   final tempId = -DateTime.now().millisecondsSinceEpoch;
+  //   final tempOrderIndex = DateTime.now().millisecondsSinceEpoch;
   //
   //   final newItem = ChecklistItemDetailResponse(
   //       id: tempId,
   //       type: "STUDY",
   //       studyId: studyId,
-  //       memberId: request.assigneeId,
-  //       studyMemberId: -1,
+  //       memberId: -1,
+  //       studyMemberId: request.assigneeId,
   //       studyName: studyName,
   //       content: request.content,
   //       targetDate: request.targetDate,
   //       completed: false,
-  //       orderIndex: (_cache[key]?.length ?? 0),
+  //       orderIndex: tempOrderIndex,
   //   );
   //
-  //   _cache.putIfAbsent(key, () => []);
-  //   _cache[key]!.add(newItem);
-  //   _cacheToAllStreams();
+  //   //TODO 캐시 값을 지워주어야 함
+  //
+  //   _cache[tempKey] = newItem;
+  //   _emitFromCache();
   //
   //   try {
   //     final created = await teamApi.createChecklistItemOfStudy(request, studyId);
-  //     final idx = _cache[key]!.indexWhere((e) => e.id == tempId);
-  //     if (idx >= 0) _cache[key]![idx] = created;
+  //     final realKey = _studyIdMemberIdChecklistIdDateKey(studyId: created.studyId, memberId: created.memberId, checklistId: created.id, date: created.targetDate);
+  //     _cache.remove(tempKey);
+  //     _cache[realKey] = created;
+  //     _emitFromCache();
   //   } catch (_) {
-  //     _cache[key]!.removeWhere((e) => e.id == tempId);
-  //     _cacheToAllStreams();
+  //     _cache.remove(tempKey);
+  //     _emitFromCache();
   //     rethrow;
   //   }
   // }
-  //
+
   // Future<void> updateContent(int checklistItemId, int studyId, DateTime date, ChecklistItemContentUpdateRequest request) async {
   //   final key = _studyIdDateKey(studyId, date);
   //   final list = _cache[key]!;
@@ -231,4 +260,4 @@ class InMemoryChecklistItemRepository{
   //     rethrow;
   //   }
   // }
-
+}

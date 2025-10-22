@@ -6,9 +6,11 @@ import 'package:study_group_front_end/dto/checklist_item/create/checklist_item_c
 import 'package:study_group_front_end/dto/checklist_item/detail/checklist_item_detail_response.dart';
 import 'package:study_group_front_end/dto/checklist_item/update/checklist_item_content_update_request.dart';
 import 'package:study_group_front_end/dto/checklist_item/update/checklist_item_reorder_request.dart';
+import 'package:study_group_front_end/dto/study/detail/study_detail_response.dart';
 import 'package:study_group_front_end/dto/study/detail/study_member_summary_response.dart';
 import 'package:study_group_front_end/providers/loading_notifier.dart';
 import 'package:study_group_front_end/repository/checklist_item_repository.dart';
+import 'package:study_group_front_end/screens/checklist/personal/view_models/personal_checklist_group_vm.dart';
 import 'package:study_group_front_end/screens/checklist/team/view_models/member_checklist_group_vm.dart';
 import 'package:study_group_front_end/screens/checklist/team/view_models/member_checklist_item_vm.dart';
 import 'package:study_group_front_end/util/date_calculator.dart';
@@ -17,14 +19,17 @@ class ChecklistItemProvider with ChangeNotifier, LoadingNotifier{
   final InMemoryChecklistItemRepository repository;
   ChecklistItemProvider(this.repository);
 
+  //TODO MVP 이후 Map으로 바꾸자
   List<MemberChecklistGroupVM> _groups = [];
   List<MemberChecklistGroupVM> get groups => _groups;
 
   List<StudyMemberSummaryResponse> _studyMembers = [];
   void setStudyMembers(List<StudyMemberSummaryResponse> members) => (_studyMembers = members);
 
-  int? _studyId;
-  int? get studyId => _studyId;
+  StudyDetailResponse? _study;
+  StudyDetailResponse? get study => _study;
+  void updateStudy(StudyDetailResponse? study) => _study = study;
+
   DateTime _selectedDate = DateTime.now();
   DateTime get selectedDate => _selectedDate;
 
@@ -42,10 +47,10 @@ class ChecklistItemProvider with ChangeNotifier, LoadingNotifier{
 
   //--------------------Init--------------------//
   //해당 Init은 특정 study화면에 들어갔을 때 실행됨
-  void initializeContext(int studyId, List<StudyMemberSummaryResponse> members) async {
-    _studyId = studyId;
+  void initializeContext(StudyDetailResponse? study, List<StudyMemberSummaryResponse> members) async {
+    updateStudy(study);
     setStudyMembers(members);
-    log("해당 스터디 $studyId의 members", name: "ChecklistItemProvider");
+    log("해당 스터디 ${_study!.id}의 members", name: "ChecklistItemProvider");
     for(var member in _studyMembers) {
       log("ㄴ ${member.userName}", name: "ChecklistItemProvider");
     }
@@ -59,7 +64,7 @@ class ChecklistItemProvider with ChangeNotifier, LoadingNotifier{
     });
 
     _setLoading(true);
-    await repository.fetchChecklistByWeek(date: _selectedDate,studyId: studyId);
+    await repository.fetchChecklistByWeek(date: _selectedDate,studyId: _study!.id);
   }
 
   Future<void> updateSelectedDate(DateTime newDate) async {
@@ -68,16 +73,16 @@ class ChecklistItemProvider with ChangeNotifier, LoadingNotifier{
       _selectedDate = newDate;
 
       _setLoading(true);
-      await repository.fetchChecklistByWeek(date: _selectedDate,studyId: studyId);
+      await repository.fetchChecklistByWeek(date: _selectedDate,studyId: _study!.id);
     }
   }
 
   void _applyFiltering(List<ChecklistItemDetailResponse> allItems){
-    log("applying Filter! studyId ${studyId}, date${_selectedDate}", name: "ChecklistItemProvider");
+    log("applying Filter! studyId ${_study!.id}, date${_selectedDate}", name: "ChecklistItemProvider");
 
     final filtered = allItems.where((item) {
       final sameDate = isSameDate(item.targetDate, _selectedDate);
-      final inThisStudy = studyId == item.studyId;
+      final inThisStudy = _study!.id == item.studyId;
       return sameDate && inThisStudy;
     }).toList();
 
@@ -105,9 +110,37 @@ class ChecklistItemProvider with ChangeNotifier, LoadingNotifier{
 
 
   // ================= Optimistic mutation =================
-  Future<void> createChecklistItem(ChecklistItemCreateRequest request, String studyName) async {
-    if (_studyId == null) return;
-    // await repository.create(_studyId!, request, studyName);
+  Future<void> createChecklistItem(int studyMemberId, String content) async {
+    final MemberChecklistGroupVM group = _groups.firstWhere((g) => g.studyMemberId == studyMemberId);
+    final tempId = -DateTime.now().millisecondsSinceEpoch;
+
+    final tempItem = MemberChecklistItemVM(
+        id: tempId,
+        studyMemberId: studyMemberId,
+        content: content,
+        completed:false,
+        orderIndex: group.totalCount
+    );
+
+    log("createdChecklistItem시 Optimistic 하게 Item 추가", name: "ChecklistItemProvider");
+    group.items.add(tempItem);
+    notifyListeners();
+
+    try{
+      final request = ChecklistItemCreateRequest(
+        content: content,
+        assigneeId: studyMemberId,
+        type: "STUDY",
+        targetDate: _selectedDate,
+        orderIndex: group.totalCount,
+      );
+
+      await repository.createChecklistItem(studyId: study!.id, request: request, fromStudy: true);
+    } catch (e, stackTrace) {
+      log("createdChecklistItem error $e", name: "ChecklistItemProvider");
+      log("📍 Stack trace: $stackTrace"); // ← 어디서 에러났는지 확인!
+      rethrow;
+    }
   }
 
   Future<void> updateChecklistItemContent(int checklistItemId, ChecklistItemContentUpdateRequest request) async {
@@ -115,17 +148,17 @@ class ChecklistItemProvider with ChangeNotifier, LoadingNotifier{
   }
 
   Future<void> updateChecklistItemStatus(int checklistItemId) async {
-    if (_studyId == null) return;
+    // if (_studyId == null) return;
     // await repository.toggleStatus(checklistItemId, _studyId!, _selectedDate);
   }
 
   Future<void> softDeleteChecklistItem(int checklistItemId) async {
-    if (_studyId == null) return;
+    // if (_studyId == null) return;
     // await repository.softDelete(checklistItemId, _studyId!, _selectedDate);
   }
 
   Future<void> reorderChecklistItem(List<ChecklistItemReorderRequest> requests) async {
-    if (_studyId == null) return;
+    // if (_studyId == null) return;
     // await repository.reorder(requests, _studyId!, _selectedDate);
     notifyListeners();
   }

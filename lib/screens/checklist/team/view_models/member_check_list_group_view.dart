@@ -97,22 +97,22 @@ class _MemberChecklistGroupViewState extends State<MemberChecklistGroupView> {
         itemCount: groups.length,
         separatorBuilder: (_, __) => const SizedBox.shrink(),
         itemBuilder: (context, i) {
-          final g = groups[i];
-          final isEditing = (_editingMemberId == g.studyMemberId);
+          final group = groups[i];
+          final isEditing = (_editingMemberId == group.studyMemberId);
 
           return Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               MemberHeaderChip(
-                name: g.memberName,
+                name: group.memberName,
                 color: _personalColor,
-                onAddPressed: () => _startEditing(g.studyMemberId),
+                onAddPressed: () => _startEditing(group.studyMemberId),
               ),
               const SizedBox(height: 10),
 
-              _buildChecklistItems(g, isEditing),
+              _buildChecklistItems(group, isEditing),
 
-              if (isEditing) _buildNewItemInputField(g),
+              if (isEditing) _buildNewItemInputField(group.studyMemberId),
             ],
           );
         },
@@ -288,7 +288,7 @@ class _MemberChecklistGroupViewState extends State<MemberChecklistGroupView> {
     );
   }
 
-  Widget _buildNewItemInputField(MemberChecklistGroupVM g) {
+  Widget _buildNewItemInputField(int studyMemberId) {
     return ChecklistItemInputField(
       color: _personalColor,
       controller: _controller,
@@ -302,7 +302,7 @@ class _MemberChecklistGroupViewState extends State<MemberChecklistGroupView> {
           _scrollToInputField();
         });
       },
-      onSubmitted: (value) => _createChecklistItem(g, value),
+      onSubmitted: (value) => _createChecklistItem(studyMemberId, value),
     );
   }
 
@@ -326,25 +326,11 @@ class _MemberChecklistGroupViewState extends State<MemberChecklistGroupView> {
     }
   }
 
-  Future<void> _createChecklistItem(
-      MemberChecklistGroupVM group,
-      String content,
-      ) async {
+  Future<void> _createChecklistItem(int studyMemberId, String content) async {
     try {
-      final request = ChecklistItemCreateRequest(
-        content: content,
-        assigneeId: group.studyMemberId,
-        type: "STUDY",
-        targetDate: widget.selectedDate,
-        orderIndex: group.items.length,
-      );
-
       final provider = context.read<ChecklistItemProvider>();
-      await provider.createChecklistItem(request,widget.study.name);
+      await provider.createChecklistItem(studyMemberId, content);
 
-
-      final personalProvider = context.read<PersonalChecklistProvider>();
-      // await personalProvider.refresh();
     } catch (e) {
       if (mounted) {
         _showErrorSnackBar("생성 실패: $e");
