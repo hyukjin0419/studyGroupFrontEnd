@@ -3,7 +3,7 @@ DateTime getMondayOfWeek(DateTime date) {
 }
 
 DateTime getSundayOfWeek(DateTime date) {
-  return date.add(Duration(days: 7 - date.weekday));
+  return date.subtract(Duration(days: date.weekday % 7));
 }
 
 bool isSameDate(DateTime a, DateTime b) =>

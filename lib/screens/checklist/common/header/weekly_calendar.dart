@@ -80,7 +80,6 @@ class _WeeklyCalendarState extends State<WeeklyCalendar> {
                   onPressed: () {
                     setState(() {
                       _focusedDay = _focusedDay.subtract(const Duration(days: 7));
-                      // log("Focused Day : $_focusedDay");
                     });
                   },
                 ),
