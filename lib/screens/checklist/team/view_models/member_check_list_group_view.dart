@@ -368,15 +368,17 @@ class _MemberChecklistGroupViewState extends State<MemberChecklistGroupView> {
   // ==================== UI Actions ====================
 
   void _showItemOptions(ChecklistItemDetailResponse item) {
+    final rootContext = Navigator.of(context, rootNavigator: true).context;
+
     showChecklistItemOptionsBottomSheet(
       context: context,
       title: item.content,
       onEdit: () {
-        Navigator.pop(context);
+        Navigator.of(rootContext).pop();
         _startUpdateEditing(item);
       },
       onDelete: () async {
-        Navigator.pop(context);
+        Navigator.of(rootContext).pop();
         await _deleteChecklistItem(item.id);
       },
     );

@@ -268,7 +268,6 @@ class _PersonalChecklistGroupViewState extends State<PersonalChecklistGroupView>
       context: ChecklistContext.TEAM,
       title: item.content,
       completed: item.completed,
-      //COLOR CHECK
       color: widget.primaryColor,
       onMore: showOptions ? () => _showItemOptions(item) : () {},
     );
@@ -309,10 +308,6 @@ class _PersonalChecklistGroupViewState extends State<PersonalChecklistGroupView>
     try {
       final provider = context.read<PersonalChecklistProvider>();
       await provider.createPersonalChecklist(studyId, content);
-
-      // _quitEditing();
-
-
     } catch (e) {
       if (mounted) {
         _showErrorSnackBar("생성 실패: $e");
@@ -365,15 +360,17 @@ class _PersonalChecklistGroupViewState extends State<PersonalChecklistGroupView>
   // ==================== UI Actions ====================
 
   void _showItemOptions(ChecklistItemDetailResponse item) {
+    final rootContext = Navigator.of(context, rootNavigator: true).context;
+
     showChecklistItemOptionsBottomSheet(
       context: context,
       title: item.content,
       onEdit: () {
-        Navigator.pop(context);
+        Navigator.of(rootContext).pop();
         _startUpdateEditing(item);
       },
       onDelete: () async {
-        Navigator.pop(context);
+        Navigator.of(rootContext).pop();
         await _deleteChecklistItem(item.id);
       },
     );
