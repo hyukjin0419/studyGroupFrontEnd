@@ -120,6 +120,51 @@ class ChecklistItemProvider with ChangeNotifier, LoadingNotifier{
     notifyListeners();
   }
 
+  // ================= Grouping =================
+  void clearGroups(){
+    final Map<int, MemberChecklistGroupVM> groupMap = {
+      for (var sm in _studyMembers)
+        sm.studyMemberId : MemberChecklistGroupVM(
+          studyMemberId: sm.studyMemberId,
+          memberName: sm.userName,
+          items: [],
+        )
+    };
+    _groups = groupMap.values.toList();
+    notifyListeners();
+  }
+
+  void _updateGroups(List<ChecklistItemDetailResponse> items) {
+    final Map<int, MemberChecklistGroupVM> groupMap = {
+      for (var sm in _studyMembers)
+        sm.studyMemberId : MemberChecklistGroupVM(
+          studyMemberId: sm.studyMemberId,
+          memberName: sm.userName,
+          items: [],
+        )
+    };
+    for (final item in items){
+      final studyMemberId = item.studyMemberId;
+      if (groupMap.containsKey(studyMemberId)) {
+        groupMap[studyMemberId]!.items.add(item);
+      }
+    }
+
+    _sortGroups();
+    _groups = groupMap.values.toList();
+  }
+
+  void _sortGroups() {
+    for (final group in _groups){
+      group.items.sort((a,b) {
+        if(a.completed == b.completed) {
+          return (a.orderIndex ?? 0).compareTo(b.orderIndex ?? 0);
+        }
+        return a.completed ? 1 : -1;
+      });
+    }
+  }
+
   // ================= Optimistic mutation =================
   Future<void> createChecklistItem(int studyMemberId, String content) async {
     final MemberChecklistGroupVM group = _groups.firstWhere((g) => g.studyMemberId == studyMemberId);
@@ -184,7 +229,7 @@ class ChecklistItemProvider with ChangeNotifier, LoadingNotifier{
   }
 
   Future<void> reorderChecklistItem(List<ChecklistItemDetailResponse> requests) async {
-    await repository.reorder(requests, _study!.id, _selectedDate!);
+    await repository.reorder(requests, _selectedDate!);
     notifyListeners();
   }
 
@@ -200,52 +245,6 @@ class ChecklistItemProvider with ChangeNotifier, LoadingNotifier{
       });
     }).toList();
   }
-
-// ================= Grouping =================
-  void clearGroups(){
-    final Map<int, MemberChecklistGroupVM> groupMap = {
-      for (var sm in _studyMembers)
-        sm.studyMemberId : MemberChecklistGroupVM(
-          studyMemberId: sm.studyMemberId,
-          memberName: sm.userName,
-          items: [],
-        )
-    };
-    _groups = groupMap.values.toList();
-    notifyListeners();
-  }
-
-  void _updateGroups(List<ChecklistItemDetailResponse> items) {
-    final Map<int, MemberChecklistGroupVM> groupMap = {
-      for (var sm in _studyMembers)
-        sm.studyMemberId : MemberChecklistGroupVM(
-          studyMemberId: sm.studyMemberId,
-          memberName: sm.userName,
-          items: [],
-        )
-    };
-    for (final item in items){
-      final studyMemberId = item.studyMemberId;
-      if (groupMap.containsKey(studyMemberId)) {
-        groupMap[studyMemberId]!.items.add(item);
-      }
-    }
-
-    _sortGroups();
-    _groups = groupMap.values.toList();
-  }
-
-  void _sortGroups() {
-    for (final group in _groups){
-      group.items.sort((a,b) {
-        if(a.completed == b.completed) {
-          return (a.orderIndex ?? 0).compareTo(b.orderIndex ?? 0);
-        }
-        return a.completed ? 1 : -1;
-      });
-    }
-  }
-
 
   // ================= Drag & Drop =================
   int? _hoveredItemId;

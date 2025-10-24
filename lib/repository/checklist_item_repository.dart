@@ -229,7 +229,7 @@ class InMemoryChecklistItemRepository{
   //   }
   // }
   //
-  Future<void> reorder(List<ChecklistItemDetailResponse> items, int studyId, DateTime date) async {
+  Future<void> reorder(List<ChecklistItemDetailResponse> items, DateTime date) async {
     try {
       final requests = items
           .map((e) => ChecklistItemReorderRequest.fromDetail(e))
@@ -238,7 +238,8 @@ class InMemoryChecklistItemRepository{
       await teamApi.reorderChecklistItem(requests);
 
       for (final item in items) {
-        final key = _studyIdMemberIdChecklistIdDateKey(studyId: studyId,
+        final key = _studyIdMemberIdChecklistIdDateKey(
+            studyId: item.studyId,
             memberId: item.memberId,
             checklistId: item.id,
             date: date);

@@ -5,6 +5,7 @@ import 'package:flutter/cupertino.dart';
 import 'package:study_group_front_end/dto/checklist_item/create/checklist_item_create_request.dart';
 import 'package:study_group_front_end/dto/checklist_item/detail/checklist_item_detail_response.dart';
 import 'package:study_group_front_end/dto/study/detail/study_detail_response.dart';
+import 'package:study_group_front_end/providers/checklist_item_provider.dart';
 import 'package:study_group_front_end/providers/loading_notifier.dart';
 import 'package:study_group_front_end/repository/checklist_item_repository.dart';
 import 'package:study_group_front_end/screens/checklist/personal/view_models/personal_checklist_group_vm.dart';
@@ -234,15 +235,77 @@ class PersonalChecklistProvider with ChangeNotifier, LoadingNotifier {
   //   // repository.clearDateCache(_selectedDate);
   // }
 
+  Future<void> reorderChecklistItem(List<ChecklistItemDetailResponse> requests) async {
+    await repository.reorder(requests, _selectedDate!);
+    notifyListeners();
+  }
 
-  // =====================================================================================//
-  // void sortPersonalChecklistsByCompletedThenOrder() {
-  //   _personalChecklists.sort((a, b) {
-  //     if (a.studyId != b.studyId) return a.studyId.compareTo(b.studyId);
-  //     if (a.completed != b.completed) return a.completed ? 1 : -1;
-  //     return (a.orderIndex ?? 0).compareTo(b.orderIndex ?? 0);
-  //   });
-  //
-  //   notifyListeners();
-  // }
+  List<ChecklistItemDetailResponse> buildReorderRequests() {
+    return _groups.expand((group) {
+      return group.items
+          .asMap()
+          .entries
+          .map((entry) {
+        final item = entry.value;
+
+        return item;
+      });
+    }).toList();
+  }
+
+// ================= Drag & Drop =================
+  int? _hoveredItemId;
+
+  void setHoveredItem(int itemId) {
+    _hoveredItemId = itemId;
+    notifyListeners();
+  }
+
+  void clearHoveredItem(int itemId) {
+    _hoveredItemId = null;
+    notifyListeners();
+  }
+
+  HoverStatus getHoverStatusOfItem(int itemId) {
+    return _hoveredItemId == itemId
+        ? HoverStatus.hovering
+        : HoverStatus.notHovering;
+  }
+
+  void moveItem({
+    required ChecklistItemDetailResponse item,
+    required int fromStudyId,
+    required int fromIndex,
+    required int toStudyId,
+    required int toIndex,
+  }) {
+    final fromGroup = _groups.firstWhere((g) => g.studyId == fromStudyId);
+    final toGroup   = _groups.firstWhere((g) => g.studyId == toStudyId);
+
+    fromGroup.items.removeAt(fromIndex);
+
+    item = item.copyWith(studyId: toStudyId);
+
+    toGroup.items.insert(toIndex, item);
+
+    _reorderGroup(fromGroup);
+    if (fromGroup != toGroup) {
+      _reorderGroup(toGroup);
+    }
+
+    _sortGroups();
+
+    notifyListeners();
+  }
+
+  int getIndexOf(ChecklistItemDetailResponse item) {
+    final group = _groups.firstWhere((g) => g.studyId == item.studyId);
+    return group.items.indexWhere((it) => it.id == item.id);
+  }
+
+  void _reorderGroup(PersonalCheckListGroupVM group) {
+    for (int i = 0; i < group.items.length; i++) {
+      group.items[i].orderIndex = i;
+    }
+  }
 }
