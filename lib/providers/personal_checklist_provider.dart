@@ -25,7 +25,7 @@ class PersonalChecklistProvider with ChangeNotifier, LoadingNotifier {
   DateTime? _selectedDate = DateTime.now();
   DateTime? get selectedDate => _selectedDate;
 
-  StreamSubscription<List<ChecklistItemDetailResponse>>? _subscription;
+  StreamSubscription<(bool delete, List<ChecklistItemDetailResponse> items)>? _subscription;
 
   List<PersonalCheckListGroupVM> _groups = [];
   List<PersonalCheckListGroupVM> get groups => _groups;
@@ -47,9 +47,16 @@ class PersonalChecklistProvider with ChangeNotifier, LoadingNotifier {
 
     _selectedDate ??= DateTime.now();
 
-    _subscription = repository.stream.listen((allItems) {
-      log("📡 stream 데이터 수신: ${allItems.length}개", name: "PersonalProvider");
-      _applyFiltering(allItems);
+    _subscription = repository.stream.listen((event) {
+      final (isDelete, newItems) = event;
+
+      if(isDelete) {
+        _filteredMap.clear();
+      }
+
+      log("📡 stream 데이터 수신: ${newItems.length}개", name: "ChecklistItemProvider");
+
+      _applyFiltering(newItems);
       _setLoading(false);
     });
 
@@ -215,10 +222,9 @@ class PersonalChecklistProvider with ChangeNotifier, LoadingNotifier {
     await repository.updateContent(newItem);
   }
 
-  // Future<void> updateChecklistItemStatus(int checklistItemId, int studyId) async {
-  //   await repository.toggleStatus(checklistItemId, _selectedDate);
-  //   // repository.clearDateCache(_selectedDate);
-  // }
+  Future<void> softDeleteChecklistItem(ChecklistItemDetailResponse item) async {
+    await repository.softDelete(item);
+  }
 
   Future<void> reorderChecklistItem(List<ChecklistItemDetailResponse> requests) async {
     await repository.reorder(requests, _selectedDate!);

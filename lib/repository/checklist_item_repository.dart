@@ -48,8 +48,11 @@ class InMemoryChecklistItemRepository{
     return false;
   }
 
-  static final BehaviorSubject<List<ChecklistItemDetailResponse>> _subject = BehaviorSubject.seeded([]);
-  Stream<List<ChecklistItemDetailResponse>> get stream => _subject.stream;
+  // ✅ delete 여부와 items 리스트를 함께 보낼 수 있도록 타입 수정
+  static final BehaviorSubject<(bool delete, List<ChecklistItemDetailResponse> items)> _subject = BehaviorSubject.seeded((false, []));
+
+  Stream<(bool delete, List<ChecklistItemDetailResponse> items)> get stream => _subject.stream;
+
 
   // void _emitFromCache() {
   //   final nonNullItems = _cache.values
@@ -60,23 +63,30 @@ class InMemoryChecklistItemRepository{
   //   _subject.add(nonNullItems);
   // }
 
-  void _emitFromCache({ChecklistItemDetailResponse? newItem}) {
+  void _emitFromCache({ChecklistItemDetailResponse? newItem, bool delete = false}) {
     if (newItem != null) {
-      // ✅ 개별 아이템만 추가 발행
       log("📤 emit(단일): ${newItem.id} (${newItem.content})",
           name: "InMemoryChecklistItemRepository");
-      _subject.add([newItem]); // Stream<List<...>> 형태 유지 시, 단일 리스트로 래핑
+      _subject.add((false, [newItem]));
       return;
     }
 
-    // ✅ 초기 동기화나 캐시 전체 반영 시 (fallback)
     final nonNullItems = _cache.values
         .whereType<ChecklistItemDetailResponse>()
         .toList();
 
+    if(delete){
+      log("📤 emit(전체) with delete = true: ${nonNullItems.length}개 (null 제외)",
+          name: "InMemoryChecklistItemRepository");
+      _subject.add((true, nonNullItems));
+      return;
+    }
+
     log("📤 emit(전체): ${nonNullItems.length}개 (null 제외)",
         name: "InMemoryChecklistItemRepository");
-    _subject.add(nonNullItems);
+    _subject.add((false,nonNullItems));
+
+
   }
 
 
@@ -201,26 +211,24 @@ class InMemoryChecklistItemRepository{
       rethrow;
     }
   }
-  //
-  // Future<void> softDelete(int checklistItemId, int studyId, DateTime date) async {
-  //   final key = _studyIdDateKey(studyId, date);
-  //   final list = _cache[key]!;
-  //   final idx = list.indexWhere((e) => e.id == checklistItemId);
-  //   if (idx < 0) return;
-  //
-  //   final removedItem = list[idx];
-  //   list.removeAt(idx);
-  //   _saveToCacheAndStream(list);
-  //
-  //   try {
-  //     await teamApi.softDeleteChecklistItems(checklistItemId);
-  //   } catch (_) {
-  //     list.insert(idx, removedItem);
-  //     _saveToCacheAndStream(list);
-  //     rethrow;
-  //   }
-  // }
-  //
+
+  Future<void> softDelete(ChecklistItemDetailResponse item) async {
+    final key = _studyIdMemberIdChecklistIdDateKey(studyId: item.studyId, memberId: item.memberId, checklistId: item.id, date: item.targetDate);
+
+    final oldItem = _cache[key];
+    _cache.remove(key);
+    _emitFromCache(delete: true);
+
+    try {
+      await teamApi.softDeleteChecklistItems(item.id);
+    } catch (e, stackTrace) {
+      _cache[key] = oldItem;
+      log("createdChecklistItem error $e", name: "InMemoryChecklistItemRepository");
+      log("📍 Stack trace: $stackTrace", name: "InMemoryChecklistItemRepository");
+      rethrow;
+    }
+  }
+
   Future<void> reorder(List<ChecklistItemDetailResponse> items, DateTime date) async {
     try {
       final requests = items

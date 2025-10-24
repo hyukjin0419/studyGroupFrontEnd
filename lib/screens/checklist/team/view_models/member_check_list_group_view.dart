@@ -336,10 +336,10 @@ class _MemberChecklistGroupViewState extends State<MemberChecklistGroupView> {
     }
   }
 
-  Future<void> _deleteChecklistItem(int itemId) async {
+  Future<void> _deleteChecklistItem(ChecklistItemDetailResponse item) async {
     try {
       final provider = context.read<ChecklistItemProvider>();
-      await provider.softDeleteChecklistItem(itemId);
+      await provider.softDeleteChecklistItem(item);
     } catch (e) {
       if (mounted) {
         _showErrorSnackBar("체크리스트 삭제 실패: $e");
@@ -376,7 +376,7 @@ class _MemberChecklistGroupViewState extends State<MemberChecklistGroupView> {
       },
       onDelete: () async {
         Navigator.of(rootContext).pop();
-        await _deleteChecklistItem(item.id);
+        await _deleteChecklistItem(item);
       },
     );
   }

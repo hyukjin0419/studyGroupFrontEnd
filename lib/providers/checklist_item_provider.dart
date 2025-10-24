@@ -32,7 +32,7 @@ class ChecklistItemProvider with ChangeNotifier, LoadingNotifier{
   DateTime? _selectedDate = DateTime.now();
   DateTime? get selectedDate => _selectedDate;
 
-  StreamSubscription<List<ChecklistItemDetailResponse>>? _subscription;
+  StreamSubscription<(bool delete, List<ChecklistItemDetailResponse> items)>? _subscription;
 
   Map<int, ChecklistItemDetailResponse> _filteredMap = {};
   List<ChecklistItemDetailResponse> get filteredItems => _filteredMap.values.toList();
@@ -59,8 +59,13 @@ class ChecklistItemProvider with ChangeNotifier, LoadingNotifier{
 
     _selectedDate ??= DateTime.now();
 
+    _subscription = repository.stream.listen((event) {
+      final (isDelete, newItems) = event;
 
-    _subscription = repository.stream.listen((newItems) {
+      if(isDelete) {
+        _filteredMap.clear();
+      }
+
       log("📡 stream 데이터 수신: ${newItems.length}개", name: "ChecklistItemProvider");
 
       _applyFiltering(newItems);
@@ -222,9 +227,8 @@ class ChecklistItemProvider with ChangeNotifier, LoadingNotifier{
     await repository.toggleStatus(item);
   }
 
-  Future<void> softDeleteChecklistItem(int checklistItemId) async {
-    // if (_studyId == null) return;
-    // await repository.softDelete(checklistItemId, _studyId!, _selectedDate);
+  Future<void> softDeleteChecklistItem(ChecklistItemDetailResponse item) async {
+    await repository.softDelete(item);
   }
 
   Future<void> reorderChecklistItem(List<ChecklistItemDetailResponse> requests) async {
