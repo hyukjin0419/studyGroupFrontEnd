@@ -266,12 +266,9 @@ class _MemberChecklistGroupViewState extends State<MemberChecklistGroupView> {
 
   Widget _buildChecklistTile(ChecklistItemDetailResponse item, {bool showOptions = false}) {
     return ChecklistItemTile(
-      itemId: item.id,
-      studyId: widget.study.id,
+      item: item,
       key: ValueKey('title-${item.id}'),
       context: ChecklistContext.TEAM,
-      title: item.content,
-      completed: item.completed,
       color: _personalColor,
       onMore: showOptions ? () => _showItemOptions(item) : () {},
     );

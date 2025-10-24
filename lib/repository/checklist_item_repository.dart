@@ -184,24 +184,23 @@ class InMemoryChecklistItemRepository{
     }
   }
   //
-  // Future<void> toggleStatus(int checklistItemId, int studyId, DateTime date) async {
-  //   final key = _studyIdDateKey(studyId, date);
-  //   final list = _cache[key]!;
-  //   final idx = list.indexWhere((e) => e.id == checklistItemId);
-  //   if(idx < 0) return;
-  //
-  //   final oldItem = list[idx];
-  //   final updatedItem = list[idx] = list[idx].copyWith(completed: !oldItem.completed);
-  //   _saveToCacheAndStream([updatedItem]);
-  //
-  //   try {
-  //     await teamApi.updateChecklistItemStatus(checklistItemId);
-  //   } catch (_) {
-  //     list[idx] = oldItem;
-  //     _saveToCacheAndStream([oldItem]);
-  //     rethrow;
-  //   }
-  // }
+  Future<void> toggleStatus(ChecklistItemDetailResponse item) async {
+    final key = _studyIdMemberIdChecklistIdDateKey(studyId: item.studyId, memberId: item.memberId, checklistId: item.id, date: item.targetDate);
+
+    final oldItem = _cache[key];
+    final newItem = item.copyWith(completed: !item.completed);
+    _cache[key] = newItem;
+    _emitFromCache();
+
+    try {
+      await teamApi.updateChecklistItemStatus(item.id);
+    } catch (e, stackTrace) {
+      _cache[key] = oldItem;
+      log("createdChecklistItem error $e", name: "InMemoryChecklistItemRepository");
+      log("📍 Stack trace: $stackTrace", name: "InMemoryChecklistItemRepository");
+      rethrow;
+    }
+  }
   //
   // Future<void> softDelete(int checklistItemId, int studyId, DateTime date) async {
   //   final key = _studyIdDateKey(studyId, date);

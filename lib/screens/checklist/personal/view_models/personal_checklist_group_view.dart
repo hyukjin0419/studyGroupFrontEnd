@@ -262,12 +262,13 @@ class _PersonalChecklistGroupViewState extends State<PersonalChecklistGroupView>
 
   Widget _buildChecklistTile(ChecklistItemDetailResponse item, {bool showOptions = false}) {
     return ChecklistItemTile(
-      itemId: item.id,
-      studyId: item.studyId,
+      item: item,
+      // itemId: item.id,
+      // studyId: item.studyId,
       key: ValueKey('personal-title-${item.id}'),
       context: ChecklistContext.TEAM,
-      title: item.content,
-      completed: item.completed,
+      // title: item.content,
+      // completed: item.completed,
       color: widget.primaryColor,
       onMore: showOptions ? () => _showItemOptions(item) : () {},
     );

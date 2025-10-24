@@ -218,9 +218,8 @@ class ChecklistItemProvider with ChangeNotifier, LoadingNotifier{
     await repository.updateContent(newItem);
   }
 
-  Future<void> updateChecklistItemStatus(int checklistItemId) async {
-    // if (_studyId == null) return;
-    // await repository.toggleStatus(checklistItemId, _studyId!, _selectedDate);
+  Future<void> updateChecklistItemStatus(ChecklistItemDetailResponse item) async {
+    await repository.toggleStatus(item);
   }
 
   Future<void> softDeleteChecklistItem(int checklistItemId) async {

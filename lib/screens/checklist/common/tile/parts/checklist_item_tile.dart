@@ -2,6 +2,7 @@ import 'dart:developer';
 
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
+import 'package:study_group_front_end/dto/checklist_item/detail/checklist_item_detail_response.dart';
 import 'package:study_group_front_end/providers/checklist_item_provider.dart';
 import 'package:study_group_front_end/providers/personal_checklist_provider.dart';
 import 'package:study_group_front_end/screens/checklist/common/tile/parts/customized_check_box.dart';
@@ -12,20 +13,14 @@ enum ChecklistContext{
 }
 
 class ChecklistItemTile extends StatefulWidget {
-  final int itemId;
-  final int studyId;
-  final String title;
-  final bool completed;
+  final ChecklistItemDetailResponse item;
   final Color color;
   final VoidCallback onMore;
   final ChecklistContext context;
 
   const ChecklistItemTile({
     super.key,
-    required this.itemId,
-    required this.studyId,
-    required this.title,
-    required this.completed,
+    required this.item,
     required this.color,
     required this.onMore,
     required this.context,
@@ -42,22 +37,22 @@ class _ChecklistItemTileState extends State<ChecklistItemTile> {
   @override
   void initState() {
     super.initState();
-    _completed = widget.completed;
-    _title = widget.title;
+    _completed = widget.item.completed;
+    _title = widget.item.content;
   }
 
   @override
   void didUpdateWidget(ChecklistItemTile oldWidget) {
     super.didUpdateWidget(oldWidget);
     // props 변경시 로컬 상태 동기화
-    if (oldWidget.completed != widget.completed) {
+    if (oldWidget.item.completed != widget.item.completed) {
       setState(() {
-        _completed = widget.completed;
+        _completed = widget.item.completed;
       });
     }
-    if (oldWidget.title != widget.title) {
+    if (oldWidget.item.content != widget.item.content) {
       setState(() {
-        _title = widget.title;
+        _title = widget.item.content;
       });
     }
   }
@@ -67,12 +62,12 @@ class _ChecklistItemTileState extends State<ChecklistItemTile> {
       _completed = !_completed;
     });
     try {
-      log("id? ${widget.itemId}");
+      log("id? ${widget.item.id}");
       final provider = context.read<ChecklistItemProvider>();
       final personalProvider = context.read<PersonalChecklistProvider>();
 
       if (widget.context == ChecklistContext.TEAM){
-        await provider.updateChecklistItemStatus(widget.itemId);
+        await provider.updateChecklistItemStatus(widget.item);
       } else {
         // await personalProvider.updateChecklistItemStatus(widget.itemId, widget.studyId);
       }
