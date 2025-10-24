@@ -316,13 +316,13 @@ class _PersonalChecklistGroupViewState extends State<PersonalChecklistGroupView>
     }
   }
 
-  Future<void> _updateChecklistItemContent(item, String value) async {
+  Future<void> _updateChecklistItemContent(ChecklistItemDetailResponse item, String value) async {
     _finishEditing(item, updatedContent: value);
 
     try {
-      //TODO provider 활성화
+      final ChecklistItemDetailResponse newItem = item.copyWith(content: value);
       final provider = context.read<PersonalChecklistProvider>();
-      // await provider.updateContent(item.id, value);
+      await provider.updateChecklistItemContent(newItem);
     } catch (e) {
       if (mounted) {
         _showErrorSnackBar("수정 실패: $e");

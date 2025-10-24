@@ -211,23 +211,9 @@ class PersonalChecklistProvider with ChangeNotifier, LoadingNotifier {
     }
   }
 
-  //버튼 에러 해결될때까지 일단 보류
-  /*Future<void> updateContent (int checklistItemId, String content) async {
-    final index = _personalChecklists.indexWhere((e) => e.id == checklistItemId);
-    if (index < 0) return;
-
-    final oldItem = _personalChecklists[index];
-    _personalChecklists[index] = oldItem.copyWith(content: content);
-    notifyListeners();
-
-    try {
-      await repository.updateContent(checklistItemId, oldItem.targetDate, content);
-    } catch (e) {
-      _personalChecklists[index] = oldItem;
-      notifyListeners();
-      rethrow;
-    }
-  }*/
+  Future<void> updateChecklistItemContent(ChecklistItemDetailResponse newItem) async {
+    await repository.updateContent(newItem);
+  }
 
   // Future<void> updateChecklistItemStatus(int checklistItemId, int studyId) async {
   //   await repository.toggleStatus(checklistItemId, _selectedDate);
