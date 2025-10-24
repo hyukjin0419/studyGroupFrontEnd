@@ -64,14 +64,7 @@ class _ChecklistItemTileState extends State<ChecklistItemTile> {
     try {
       log("id? ${widget.item.id}");
       final provider = context.read<ChecklistItemProvider>();
-      final personalProvider = context.read<PersonalChecklistProvider>();
-
-      if (widget.context == ChecklistContext.TEAM){
-        await provider.updateChecklistItemStatus(widget.item);
-      } else {
-        // await personalProvider.updateChecklistItemStatus(widget.itemId, widget.studyId);
-      }
-
+      await provider.updateChecklistItemStatus(widget.item);
     } catch (e) {
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(content: Text("체크리스트 content 업데이트 실패: $e")),
