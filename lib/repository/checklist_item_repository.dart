@@ -6,6 +6,7 @@ import 'package:study_group_front_end/api_service/checklist_item_api_service.dar
 import 'package:study_group_front_end/api_service/personal_checklist_api_service.dart';
 import 'package:study_group_front_end/dto/checklist_item/create/checklist_item_create_request.dart';
 import 'package:study_group_front_end/dto/checklist_item/detail/checklist_item_detail_response.dart';
+import 'package:study_group_front_end/dto/checklist_item/update/checklist_item_reorder_request.dart';
 
 class InMemoryChecklistItemRepository{
   final ChecklistItemApiService teamApi;
@@ -141,7 +142,6 @@ class InMemoryChecklistItemRepository{
     try {
       final created = await teamApi.createChecklistItemOfStudy(request, studyId);
 
-      //기존에 있던 dummy key 삭제 - from study
       String tempKey = "";
       if(fromStudy){
         tempKey =_studyIdMemberIdChecklistIdDateKey(studyId: studyId, date: request.targetDate);
@@ -229,28 +229,26 @@ class InMemoryChecklistItemRepository{
   //   }
   // }
   //
-  // Future<void> reorder(List<ChecklistItemReorderRequest> requests, int studyId, DateTime date) async {
-  //   final key = _studyIdDateKey(studyId, date);
-  //   final list = _cache[key]!;
-  //
-  //   final oldList = List.of(list);
-  //
-  //   for (final req in requests) {
-  //     final idx = list.indexWhere((e) => e.id == req.checklistItemId);
-  //     if(idx >= 0) {
-  //       list[idx] = list[idx].copyWith(
-  //         studyMemberId: req.studyMemberId,
-  //         orderIndex: req.orderIndex,
-  //       );
-  //     }
-  //   }
-  //   _saveToCacheAndStream(list);
-  //   try {
-  //     await teamApi.reorderChecklistItem(requests);
-  //   } catch (_) {
-  //     _cache[key] = oldList;
-  //     _saveToCacheAndStream(oldList);
-  //     rethrow;
-  //   }
-  // }
+  Future<void> reorder(List<ChecklistItemDetailResponse> items, int studyId, DateTime date) async {
+    try {
+      final requests = items
+          .map((e) => ChecklistItemReorderRequest.fromDetail(e))
+          .toList();
+
+      await teamApi.reorderChecklistItem(requests);
+
+      for (final item in items) {
+        final key = _studyIdMemberIdChecklistIdDateKey(studyId: studyId,
+            memberId: item.memberId,
+            checklistId: item.id,
+            date: date);
+        _cache[key] = item;
+      }
+    } catch (e, stackTrace) {
+
+      log("createdChecklistItem error $e", name: "InMemoryChecklistItemRepository");
+      log("📍 Stack trace: $stackTrace", name: "InMemoryChecklistItemRepository");
+      rethrow;
+    }
+  }
 }

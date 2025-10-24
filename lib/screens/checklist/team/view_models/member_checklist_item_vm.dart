@@ -3,6 +3,7 @@ import 'package:study_group_front_end/dto/checklist_item/detail/checklist_item_d
 
 class MemberChecklistItemVM{
   final int id;
+  final int memberId;
   int studyMemberId;
   String content;
   late final bool completed;
@@ -11,14 +12,17 @@ class MemberChecklistItemVM{
   MemberChecklistItemVM({
     required this.id,
     required this.studyMemberId,
+    required this.memberId,
     required this.content,
     required this.completed,
     required this.orderIndex,
   });
 
   MemberChecklistItemVM fromResponse(ChecklistItemDetailResponse item){
-    return MemberChecklistItemVM(id: item.id,
+    return MemberChecklistItemVM(
+        id: item.id,
         studyMemberId: item.studyMemberId,
+        memberId: item.memberId,
         content: item.content,
         completed: item.completed,
         orderIndex: item.orderIndex

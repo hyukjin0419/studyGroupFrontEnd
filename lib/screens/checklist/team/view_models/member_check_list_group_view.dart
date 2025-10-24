@@ -3,6 +3,7 @@ import 'dart:developer';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:study_group_front_end/dto/checklist_item/create/checklist_item_create_request.dart';
+import 'package:study_group_front_end/dto/checklist_item/detail/checklist_item_detail_response.dart';
 import 'package:study_group_front_end/dto/checklist_item/update/checklist_item_content_update_request.dart';
 import 'package:study_group_front_end/dto/study/detail/study_detail_response.dart';
 import 'package:study_group_front_end/providers/checklist_item_provider.dart';
@@ -153,7 +154,7 @@ class _MemberChecklistGroupViewState extends State<MemberChecklistGroupView> {
   Widget _buildEmptyDragTarget(MemberChecklistGroupVM g) {
     final provider = context.watch<ChecklistItemProvider>();
 
-    return DragTarget<MemberChecklistItemVM>(
+    return DragTarget<ChecklistItemDetailResponse>(
       key: ValueKey('empty-target-${g.studyMemberId}'),
       onWillAcceptWithDetails: (dragged) {
         provider.setHoveredItem(dragged.data.id);
@@ -188,12 +189,12 @@ class _MemberChecklistGroupViewState extends State<MemberChecklistGroupView> {
 
   Widget _buildChecklistItemDragTarget(
       MemberChecklistGroupVM g,
-      MemberChecklistItemVM item,
+      ChecklistItemDetailResponse item,
       int index,
       ) {
     final provider = context.watch<ChecklistItemProvider>();
 
-    return DragTarget<MemberChecklistItemVM>(
+    return DragTarget<ChecklistItemDetailResponse>(
       key: ValueKey('target-${item.id}'),
       onWillAcceptWithDetails: (dragged) {
         provider.setHoveredItem(item.id);
@@ -215,7 +216,7 @@ class _MemberChecklistGroupViewState extends State<MemberChecklistGroupView> {
     );
   }
 
-  Widget _buildChecklistItemContent(MemberChecklistItemVM item) {
+  Widget _buildChecklistItemContent(ChecklistItemDetailResponse item) {
     if (_editingItemId == item.id) {
       return _buildEditingField(item);
     }
@@ -229,7 +230,7 @@ class _MemberChecklistGroupViewState extends State<MemberChecklistGroupView> {
     };
   }
 
-  Widget _buildHoveredPlaceholder(MemberChecklistItemVM item) {
+  Widget _buildHoveredPlaceholder(ChecklistItemDetailResponse item) {
     return Container(
       key: ValueKey('hovered-${item.id}'),
       height: _emptyTargetHeight,
@@ -241,10 +242,10 @@ class _MemberChecklistGroupViewState extends State<MemberChecklistGroupView> {
     );
   }
 
-  Widget _buildDraggableItem(MemberChecklistItemVM item) {
+  Widget _buildDraggableItem(ChecklistItemDetailResponse item) {
     final provider = context.read<ChecklistItemProvider>();
 
-    return LongPressDraggable<MemberChecklistItemVM>(
+    return LongPressDraggable<ChecklistItemDetailResponse>(
       key: ValueKey('draggable-${item.id}'),
       data: item,
       feedback: Material(
@@ -263,7 +264,7 @@ class _MemberChecklistGroupViewState extends State<MemberChecklistGroupView> {
     );
   }
 
-  Widget _buildChecklistTile(MemberChecklistItemVM item, {bool showOptions = false}) {
+  Widget _buildChecklistTile(ChecklistItemDetailResponse item, {bool showOptions = false}) {
     return ChecklistItemTile(
       itemId: item.id,
       studyId: widget.study.id,
@@ -276,7 +277,7 @@ class _MemberChecklistGroupViewState extends State<MemberChecklistGroupView> {
     );
   }
 
-  Widget _buildEditingField(MemberChecklistItemVM item) {
+  Widget _buildEditingField(ChecklistItemDetailResponse item) {
     return ChecklistItemInputField(
       key: ValueKey('editing-${item.id}'),
       color: _personalColor,
@@ -321,7 +322,7 @@ class _MemberChecklistGroupViewState extends State<MemberChecklistGroupView> {
   }
 
   Future<void> _updateChecklistItemContent(
-      MemberChecklistItemVM item,
+      ChecklistItemDetailResponse item,
       String value,
       ) async {
     _finishEditing(item, updatedContent: value);
@@ -366,7 +367,7 @@ class _MemberChecklistGroupViewState extends State<MemberChecklistGroupView> {
 
   // ==================== UI Actions ====================
 
-  void _showItemOptions(MemberChecklistItemVM item) {
+  void _showItemOptions(ChecklistItemDetailResponse item) {
     showChecklistItemOptionsBottomSheet(
       context: context,
       title: item.content,
@@ -407,16 +408,16 @@ class _MemberChecklistGroupViewState extends State<MemberChecklistGroupView> {
     });
   }
 
-  void _finishEditing(MemberChecklistItemVM item, {required String updatedContent}) {
+  void _finishEditing(ChecklistItemDetailResponse item, {required String updatedContent}) {
     setState(() {
-      item.content = updatedContent;
+      item = item.copyWith(content: updatedContent);
       _editingItemId = null;
       _controller.clear();
       _focusNode.unfocus();
     });
   }
 
-  void _startUpdateEditing(MemberChecklistItemVM item) {
+  void _startUpdateEditing(ChecklistItemDetailResponse item) {
     setState(() {
       _editingMemberId = null;
       _controller.text = item.content;

@@ -183,13 +183,12 @@ class ChecklistItemProvider with ChangeNotifier, LoadingNotifier{
     // await repository.softDelete(checklistItemId, _studyId!, _selectedDate);
   }
 
-  Future<void> reorderChecklistItem(List<ChecklistItemReorderRequest> requests) async {
-    // if (_studyId == null) return;
-    // await repository.reorder(requests, _studyId!, _selectedDate);
+  Future<void> reorderChecklistItem(List<ChecklistItemDetailResponse> requests) async {
+    await repository.reorder(requests, _study!.id, _selectedDate!);
     notifyListeners();
   }
 
-  List<ChecklistItemReorderRequest> buildReorderRequests() {
+  List<ChecklistItemDetailResponse> buildReorderRequests() {
     return _groups.expand((group) {
       return group.items
           .asMap()
@@ -197,11 +196,7 @@ class ChecklistItemProvider with ChangeNotifier, LoadingNotifier{
           .map((entry) {
         final item = entry.value;
 
-        return ChecklistItemReorderRequest(
-          checklistItemId: item.id,
-          studyMemberId: item.studyMemberId,
-          orderIndex: item.orderIndex,
-        );
+        return item;
       });
     }).toList();
   }
@@ -232,15 +227,7 @@ class ChecklistItemProvider with ChangeNotifier, LoadingNotifier{
     for (final item in items){
       final studyMemberId = item.studyMemberId;
       if (groupMap.containsKey(studyMemberId)) {
-        groupMap[studyMemberId]!.items.add(
-          MemberChecklistItemVM(
-              id: item.id,
-              studyMemberId: studyMemberId,
-              content: item.content,
-              completed: item.completed,
-              orderIndex: item.orderIndex,
-          ),
-        );
+        groupMap[studyMemberId]!.items.add(item);
       }
     }
 
@@ -280,7 +267,7 @@ class ChecklistItemProvider with ChangeNotifier, LoadingNotifier{
   }
 
   void moveItem({
-    required MemberChecklistItemVM item,
+    required ChecklistItemDetailResponse item,
     required int fromMemberId,
     required int fromIndex,
     required int toMemberId,
@@ -289,28 +276,23 @@ class ChecklistItemProvider with ChangeNotifier, LoadingNotifier{
     final fromGroup = _groups.firstWhere((g) => g.studyMemberId == fromMemberId);
     final toGroup   = _groups.firstWhere((g) => g.studyMemberId == toMemberId);
 
-    // 1. 기존 위치에서 제거
     fromGroup.items.removeAt(fromIndex);
 
-    // 2. 소속 멤버 ID 수정
-    item.studyMemberId = toMemberId;
+    item = item.copyWith(studyMemberId: toMemberId);
 
-    // 3. 새로운 위치에 삽입
     toGroup.items.insert(toIndex, item);
 
-    // 4. 정렬 인덱스 재정렬
     _reorderGroup(fromGroup);
     if (fromGroup != toGroup) {
       _reorderGroup(toGroup);
     }
 
-    sortChecklistGroupsByCompletedThenOrder();
+    _sortGroups();
 
-    // 5. 상태 갱신
     notifyListeners();
   }
 
-  int getIndexOf(MemberChecklistItemVM item) {
+  int getIndexOf(ChecklistItemDetailResponse item) {
     final group = _groups.firstWhere((g) => g.studyMemberId == item.studyMemberId);
     return group.items.indexWhere((it) => it.id == item.id);
   }
@@ -318,18 +300,6 @@ class ChecklistItemProvider with ChangeNotifier, LoadingNotifier{
   void _reorderGroup(MemberChecklistGroupVM group) {
     for (int i = 0; i < group.items.length; i++) {
       group.items[i].orderIndex = i;
-    }
-  }
-
-  void sortChecklistGroupsByCompletedThenOrder() {
-    log("complete로 그룹 reordre");
-    for (final group in _groups) {
-      group.items.sort((a, b) {
-        if (a.completed == b.completed) {
-          return (a.orderIndex ?? 0).compareTo(b.orderIndex ?? 0);
-        }
-        return a.completed ? 1 : -1;
-      });
     }
   }
 }
