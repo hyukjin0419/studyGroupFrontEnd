@@ -69,7 +69,9 @@ class ChecklistItemApiService extends BaseApiService {
 
 
 
-  Future<void> updateChecklistItemContent(int checklistItemId, ChecklistItemContentUpdateRequest request) async {
+  Future<void> updateChecklistItemContent(ChecklistItemDetailResponse newItem) async {
+    int checklistItemId = newItem.id;
+    ChecklistItemContentUpdateRequest request = ChecklistItemContentUpdateRequest.fromDetail(newItem);
     final response = await post(
         '/checklistItem/$checklistItemId',
         request.toJson()

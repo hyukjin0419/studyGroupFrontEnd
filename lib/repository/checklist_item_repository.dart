@@ -164,32 +164,25 @@ class InMemoryChecklistItemRepository{
     } catch (e, stackTrace) {
       log("createdChecklistItem error $e", name: "InMemoryChecklistItemRepository");
       log("📍 Stack trace: $stackTrace", name: "InMemoryChecklistItemRepository");
-
-      _emitFromCache();
       rethrow;
     }
   }
 
-  // Future<void> updateContent(int checklistItemId, int studyId, DateTime date, ChecklistItemContentUpdateRequest request) async {
-  //   final key = _studyIdDateKey(studyId, date);
-  //   final list = _cache[key]!;
-  //
-  //   final idx = list.indexWhere((e) => e.id == checklistItemId);
-  //   if(idx < 0) return;
-  //
-  //   final oldItem = list[idx];
-  //   final updatedItem = list[idx] = list[idx].copyWith(content: request.content);
-  //   list[idx] = updatedItem;
-  //   _saveToCacheAndStream([updatedItem]);
-  //
-  //   try {
-  //     await teamApi.updateChecklistItemContent(checklistItemId, request);
-  //   } catch (_) {
-  //     list[idx] = oldItem;
-  //     _saveToCacheAndStream([oldItem]);
-  //     rethrow;
-  //   }
-  // }
+  Future<void> updateContent(ChecklistItemDetailResponse newItem) async {
+    final key = _studyIdMemberIdChecklistIdDateKey(studyId: newItem.studyId, memberId: newItem.memberId, checklistId: newItem.id, date: newItem.targetDate);
+    final oldItem = _cache[key];
+    _cache[key] = newItem;
+    _emitFromCache();
+
+    try {
+      await teamApi.updateChecklistItemContent(newItem);
+    } catch (e, stackTrace) {
+      _cache[key] = oldItem;
+      log("createdChecklistItem error $e", name: "InMemoryChecklistItemRepository");
+      log("📍 Stack trace: $stackTrace", name: "InMemoryChecklistItemRepository");
+      rethrow;
+    }
+  }
   //
   // Future<void> toggleStatus(int checklistItemId, int studyId, DateTime date) async {
   //   final key = _studyIdDateKey(studyId, date);

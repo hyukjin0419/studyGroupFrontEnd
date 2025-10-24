@@ -214,8 +214,8 @@ class ChecklistItemProvider with ChangeNotifier, LoadingNotifier{
     }
   }
 
-  Future<void> updateChecklistItemContent(int checklistItemId, ChecklistItemContentUpdateRequest request) async {
-    // await repository.updateContent(checklistItemId, _studyId!, _selectedDate, request);
+  Future<void> updateChecklistItemContent(ChecklistItemDetailResponse newItem) async {
+    await repository.updateContent(newItem);
   }
 
   Future<void> updateChecklistItemStatus(int checklistItemId) async {

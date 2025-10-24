@@ -328,9 +328,9 @@ class _MemberChecklistGroupViewState extends State<MemberChecklistGroupView> {
     _finishEditing(item, updatedContent: value);
 
     try {
-      final request = ChecklistItemContentUpdateRequest(content: value);
+      final ChecklistItemDetailResponse newItem = item.copyWith(content: value);
       final provider = context.read<ChecklistItemProvider>();
-      await provider.updateChecklistItemContent(item.id, request);
+      await provider.updateChecklistItemContent(newItem);
     } catch (e) {
       if (mounted) {
         _showErrorSnackBar("체크리스트 content 업데이트 실패: $e");

@@ -169,7 +169,6 @@ class PersonalChecklistProvider with ChangeNotifier, LoadingNotifier {
     final study = _myStudies.firstWhere((s) => s.id == studyId);
     final studyMember = study.members.firstWhere((m) => m.memberId == _currentMemberId);
 
-
     final tempItem = ChecklistItemDetailResponse(
       id: tempId,
       tempId: null,
