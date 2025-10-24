@@ -1,5 +1,6 @@
 class StudyMemberSummaryResponse {
   final int id;
+  final int memberId;
   final int studyMemberId;
   final String userName;
   final String role;
@@ -7,6 +8,7 @@ class StudyMemberSummaryResponse {
 
   StudyMemberSummaryResponse({
     required this.id,
+    required this.memberId,
     required this.studyMemberId,
     required this.userName,
     required this.role,
@@ -17,6 +19,7 @@ class StudyMemberSummaryResponse {
   factory StudyMemberSummaryResponse.fromJson(Map<String, dynamic> json) {
     return StudyMemberSummaryResponse(
       id: json['id'],
+      memberId: json['memberId'],
       studyMemberId: json['studyMemberId'],
       userName: json['userName'],
       role: json['role'],

@@ -56,7 +56,7 @@ class _PersonalScreenState extends State<PersonalScreen> {
                 _personalChecklistProvider.updateSelectedDate(date);
               },
             ),
-            PersonalChecklistGroupView(selectedDate: provider.selectedDate, primaryColor: Colors.teal)
+            PersonalChecklistGroupView(selectedDate: provider.selectedDate!, primaryColor: Colors.teal)
           ],
         ),
       ),

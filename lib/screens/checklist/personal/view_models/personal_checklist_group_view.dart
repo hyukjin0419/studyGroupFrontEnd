@@ -184,18 +184,9 @@ class _PersonalChecklistGroupViewState extends State<PersonalChecklistGroupView>
   Future<void> _createChecklistItem(int studyId, String content) async {
     try {
       final provider = context.read<PersonalChecklistProvider>();
-      // await provider.createPersonalChecklist(
-      //   content: content,
-      //   targetDate: widget.selectedDate,
-      //   studyId: studyId,
-      //
-      // );
+      await provider.createPersonalChecklist(studyId, content);
 
-      log("studyID: $studyId");
-
-      final teamProvider = context.read<ChecklistItemProvider>();
-      // await teamProvider.refresh(studyId, widget.selectedDate);
-      _quitEditing();
+      // _quitEditing();
 
 
     } catch (e) {

@@ -18,7 +18,7 @@ class InMemoryChecklistItemRepository{
   String _dateKey(DateTime date) =>
       '${date.year}-${date.month.toString().padLeft(2,'0')}-${date.day.toString().padLeft(2,'0')}';
 
-  String _studyIdMemberIdChecklistIdDateKey({int? studyId, int ?memberId, int? checklistId,required DateTime date}) =>
+  String _studyIdMemberIdChecklistIdDateKey({int? studyId, int ?memberId, int? checklistId, required DateTime date}) =>
       '${studyId}_${memberId}_${checklistId}_${date.year}-${date.month.toString().padLeft(2, '0')}-${date.day.toString().padLeft(2, '0')}';
 
   bool cacheHit({int? studyId, int? memberId, required DateTime date}) {
@@ -112,7 +112,6 @@ class InMemoryChecklistItemRepository{
         final d = startOfWeek.add(Duration(days: i));
         if (studyId != null && memberId == null) {
           final key = _studyIdMemberIdChecklistIdDateKey(studyId: studyId,date: d);
-          //TODO create시 더미값은 지우고 바꾸어 주어야 함!!
           //TODO 상대방과의 연동은 pull to refresh 및 주기적 캐시 업데이트를 통해!
           _cache[key] = null;
         } else if (studyId == null && memberId != null) {
@@ -135,6 +134,7 @@ class InMemoryChecklistItemRepository{
   // ===========================================================
   Future<void> createChecklistItem({
     required int studyId,
+    int? memberId,
     required ChecklistItemCreateRequest request,
     required bool fromStudy,
   }) async {
@@ -145,8 +145,9 @@ class InMemoryChecklistItemRepository{
       String tempKey = "";
       if(fromStudy){
         tempKey =_studyIdMemberIdChecklistIdDateKey(studyId: studyId, date: request.targetDate);
+      } else {
+        tempKey =_studyIdMemberIdChecklistIdDateKey(memberId: memberId, date: request.targetDate);
       }
-      //TODO form personal도 필요함
 
       bool keyExisted = _cache.containsKey(tempKey);
       log("삭제전 $keyExisted", name: "InMemoryChecklistItemRepository");

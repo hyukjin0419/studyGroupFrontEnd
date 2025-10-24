@@ -307,6 +307,18 @@ class _MemberChecklistGroupViewState extends State<MemberChecklistGroupView> {
   }
 
   // ==================== Business Logic ====================
+  Future<void> _createChecklistItem(int studyMemberId, String content) async {
+    try {
+      final provider = context.read<ChecklistItemProvider>();
+      await provider.createChecklistItem(studyMemberId, content);
+
+    } catch (e) {
+      if (mounted) {
+        _showErrorSnackBar("생성 실패: $e");
+      }
+      log("생성 실패: $e");
+    }
+  }
 
   Future<void> _updateChecklistItemContent(
       MemberChecklistItemVM item,
@@ -323,19 +335,6 @@ class _MemberChecklistGroupViewState extends State<MemberChecklistGroupView> {
         _showErrorSnackBar("체크리스트 content 업데이트 실패: $e");
       }
       log("체크리스트 content 업데이트 실패: $e");
-    }
-  }
-
-  Future<void> _createChecklistItem(int studyMemberId, String content) async {
-    try {
-      final provider = context.read<ChecklistItemProvider>();
-      await provider.createChecklistItem(studyMemberId, content);
-
-    } catch (e) {
-      if (mounted) {
-        _showErrorSnackBar("생성 실패: $e");
-      }
-      log("생성 실패: $e");
     }
   }
 
