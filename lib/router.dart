@@ -23,10 +23,10 @@ final GoRouter router = GoRouter(
   navigatorKey: navigatorKey,
   initialLocation: '/splash',
   routes: [
-  GoRoute(
-    path: '/splash',
-    builder: (context, state) => const SplashScreen(),
-  ),
+    GoRoute(
+      path: '/splash',
+      builder: (context, state) => const SplashScreen(),
+    ),
     GoRoute(
       path: '/login',
       builder: (context, state) => const LoginScreen(),
@@ -91,18 +91,18 @@ final GoRouter router = GoRouter(
       }
     ),
     GoRoute(
-        path: '/studies/invitation/:id',
-        builder: (context, state) {
-          final studyId = int.parse(state.pathParameters['id']!);
-          return StudyInvitationScreen(studyId: studyId);
-        }
+      path: '/studies/invitation/:id',
+      builder: (context, state) {
+        final studyId = int.parse(state.pathParameters['id']!);
+        return StudyInvitationScreen(studyId: studyId);
+      }
     ),
     GoRoute(
-        path: '/studies/:id/checklists',
-        builder: (context, state) {
-          final study = state.extra as StudyDetailResponse;
-          return ChecklistScreen(study: study);
-        }
+      path: '/studies/:id/checklists',
+      builder: (context, state) {
+        final study = state.extra as StudyDetailResponse;
+        return ChecklistScreen(study: study);
+      }
     ),
   ],
 );
