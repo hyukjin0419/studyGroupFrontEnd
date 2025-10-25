@@ -6,19 +6,20 @@ import 'package:intl/intl.dart';
 class PersonalStatsCard extends StatelessWidget {
   final int completedCount;
   final int totalCount;
-  //연속 달성일
-  final int streakDays;
 
   const PersonalStatsCard({
     super.key,
     required this.completedCount,
     required this.totalCount,
-    this.streakDays = 0,
   });
 
   @override
   Widget build(BuildContext context) {
     final progress = totalCount > 0 ? completedCount / totalCount : 0.0;
+    final remaining = totalCount - completedCount;
+    final greeting = _getGreeting();
+    final progressColor = _getProgressColor(progress);
+    final feedback = _getProgressMessage(progress);
 
     return Container(
       margin: const EdgeInsets.all(20),
@@ -42,14 +43,16 @@ class PersonalStatsCard extends StatelessWidget {
               crossAxisAlignment: CrossAxisAlignment.start,
               mainAxisSize: MainAxisSize.min,
               children: [
+                //상단인사
                 Text(
-                  _getGreeting(),
+                  greeting,
                   style: TextStyle(
                     color: Colors.grey[600],
                     fontSize: 12,
                   ),
                 ),
                 const SizedBox(height: 8),
+                //완료 현왕
                 Text(
                   '오늘 $completedCount개 완료',
                   style: const TextStyle(
@@ -60,7 +63,6 @@ class PersonalStatsCard extends StatelessWidget {
                 const SizedBox(height: 4),
                 Row(
                   children: [
-                    if (streakDays > 0) ...[
                       const Icon(
                         Icons.local_fire_department,
                         color: Colors.orange,
@@ -68,16 +70,14 @@ class PersonalStatsCard extends StatelessWidget {
                       ),
                       const SizedBox(width: 4),
                       Text(
-                        '$streakDays일 연속',
+                        feedback,
                         style: TextStyle(
                           color: Colors.orange[700],
                           fontSize: 13,
                         ),
                       ),
                       const SizedBox(width: 12),
-                    ],
-                    Text(
-                      '${totalCount - completedCount}개 남음',
+                    Text('$remaining개 남았어요',
                       style: TextStyle(
                         color: Colors.grey[600],
                         fontSize: 13,
@@ -104,7 +104,7 @@ class PersonalStatsCard extends StatelessWidget {
                     strokeWidth: 8,
                     backgroundColor: Colors.grey[200],
                     valueColor: AlwaysStoppedAnimation(
-                      _getProgressColor(progress),
+                      progressColor,
                     ),
                   ),
                 ),
@@ -124,13 +124,34 @@ class PersonalStatsCard extends StatelessWidget {
     );
   }
 
+  //TODO MVP이후 위치기반 날씨 추가하기
   String _getGreeting() {
-    final hour = DateTime.now().hour;
-    final date = DateFormat('M월 d일 EEEE', 'ko').format(DateTime.now());
+    final now = DateTime.now();
+    final hour = now.hour;
+    final date = DateFormat('M월 d일 EEEE', 'ko').format(now);
 
-    if (hour < 12) return '좋은 아침이에요! $date';
-    if (hour < 18) return '좋은 오후예요! $date';
-    return '좋은 저녁이에요! $date';
+    if (hour >= 5 && hour < 11) {
+      return '좋은 아침이에요 ☀️ $date';
+    } else if (hour >= 11 && hour < 14) {
+      return '좋은 점심이에요 🍽️ $date';
+    } else if (hour >= 14 && hour < 18) {
+      return '좋은 오후에요 🌤️ $date';
+    } else if (hour >= 18 && hour < 22) {
+      return '좋은 저녁이에요 🌇 $date';
+    } else if (hour >= 22 || hour < 2) {
+      return '좋은 밤이에요 🌙 $date';
+    } else {
+      return '좋은 새벽이에요 🌌 $date';
+    }
+  }
+
+
+  String _getProgressMessage(double progress) {
+    if (progress == 1.0) return '오늘 목표 달성! 최고예요 🎉';
+    if (progress >= 0.7) return '거의 다 왔어요 🔥';
+    if (progress >= 0.4) return '좋아요, 절반 넘었어요 🙌';
+    if (progress > 0.0) return '시작이 반이에요 💪';
+    return '이제 시작해볼까요? 🚀';
   }
 
   Color _getProgressColor(double progress) {

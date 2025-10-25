@@ -33,6 +33,9 @@ class PersonalChecklistProvider with ChangeNotifier, LoadingNotifier {
   Map<int, ChecklistItemDetailResponse> _filteredMap = {};
   List<ChecklistItemDetailResponse> get filteredItems => _filteredMap.values.toList();
 
+  Map<int, ChecklistItemDetailResponse> _todayItemsMap = {};
+  List<ChecklistItemDetailResponse> get todayItem => _todayItemsMap.values.toList();
+
   //--------------로딩---------------------------//
   bool _isLoading = false;
   bool get isLoading => _isLoading;
@@ -52,6 +55,7 @@ class PersonalChecklistProvider with ChangeNotifier, LoadingNotifier {
 
       if(isDelete) {
         _filteredMap.clear();
+        _todayItemsMap.clear();
       }
 
       log("📡 stream 데이터 수신: ${newItems.length}개", name: "ChecklistItemProvider");
@@ -81,14 +85,42 @@ class PersonalChecklistProvider with ChangeNotifier, LoadingNotifier {
     for(var studyId in _myStudies){
       log("ㄴ ${studyId.id}", name: "PersonalProvider");
     }
+    //1차 필터링
     final filtered = allItems.where((item) {
       final sameMember = item.memberId == _currentMemberId;
-      final sameDate = isSameDate(item.targetDate, _selectedDate!);
       final inMyStudy = _myStudies.any((s)=>s.id == item.studyId);
-      return sameMember && sameDate && inMyStudy;
+      return sameMember && inMyStudy;
     }).toList();
 
-    for (var item in filtered){
+    //personal stats 내용
+    final today = DateTime.now();
+    final todayItems = filtered.where((item) => isSameDate(item.targetDate, today)).toList();
+
+    for (var item in todayItems){
+      final id = item.id;
+      final tempId = item.tempId;
+
+      //임시 체크리스트 -> db 체크리스트로 교체
+      if (tempId != null && _todayItemsMap.containsKey(tempId)) {
+        final old = _todayItemsMap.remove(tempId)!;
+        _todayItemsMap[id] = item.copyWith(orderIndex: old.orderIndex);
+        continue;
+      }
+
+      //기존에 있는데 업데이트되는 경우를 위해
+      if(_todayItemsMap.containsKey(item.id)){
+        _todayItemsMap[item.id] = item;
+        continue;
+      }
+
+      //신규 아이템
+      _todayItemsMap[item.id] = item;
+    }
+
+    //UI 반영용 checklist
+    final selectedDateItems =  filtered.where((item) => isSameDate(item.targetDate, _selectedDate!)).toList();
+
+    for (var item in selectedDateItems){
       log("Today: ${item.targetDate}, studyId: ${item.studyId}, content: ${item.content}", name: "PersonalProvider");
       final id = item.id;
       final tempId = item.tempId;

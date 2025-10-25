@@ -4,6 +4,7 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:study_group_front_end/providers/checklist_item_provider.dart';
 import 'package:study_group_front_end/providers/personal_checklist_provider.dart';
+import 'package:study_group_front_end/providers/personal_stats_provider.dart';
 import 'package:study_group_front_end/screens/checklist/common/header/weekly_calendar.dart';
 import 'package:study_group_front_end/screens/checklist/personal/header/personal_header_card.dart';
 import 'package:study_group_front_end/screens/checklist/personal/view_models/personal_checklist_group_view.dart';
@@ -32,6 +33,8 @@ class _PersonalScreenState extends State<PersonalScreen> {
   @override
   Widget build(BuildContext context) {
     final provider = context.watch<ChecklistItemProvider>();
+    final cardProvider = context.watch<PersonalStatsProvider>();
+
     return Scaffold(
       appBar: AppBar(
         title: Text(
@@ -43,11 +46,9 @@ class _PersonalScreenState extends State<PersonalScreen> {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            // TODO 일단 하드코딩, 나중에 provider에서 계산
             PersonalStatsCard(
-              completedCount: 8,
-              totalCount: 10,
-              streakDays: 5,
+              completedCount: cardProvider.completedCount,
+              totalCount: cardProvider.totalCount,
             ),
             WeeklyCalendar(
               initialSelectedDay: provider.selectedDate,
