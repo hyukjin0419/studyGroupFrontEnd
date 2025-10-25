@@ -1,5 +1,6 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
+import 'package:url_launcher/url_launcher.dart';
 
 class SettingScreen extends StatefulWidget {
   const SettingScreen({super.key});
@@ -99,13 +100,13 @@ class _SettingScreenState extends State<SettingScreen> {
                   isChecked: false,
                   title: '개인정보 처리방침',
                   showChevron: true,
-                  onTap: () {},
+                  onTap: () => _launchUrl('https://handsomely-nemophila-3e9.notion.site/Privacy-Policy-2977860e86188089a9f8e4c99395dafa?source=copy_link'),
                 ),
                 _buildListItem(
                   isChecked: false,
                   title: '서비스 이용약관',
                   showChevron: true,
-                  onTap: () {},
+                  onTap: () => _launchUrl('https://handsomely-nemophila-3e9.notion.site/Terms-of-Service-2977860e861880608d2dddf7d6691297?source=copy_link'),
                 ),
 
                 const SizedBox(height: 24),
@@ -208,6 +209,16 @@ class _SettingScreenState extends State<SettingScreen> {
         ),
       ),
     );
+  }
+
+  Future<void> _launchUrl(String url) async {
+    final Uri uri = Uri.parse(url);
+    if(!await launchUrl(
+      uri,
+      mode: LaunchMode.externalApplication,
+    )) {
+      throw Exception("해당 링크를 열 수 없습니다: $url");
+    }
   }
 }
 
