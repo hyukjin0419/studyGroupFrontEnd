@@ -33,14 +33,14 @@ Future<void> showStudyDetailModal({
       ),
       builder: (context) {
         return Padding(
-          padding: const EdgeInsets.fromLTRB(16, 8, 16, 16),
+          padding: const EdgeInsets.fromLTRB(16, 0, 16, 7),
           child: Column(
             mainAxisSize: MainAxisSize.min,
             crossAxisAlignment: CrossAxisAlignment.stretch,
             children: [
               //title
               Container(
-                padding: const EdgeInsets.all(12),
+                padding: const EdgeInsets.fromLTRB(12,5,12,5),
                 decoration: BoxDecoration(
                   color: Colors.white,
                   borderRadius: BorderRadius.circular(10),
@@ -119,6 +119,7 @@ Future<void> showStudyDetailModal({
                   Navigator.of(context).pop();
                 },
                 onDeletePressed: () {
+                  Navigator.of(context).pop();
                   _confirmAndDeleteStudy(context, study.id, study.personalColor);
                 },
                 onLeavePressed: () {

@@ -1,5 +1,11 @@
+import 'dart:developer';
+
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
+import 'package:go_router/go_router.dart';
+import 'package:provider/provider.dart';
+import 'package:study_group_front_end/providers/me_provider.dart';
+import 'package:study_group_front_end/screens/common_dialog/confirmationDialog.dart';
 import 'package:url_launcher/url_launcher.dart';
 
 class SettingScreen extends StatefulWidget {
@@ -136,7 +142,9 @@ class _SettingScreenState extends State<SettingScreen> {
                   title: '로그아웃',
                   showChevron: true,
                   titleColor: Colors.orange,
-                  onTap: () {},
+                  onTap: () async {
+                    _confirmDialog(context, Colors.teal);
+                  },
                 ),
                 _buildListItem(
                   isChecked: false,
@@ -222,13 +230,20 @@ class _SettingScreenState extends State<SettingScreen> {
   }
 }
 
+Future<void> _confirmDialog(BuildContext context, Color color) async {
+  final confirmed = await showConfirmationDialog(
+      context: context,
+      title: "로그아웃",
+      description: "로그아웃 하시겠어요? \n로그인 화면으로 이동합니다!",
+      confirmColor: color,
+  );
 
-// child: ElevatedButton(
-//   onPressed: () async {
-//     await context.read<MeProvider>().logout();
-//     if (context.mounted) {
-//       context.go('/login');
-//     }
-//   },
-//   child: const Text("로그아웃"),
-// ),
+  log("confimed value = $confirmed");
+
+  if (confirmed == true) {
+    await context.read<MeProvider>().logout();
+    if (context.mounted) {
+      context.go('/login');
+    }
+  }
+}

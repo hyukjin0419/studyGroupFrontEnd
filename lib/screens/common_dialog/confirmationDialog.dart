@@ -12,7 +12,7 @@ Future<bool?> showConfirmationDialog({
   return showDialog<bool>(
     context: context,
     barrierDismissible: false,
-    builder: (_) => AlertDialog(
+    builder: (dialogContext) => AlertDialog(
       backgroundColor: hexToColor("0xFFF7F8FA"),
       shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
       title: Center(
@@ -41,9 +41,9 @@ Future<bool?> showConfirmationDialog({
                   ),
                   padding: const EdgeInsets.symmetric(vertical: 14),
                 ),
-                onPressed: () => Navigator.pop(context, false),
+                onPressed: () => Navigator.of(dialogContext).pop(false),
                 child: Text(
-                  cancelText,
+                  '취소',
                   style: const TextStyle(color: Colors.black),
                 ),
               ),
@@ -59,9 +59,9 @@ Future<bool?> showConfirmationDialog({
                   ),
                   padding: const EdgeInsets.symmetric(vertical: 14),
                 ),
-                onPressed: () => Navigator.pop(context, true),
+                onPressed: () => Navigator.of(dialogContext).pop(true),
                 child: Text(
-                  confirmText,
+                  '확인',
                   style: const TextStyle(color: Colors.white),
                 ),
               ),
