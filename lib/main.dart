@@ -6,17 +6,20 @@ import 'package:provider/provider.dart';
 import 'package:study_group_front_end/api_service/auth_api_service.dart';
 import 'package:study_group_front_end/api_service/checklist_item_api_service.dart';
 import 'package:study_group_front_end/api_service/me_api_service.dart';
+import 'package:study_group_front_end/api_service/personal_checklist_api_service.dart';
 import 'package:study_group_front_end/api_service/study_api_service.dart';
 import 'package:study_group_front_end/api_service/study_join_api_service.dart';
 import 'package:study_group_front_end/firebase_options.dart';
 import 'package:study_group_front_end/notification_service/fcm/fcm_initializer.dart';
 import 'package:study_group_front_end/notification_service/local/local_notifications_service.dart';
 import 'package:study_group_front_end/providers/checklist_item_provider.dart';
-import 'package:study_group_front_end/providers/checklist_item_provider2.dart';
 import 'package:study_group_front_end/providers/me_provider.dart';
+import 'package:study_group_front_end/providers/personal_checklist_provider.dart';
+import 'package:study_group_front_end/providers/personal_stats_provider.dart';
 import 'package:study_group_front_end/providers/study_join_provider.dart';
 import 'package:study_group_front_end/providers/study_provider.dart';
 import 'package:study_group_front_end/repository/checklist_item_repository.dart';
+import 'package:study_group_front_end/repository/personal_checklist_repository.dart';
 import 'package:study_group_front_end/repository/study_repository.dart';
 import 'package:study_group_front_end/router.dart';
 
@@ -40,6 +43,12 @@ Future<void> main() async {
   runApp(
       MultiProvider(
         providers: [
+          Provider<InMemoryChecklistItemRepository>(
+            create: (_) => InMemoryChecklistItemRepository(
+              ChecklistItemApiService(),
+              PersonalChecklistApiService()
+            ),
+          ),
           ChangeNotifierProvider(
             create: (_) => MeProvider(AuthApiService(), MeApiService()),
           ),
@@ -49,11 +58,43 @@ Future<void> main() async {
           ChangeNotifierProvider(
               create: (_) => StudyJoinProvider(StudyJoinApiService()),
           ),
-          ChangeNotifierProvider(
-            create: (_) => ChecklistItemProvider(ChecklistItemApiService()),
+          //TODO inmemory 수정 바람
+          ChangeNotifierProxyProvider<MeProvider, ChecklistItemProvider>(
+            create: (context) => ChecklistItemProvider(
+              context.read<InMemoryChecklistItemRepository>(),
+            ),
+            update: (context,me,previous) {
+              if(me.currentMember == null) return previous!;
+
+              final repo = context.read<InMemoryChecklistItemRepository>();
+
+              return ChecklistItemProvider(repo);
+              }
           ),
-          ChangeNotifierProvider(
-            create: (_) => ChecklistItemProvider2(InMemoryChecklistItemRepository(ChecklistItemApiService())),
+          ChangeNotifierProxyProvider2<MeProvider, StudyProvider, PersonalChecklistProvider>(
+            create: (context) => PersonalChecklistProvider(
+              context.read<InMemoryChecklistItemRepository>(),
+            ),
+            update: (context, me, study, previous) {
+              final memberId = me.currentMember?.id ?? 0;
+              final studies = study.studies;
+
+              final repo = context.read<InMemoryChecklistItemRepository>();
+
+              // ✅ 매번 최신 memberId, study 목록 반영
+              final provider = previous ?? PersonalChecklistProvider(repo);
+              provider.setMyStudies(studies);
+              provider.setCurrentMemberId(memberId);
+
+              return provider;
+            },
+          ),
+          ChangeNotifierProxyProvider<PersonalChecklistProvider, PersonalStatsProvider>(
+              create: (context) => PersonalStatsProvider(
+                context.read<PersonalChecklistProvider>(),
+              ),
+              update: (context, checklistProvider, previous)
+                => previous ?? PersonalStatsProvider(checklistProvider),
           ),
         ],
         child: MaterialApp.router(
@@ -64,6 +105,7 @@ Future<void> main() async {
 
             appBarTheme: const AppBarTheme(
               backgroundColor: Colors.white,
+              surfaceTintColor: Colors.transparent,
             ),
 
             scaffoldBackgroundColor: Colors.white,

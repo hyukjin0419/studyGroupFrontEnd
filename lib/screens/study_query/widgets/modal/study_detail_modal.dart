@@ -7,12 +7,12 @@ import 'package:study_group_front_end/dto/study/detail/study_detail_response.dar
 import 'package:study_group_front_end/dto/study/update/study_update_request.dart';
 import 'package:study_group_front_end/providers/me_provider.dart';
 import 'package:study_group_front_end/providers/study_provider.dart';
-import 'package:study_group_front_end/screens/checklist/widget/bottom_sheet/show_checklist_item_options_bottom_sheet.dart';
+import 'package:study_group_front_end/screens/checklist/common/bottom/show_checklist_item_options_bottom_sheet.dart';
 import 'package:study_group_front_end/screens/common_dialog/confirmationDialog.dart';
 import 'package:study_group_front_end/screens/study_query/widgets/dialog/study_join_code_qr_dialog.dart';
 import 'package:study_group_front_end/screens/study_query/widgets/modal/member_chip.dart';
 import 'package:study_group_front_end/util/color_converters.dart';
-import 'package:study_group_front_end/util/formatKoreanDate.dart';
+import 'package:study_group_front_end/util/format_korean_date.dart';
 
 Future<void> showStudyDetailModal({
   required BuildContext context,

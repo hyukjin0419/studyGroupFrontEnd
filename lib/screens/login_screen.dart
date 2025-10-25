@@ -6,6 +6,7 @@ import 'package:go_router/go_router.dart';
 import 'package:provider/provider.dart';
 import 'package:study_group_front_end/api_service/Auth/token_manager.dart';
 import 'package:study_group_front_end/dto/member/login/member_login_request.dart';
+import 'package:study_group_front_end/init_prefetch.dart';
 import 'package:study_group_front_end/providers/me_provider.dart';
 import 'package:study_group_front_end/snack_bar/show_error_snackbar.dart';
 import 'package:study_group_front_end/util/color_converters.dart';
@@ -202,8 +203,10 @@ class _LoginScreenState extends State<LoginScreen> {
         ),
       );
 
+      await initIfLoggedIn(context);
+
       if (mounted) {
-        context.go('/studies');
+        context.go('/personal');
       }
     } catch (e) {
       String errorMessage = "로그인 실패";

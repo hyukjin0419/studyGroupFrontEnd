@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:material_symbols_icons/material_symbols_icons.dart';
-import 'package:study_group_front_end/util/Palette.dart';
+import 'package:study_group_front_end/util/palette.dart';
 import 'package:study_group_front_end/util/color_converters.dart';
 
 

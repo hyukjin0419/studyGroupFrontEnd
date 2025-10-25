@@ -1,216 +1,254 @@
 import 'dart:async';
 import 'dart:developer';
 
-import 'package:flutter/material.dart';
+import 'package:rxdart/rxdart.dart';
 import 'package:study_group_front_end/api_service/checklist_item_api_service.dart';
+import 'package:study_group_front_end/api_service/personal_checklist_api_service.dart';
 import 'package:study_group_front_end/dto/checklist_item/create/checklist_item_create_request.dart';
 import 'package:study_group_front_end/dto/checklist_item/detail/checklist_item_detail_response.dart';
-import 'package:study_group_front_end/dto/checklist_item/update/checklist_item_content_update_request.dart';
 import 'package:study_group_front_end/dto/checklist_item/update/checklist_item_reorder_request.dart';
 
 class InMemoryChecklistItemRepository{
-  final ChecklistItemApiService api;
-  InMemoryChecklistItemRepository(this.api);
+  final ChecklistItemApiService teamApi;
+  final PersonalChecklistApiService personalApi;
 
-  final Map<String, List<ChecklistItemDetailResponse>> _cache = {};
-  final Map<String, StreamController<List<ChecklistItemDetailResponse>>> _streams = {};
+  InMemoryChecklistItemRepository(this.teamApi, this.personalApi);
 
-  //ex) 42-2025-09-12
-  String _key(int studyId, DateTime date) =>
-      '$studyId-${date.year}-${date.month.toString().padLeft(2,'0')}-${date.day.toString().padLeft(2,'0')}';
+  final Map<String, ChecklistItemDetailResponse?> _cache = {};
 
-  //UI에서 이 날짜의 체크리스트를 구독 할 수 있도록 Stream을 반환하는 함수
-  Stream<List<ChecklistItemDetailResponse>> watch(int studyId, DateTime date){
-    final key = _key(studyId,date);
-    _streams.putIfAbsent(key, () => StreamController.broadcast());
-    if(_cache.containsKey(key)) _streams[key]!.add(_cache[key]!);
-    return _streams[key]!.stream;
+  String _dateKey(DateTime date) =>
+      '${date.year}-${date.month.toString().padLeft(2,'0')}-${date.day.toString().padLeft(2,'0')}';
+
+  String _studyIdMemberIdChecklistIdDateKey({int? studyId, int ?memberId, int? checklistId, required DateTime date}) =>
+      '${studyId}_${memberId}_${checklistId}_${date.year}-${date.month.toString().padLeft(2, '0')}-${date.day.toString().padLeft(2, '0')}';
+
+  bool cacheHit({int? studyId, int? memberId, required DateTime date}) {
+    final dateKey = _dateKey(date);
+
+    if (studyId == null && memberId != null) {
+      // 패턴: *_memberId_checklistId_date
+      return _cache.keys.any((key) {
+        final parts = key.split('_');
+        if (parts.length != 4) return false;
+
+        return parts[1] == memberId.toString() && parts[3] == dateKey;
+      });
+    }
+
+    if (studyId != null && memberId == null) {
+      // 패턴: studyId_*_checklistId_date
+      return _cache.keys.any((key) {
+        final parts = key.split('_');
+        if (parts.length != 4) return false;
+
+        return parts[0] == studyId.toString() && parts[3] == dateKey;
+      });
+    }
+
+    return false;
   }
-//--------------------Prefetch--------------------//
-Future<void> prefetch() async {
-    final list = await api.prefetchChecklistItems();
-    _saveToCacheAndStream(list);
-}
 
-//--------------------우선적으로 캐시 호출--------------------//
-  //force=true시 캐시가 있어도 무시하고 서버 데이터로 덮음
-  //UI에서 특정날짜 선택시 해당하는 날짜에 대한 checklistItem을 return 해주는 함수
-  Future<List<ChecklistItemDetailResponse>> getChecklistItems(int studyId, DateTime date, {bool force = false}) async {
-    log("cache에서 체크리스트 데이터를 찾는 중....");
-    final key = _key(studyId, date);
-    if(_cache.containsKey(key) && !force) return _cache[key]!;
-    return await _fetchWeek(studyId, date);
+  // ✅ delete 여부와 items 리스트를 함께 보낼 수 있도록 타입 수정
+  static final BehaviorSubject<(bool delete, List<ChecklistItemDetailResponse> items)> _subject = BehaviorSubject.seeded((false, []));
+
+  Stream<(bool delete, List<ChecklistItemDetailResponse> items)> get stream => _subject.stream;
+
+
+  // void _emitFromCache() {
+  //   final nonNullItems = _cache.values
+  //       .whereType<ChecklistItemDetailResponse>()
+  //       .toList();
+  //
+  //   log("📤 emit: ${nonNullItems.length}개 (null 제외)", name: "InMemoryChecklistItemRepository");
+  //   _subject.add(nonNullItems);
+  // }
+
+  void _emitFromCache({ChecklistItemDetailResponse? newItem, bool delete = false}) {
+    if (newItem != null) {
+      log("📤 emit(단일): ${newItem.id} (${newItem.content})",
+          name: "InMemoryChecklistItemRepository");
+      _subject.add((false, [newItem]));
+      return;
+    }
+
+    final nonNullItems = _cache.values
+        .whereType<ChecklistItemDetailResponse>()
+        .toList();
+
+    if(delete){
+      log("📤 emit(전체) with delete = true: ${nonNullItems.length}개 (null 제외)",
+          name: "InMemoryChecklistItemRepository");
+      _subject.add((true, nonNullItems));
+      return;
+    }
+
+    log("📤 emit(전체): ${nonNullItems.length}개 (null 제외)",
+        name: "InMemoryChecklistItemRepository");
+    _subject.add((false,nonNullItems));
+
+
   }
 
-//--------------------캐시에서 데이터 못찾을 시 fetch 주 단위로 Update--------------------//
-  //date가 속한 주의 시작일 (월요일) 기준으로 7일씩 묶어서 가져오기
-  Future<List<ChecklistItemDetailResponse>> _fetchWeek(int studyId, DateTime date, {bool pushToStream = false}) async {
-    final startOfWeek = date.subtract(Duration(days: date.weekday - 1));
-    final list = await api.getChecklistItemsOfStudyByWeek(studyId, startOfWeek);
 
-    //1. 받은 데이터는 날짜별 그룹핑해서 캐시 저장
-    _saveToCacheAndStream(list);
+  Future<void> fetchChecklistByWeek({required DateTime date, int? studyId, int? memberId, bool force = false}) async {
+    final keyDate = DateTime(date.year, date.month, date.day);
+    log("studyId $studyId, memberId $memberId", name: "InMemoryChecklistItemRepository");
+    final hit = cacheHit(memberId:memberId, studyId: studyId, date: date);
 
-    // 2. 해당 주의 모든 날짜를 캐시에 등록 (데이터가 없어도 []로)
-    for (int i = 0; i < 7; i++) {
-      final d = startOfWeek.add(Duration(days: i));
-      final key = _key(studyId, d);
-      _cache.putIfAbsent(key, () => []); // ✅ 없으면 빈 리스트라도 넣음
-      if (pushToStream && _streams.containsKey(key)) {
-        _streams[key]!.add(_cache[key]!);
+    log("캐시 히트? $hit", name: "InMemoryChecklistItemRepository");
+    if (hit && !force){
+      log("💾 캐시 히트 → API 호출 스킵", name: "InMemoryChecklistItemRepository");
+      _emitFromCache();
+      return;
+    }
+    log("🔍 캐시 미스 -> 데이터 fetch후 빈 날짜 더미 캐시값으로 생성", name: "InMemoryChecklistItemRepository");
+
+    try {
+      final startOfWeek = date.subtract(Duration(days: date.weekday % 7));
+      List<ChecklistItemDetailResponse> fetched;
+      if (studyId != null && memberId == null) {
+        log('🚀 [스터디 체크리스트] 서버 fetch 실행: studyId=$studyId / $keyDate', name: "InMemoryChecklistItemRepository");
+        fetched = await teamApi.getChecklistItemsOfStudyByWeek(studyId, startOfWeek);
+      } else if (studyId == null && memberId != null) {
+        log('🚀 [개인 체크리스트] 서버 fetch 실행: memberId=$memberId / $keyDate', name: "InMemoryChecklistItemRepository");
+        fetched = await personalApi.getMyChecklistsByWeek(startOfWeek);
+      } else {
+        throw ArgumentError("study Id 또는 MemberId 중 하나는 반드시 지정되어야 합니다.");
       }
-    }
-
-    // 호출자가 요청한 날짜 데이터만 반환
-    final requestedKey = _key(studyId, date);
-    _cache.putIfAbsent(requestedKey, () => []);
-    return _cache[requestedKey] ?? [];
-  }
-
-  //일별 단일 호출
-  Future<List<ChecklistItemDetailResponse>> _fetchDay(int studyId, DateTime date, {bool pushToStream = true}) async {
-    log("cache에서 체크리스트 데이터를 찾을 수 없습니다. fetch from server 동작");
-    final key = _key(studyId, date);
-    final list = await api.getChecklistItemsOfStudyByDay(studyId, date);
-    _cache[key] = list;
-    if (pushToStream && _streams.containsKey(key)) _streams[key]!.add(list);
-    return list;
-  }
-
-
-  //받아온 체크리스트 스터디 + 날짜별로 나눠서 캐시에 반영 + 스트림에 흘려보내기
-  void _saveToCacheAndStream(
-      List<ChecklistItemDetailResponse> items, {
-        bool pushToStream = true,
-      }) {
-    // 날짜별로 그룹핑
-    final Map<String, List<ChecklistItemDetailResponse>> grouped = {};
-    for (final item in items) {
-      final key = _key(item.studyId, item.targetDate);
-      grouped.putIfAbsent(key, () => []);
-      grouped[key]!.add(item);
-    }
-
-    // 캐시에 반영 + 스트림에 push
-    grouped.forEach((key, value) {
-      _cache[key] = value;
-      if (pushToStream && _streams.containsKey(key)) {
-        _streams[key]!.add(value);
+      for (var item in fetched){
+        final key = _studyIdMemberIdChecklistIdDateKey(studyId: item.studyId, memberId: item.memberId, checklistId: item.id, date: item.targetDate);
+        _cache[key] = item;
       }
-    });
-  }
-
-
-//--------------------Optimistic Update--------------------//
-
-  Future<void> create(int studyId, ChecklistItemCreateRequest request) async {
-    final key = _key(studyId, request.targetDate);
-    final tempId = -DateTime.now().millisecondsSinceEpoch;
-
-    final newItem = ChecklistItemDetailResponse(
-        id: tempId,
-        type: "STUDY",
-        studyId: studyId,
-        studyMemberId: request.assigneeId,
-        content: request.content,
-        targetDate: request.targetDate,
-        completed: false,
-        orderIndex: (_cache[key]?.length ?? 0),
-    );
-
-    _cache.putIfAbsent(key, () => []);
-    _cache[key]!.add(newItem);
-    _streams[key]?.add(_cache[key]!);
-
-    try {
-      final created = await api.createChecklistItemOfStudy(request, studyId);
-      final idx = _cache[key]!.indexWhere((e) => e.id == tempId);
-      if (idx >= 0) _cache[key]![idx] = created;
-      _streams[key]?.add(_cache[key]!);
-    } catch (_) {
-      _cache[key]!.removeWhere((e) => e.id == tempId);
-      _streams[key]?.add(_cache[key]!);
-      rethrow;
-    }
-  }
-
-  Future<void> updateContent(int checklistItemId, int studyId, DateTime date, ChecklistItemContentUpdateRequest request) async {
-    final key = _key(studyId, date);
-    final list = _cache[key]!;
-    final idx = list.indexWhere((e) => e.id == checklistItemId);
-    if(idx < 0) return;
-
-    final oldItem = list[idx];
-    list[idx] = list[idx].copyWith(content: request.content);
-    _streams[key]?.add(list);
-
-    try {
-      await api.updateChecklistItemContent(checklistItemId, request);
-    } catch (_) {
-      list[idx] = oldItem;
-      _streams[key]?.add(list);
-      rethrow;
-    }
-  }
-
-  Future<void> toggleStatus(int checklistItemId, int studyId, DateTime date) async {
-    final key = _key(studyId, date);
-    final list = _cache[key]!;
-    final idx = list.indexWhere((e) => e.id == checklistItemId);
-    if(idx < 0) return;
-
-    final oldCompleted = list[idx].completed;
-    list[idx] = list[idx].copyWith(completed: !oldCompleted);
-    _streams[key]?.add(list);
-
-    try {
-      await api.updateChecklistItemStatus(checklistItemId);
-    } catch (_) {
-      list[idx] = list[idx].copyWith(completed: oldCompleted);
-      _streams[key]?.add(list);
-      rethrow;
-    }
-  }
-
-  Future<void> softDelete(int checklistItemId, int studyId, DateTime date) async {
-    final key = _key(studyId, date);
-    final list = _cache[key]!;
-    final idx = list.indexWhere((e) => e.id == checklistItemId);
-    if (idx < 0) return;
-
-    final removedItem = list[idx];
-    list.removeAt(idx);
-    _streams[key]?.add(list);
-
-    try {
-      await api.softDeleteChecklistItems(checklistItemId);
-    } catch (_) {
-      list.insert(idx, removedItem);
-      _streams[key]?.add(list);
-      rethrow;
-    }
-  }
-  
-  Future<void> reorder(List<ChecklistItemReorderRequest> requests, int studyId, DateTime date) async {
-    final key = _key(studyId, date);
-    final list = _cache[key]!;
-    
-    final oldList = List.of(list);
-    for (final req in requests) {
-      final idx = list.indexWhere((e) => e.id == req.checklistItemId);
-      if(idx >= 0) {
-        list[idx] = list[idx].copyWith(
-          studyMemberId: req.studyMemberId,
-          orderIndex: req.orderIndex,
-        );
+      for(int i=0;i<7;i++) {
+        final d = startOfWeek.add(Duration(days: i));
+        if (studyId != null && memberId == null) {
+          final key = _studyIdMemberIdChecklistIdDateKey(studyId: studyId,date: d);
+          //TODO 상대방과의 연동은 pull to refresh 및 주기적 캐시 업데이트를 통해!
+          _cache[key] = null;
+        } else if (studyId == null && memberId != null) {
+          final key = _studyIdMemberIdChecklistIdDateKey(memberId: memberId,date: d);
+          _cache[key] = null;
+        }
       }
+      _emitFromCache();
+
+    } catch (e) {
+      log("❌ fetchChecklistsByWeek 실패: $e", name: "InMemoryChecklistItemRepository");
+      rethrow;
     }
-    _streams[key]?.add(list);
+  }
+
+
+//--------------------Optimistic Update x--------------------//
+  // ===========================================================
+  // ✏️ CRUD / REORDER
+  // ===========================================================
+  Future<void> createChecklistItem({
+    required int studyId,
+    int? memberId,
+    required ChecklistItemCreateRequest request,
+    required bool fromStudy,
+  }) async {
     try {
-      await api.reorderChecklistItem(requests);
-    } catch (_) {
-      _cache[key] = oldList;
-      _streams[key]?.add(oldList);
+      final created = await teamApi.createChecklistItemOfStudy(request, studyId);
+
+      String tempKey = "";
+      if(fromStudy){
+        tempKey =_studyIdMemberIdChecklistIdDateKey(studyId: studyId, date: request.targetDate);
+      } else {
+        tempKey =_studyIdMemberIdChecklistIdDateKey(memberId: memberId, date: request.targetDate);
+      }
+
+      bool keyExisted = _cache.containsKey(tempKey);
+      log("삭제전 $keyExisted", name: "InMemoryChecklistItemRepository");
+      _cache.remove(tempKey);
+      keyExisted = _cache.containsKey(tempKey);
+      log("삭제후 $keyExisted", name: "InMemoryChecklistItemRepository");
+
+
+      log("realkey 만들어서 캐시에 아이템 추가", name: "InMemoryChecklistItemRepository");
+      final realKey = _studyIdMemberIdChecklistIdDateKey(studyId: created.studyId, memberId: created.memberId, checklistId: created.id, date: created.targetDate);
+      _cache[realKey] = created;
+
+      _emitFromCache(newItem: created);
+    } catch (e, stackTrace) {
+      log("createdChecklistItem error $e", name: "InMemoryChecklistItemRepository");
+      log("📍 Stack trace: $stackTrace", name: "InMemoryChecklistItemRepository");
+      rethrow;
+    }
+  }
+
+  Future<void> updateContent(ChecklistItemDetailResponse newItem) async {
+    final key = _studyIdMemberIdChecklistIdDateKey(studyId: newItem.studyId, memberId: newItem.memberId, checklistId: newItem.id, date: newItem.targetDate);
+    final oldItem = _cache[key];
+    _cache[key] = newItem;
+    _emitFromCache();
+
+    try {
+      await teamApi.updateChecklistItemContent(newItem);
+    } catch (e, stackTrace) {
+      _cache[key] = oldItem;
+      log("createdChecklistItem error $e", name: "InMemoryChecklistItemRepository");
+      log("📍 Stack trace: $stackTrace", name: "InMemoryChecklistItemRepository");
+      rethrow;
+    }
+  }
+  //
+  Future<void> toggleStatus(ChecklistItemDetailResponse item) async {
+    final key = _studyIdMemberIdChecklistIdDateKey(studyId: item.studyId, memberId: item.memberId, checklistId: item.id, date: item.targetDate);
+
+    final oldItem = _cache[key];
+    final newItem = item.copyWith(completed: !item.completed);
+    _cache[key] = newItem;
+    _emitFromCache();
+
+    try {
+      await teamApi.updateChecklistItemStatus(item.id);
+    } catch (e, stackTrace) {
+      _cache[key] = oldItem;
+      log("createdChecklistItem error $e", name: "InMemoryChecklistItemRepository");
+      log("📍 Stack trace: $stackTrace", name: "InMemoryChecklistItemRepository");
+      rethrow;
+    }
+  }
+
+  Future<void> softDelete(ChecklistItemDetailResponse item) async {
+    final key = _studyIdMemberIdChecklistIdDateKey(studyId: item.studyId, memberId: item.memberId, checklistId: item.id, date: item.targetDate);
+
+    final oldItem = _cache[key];
+    _cache.remove(key);
+    _emitFromCache(delete: true);
+
+    try {
+      await teamApi.softDeleteChecklistItems(item.id);
+    } catch (e, stackTrace) {
+      _cache[key] = oldItem;
+      log("createdChecklistItem error $e", name: "InMemoryChecklistItemRepository");
+      log("📍 Stack trace: $stackTrace", name: "InMemoryChecklistItemRepository");
+      rethrow;
+    }
+  }
+
+  Future<void> reorder(List<ChecklistItemDetailResponse> items, DateTime date) async {
+    try {
+      final requests = items
+          .map((e) => ChecklistItemReorderRequest.fromDetail(e))
+          .toList();
+
+      await teamApi.reorderChecklistItem(requests);
+
+      for (final item in items) {
+        final key = _studyIdMemberIdChecklistIdDateKey(
+            studyId: item.studyId,
+            memberId: item.memberId,
+            checklistId: item.id,
+            date: date);
+        _cache[key] = item;
+      }
+    } catch (e, stackTrace) {
+
+      log("createdChecklistItem error $e", name: "InMemoryChecklistItemRepository");
+      log("📍 Stack trace: $stackTrace", name: "InMemoryChecklistItemRepository");
       rethrow;
     }
   }

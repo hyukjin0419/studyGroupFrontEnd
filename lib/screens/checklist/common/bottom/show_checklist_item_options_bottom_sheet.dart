@@ -10,6 +10,7 @@ void showChecklistItemOptionsBottomSheet({
 }) {
   showModalBottomSheet(
       context: context,
+      useRootNavigator: true,
       backgroundColor: hexToColor("0xFFF7F8FA"),
       shape: const RoundedRectangleBorder(
         borderRadius: BorderRadius.vertical(top: Radius.circular(20)),

@@ -1,24 +1,29 @@
 import 'dart:developer';
 
-import 'package:provider/provider.dart';
 import 'package:flutter/material.dart';
-import 'package:study_group_front_end/providers/checklist_item_provider2.dart';
-import 'package:study_group_front_end/screens/checklist/widget/checklists_tile/customized_check_box.dart';
+import 'package:provider/provider.dart';
+import 'package:study_group_front_end/dto/checklist_item/detail/checklist_item_detail_response.dart';
+import 'package:study_group_front_end/providers/checklist_item_provider.dart';
+import 'package:study_group_front_end/providers/personal_checklist_provider.dart';
+import 'package:study_group_front_end/screens/checklist/common/tile/parts/customized_check_box.dart';
+
+enum ChecklistContext{
+  TEAM,
+  PERSONAL,
+}
 
 class ChecklistItemTile extends StatefulWidget {
-  final int itemId;
-  final String title;
-  final bool completed;
+  final ChecklistItemDetailResponse item;
   final Color color;
   final VoidCallback onMore;
+  final ChecklistContext context;
 
   const ChecklistItemTile({
     super.key,
-    required this.itemId,
-    required this.title,
-    required this.completed,
+    required this.item,
     required this.color,
     required this.onMore,
+    required this.context,
   });
 
   @override
@@ -32,8 +37,24 @@ class _ChecklistItemTileState extends State<ChecklistItemTile> {
   @override
   void initState() {
     super.initState();
-    _completed = widget.completed;
-    _title = widget.title;
+    _completed = widget.item.completed;
+    _title = widget.item.content;
+  }
+
+  @override
+  void didUpdateWidget(ChecklistItemTile oldWidget) {
+    super.didUpdateWidget(oldWidget);
+    // props 변경시 로컬 상태 동기화
+    if (oldWidget.item.completed != widget.item.completed) {
+      setState(() {
+        _completed = widget.item.completed;
+      });
+    }
+    if (oldWidget.item.content != widget.item.content) {
+      setState(() {
+        _title = widget.item.content;
+      });
+    }
   }
 
   void _toggleCompleted() async {
@@ -41,9 +62,9 @@ class _ChecklistItemTileState extends State<ChecklistItemTile> {
       _completed = !_completed;
     });
     try {
-      final provider = context.read<ChecklistItemProvider2>();
-      await provider.updateChecklistItemStatus(widget.itemId);
-      provider.sortChecklistGroupsByCompletedThenOrder();
+      log("id? ${widget.item.id}");
+      final provider = context.read<ChecklistItemProvider>();
+      await provider.updateChecklistItemStatus(widget.item);
     } catch (e) {
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(content: Text("체크리스트 content 업데이트 실패: $e")),

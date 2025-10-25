@@ -1,4 +1,5 @@
 class ChecklistItemCreateRequest {
+  final int tempId;
   final String content;
   final int assigneeId;
   final String type;
@@ -6,6 +7,7 @@ class ChecklistItemCreateRequest {
   final int orderIndex;
 
   ChecklistItemCreateRequest({
+    required this.tempId,
     required this.content,
     required this.assigneeId,
     required this.type,
@@ -14,6 +16,7 @@ class ChecklistItemCreateRequest {
   });
 
   Map<String, dynamic> toJson() => {
+    'tempId': tempId,
     'content': content,
     'assigneeId': assigneeId,
     'type': type,

@@ -4,22 +4,21 @@ import 'package:flutter/material.dart';
 import 'package:study_group_front_end/dto/study/detail/study_detail_response.dart';
 import 'package:study_group_front_end/util/color_converters.dart';
 import 'package:study_group_front_end/util/date_calculator.dart';
-import 'package:study_group_front_end/util/formatKoreanDate.dart';
+import 'package:study_group_front_end/util/format_korean_date.dart';
 import 'package:table_calendar/table_calendar.dart';
-import 'package:intl/intl.dart';
 
 class WeeklyCalendar extends StatefulWidget{
   //초기  날짜 (기본값은 오늘)
   final DateTime? initialSelectedDay;
   //날짜가 되었을 때 외부로 콜백 전달 -> cia를 target_date로 필터링
   final Function(DateTime selectedDay)? onDaySelected;
-  final StudyDetailResponse study;
+  final StudyDetailResponse? study;
 
   const WeeklyCalendar({
     super.key,
     this.initialSelectedDay,
     this.onDaySelected,
-    required this.study
+    this.study
   });
 
   @override
@@ -29,15 +28,18 @@ class WeeklyCalendar extends StatefulWidget{
 class _WeeklyCalendarState extends State<WeeklyCalendar> {
   late DateTime _focusedDay;
   DateTime? _selectedDay;
-  CalendarFormat _calendarFormat = CalendarFormat.week;
+  final CalendarFormat _calendarFormat = CalendarFormat.week;
   late final Color _color;
 
   @override
   void initState(){
     super.initState();
-    _focusedDay = getMondayOfWeek(widget.initialSelectedDay ?? DateTime.now());
+    _focusedDay = getSundayOfWeek(widget.initialSelectedDay ?? DateTime.now());
     _selectedDay = widget.initialSelectedDay ?? DateTime.now();
-    _color = hexToColor(widget.study.personalColor);
+    _color = widget.study != null
+      ? hexToColor(widget.study!.personalColor)
+      //색상 어떻게 할건지 생각해봐야 함.
+      : Colors.teal;
     // log("Focused Day : $_focusedDay");
   }
 
@@ -78,7 +80,6 @@ class _WeeklyCalendarState extends State<WeeklyCalendar> {
                   onPressed: () {
                     setState(() {
                       _focusedDay = _focusedDay.subtract(const Duration(days: 7));
-                      // log("Focused Day : $_focusedDay");
                     });
                   },
                 ),

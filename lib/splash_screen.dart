@@ -1,7 +1,12 @@
+import 'dart:developer';
+
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import 'package:provider/provider.dart';
+import 'package:study_group_front_end/init_prefetch.dart';
 import 'package:study_group_front_end/providers/me_provider.dart';
+import 'package:study_group_front_end/providers/personal_checklist_provider.dart';
+import 'package:study_group_front_end/providers/study_provider.dart';
 
 class SplashScreen extends StatefulWidget {
   const SplashScreen({super.key});
@@ -9,26 +14,23 @@ class SplashScreen extends StatefulWidget {
   @override
   State<SplashScreen> createState() => _SplashScreenState();
 }
-/*
-여기서 개인 체크리스트 + 스터디 리스트를 불러와야 함.
- */
+
 class _SplashScreenState extends State<SplashScreen> {
   @override
   void initState() {
     super.initState();
-    _checkAuth();
+    _initApp();
   }
 
-  Future<void> _checkAuth() async {
-    final meProvider = context.read<MeProvider>();
-    final isLoggedIn = await meProvider.loadCurrentMember();
+  Future<void> _initApp() async {
+    final isLoggedIn = await initIfLoggedIn(context);
 
-    if (mounted) {
-      if (isLoggedIn) {
-        context.go('/personal'); // 로그인 되어 있으면 홈으로
-      } else {
-        context.go('/login'); // 없으면 로그인 화면으로
-      }
+    if (!mounted) return;
+
+    if (isLoggedIn) {
+      context.go('/personal');
+    } else {
+      context.go('/login');
     }
   }
 
