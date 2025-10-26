@@ -80,7 +80,7 @@ class MeProvider with ChangeNotifier,LoadingNotifier {
 
   Future<void> logout() async {
     await runWithLoading(() async{
-      final fcmToken = await TokenManager.getFcmToken(); // ✅ await 필요
+      final fcmToken = await TokenManager.getFcmToken();
       if (fcmToken == null) {
         throw Exception("로그아웃 실패: FCM 토큰 없음");
       }

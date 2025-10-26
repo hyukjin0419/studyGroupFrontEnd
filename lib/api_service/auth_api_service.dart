@@ -52,7 +52,7 @@ class AuthApiService extends BaseApiService {
     final response = await post(
       '$basePath/logout',
       {
-        "deviceToken": deviceToken, // 서버가 요구하는 DTO
+        "deviceToken": deviceToken,
       },
       authRequired: true,
     );

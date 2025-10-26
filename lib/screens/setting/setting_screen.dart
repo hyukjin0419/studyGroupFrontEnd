@@ -254,7 +254,7 @@ Future<void> _withdrawConfirmDialog(BuildContext context, Color color) async {
   final confirmed = await showConfirmationDialog(
     context: context,
     title: "회원 탈퇴",
-    description: "회원 탈퇴 후 개인정보를 포함한\n 데이터가 삭제되며 복구할 수 없습니다.\n정말 삭제하시겠습니까?",
+    description: "회원 탈퇴 후 개인정보를 포함한\n 데이터가 삭제되며 복구할 수 없습니다. \n 또한 회원님이 리더인 스터디는 자동 해체됩니다.\n정말 삭제하시겠습니까?",
     confirmColor: color,
   );
 
