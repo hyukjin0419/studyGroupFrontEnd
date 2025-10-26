@@ -143,7 +143,7 @@ class _SettingScreenState extends State<SettingScreen> {
                   showChevron: true,
                   titleColor: Colors.orange,
                   onTap: () async {
-                    _confirmDialog(context, Colors.teal);
+                    _logoutConfirmDialog(context, Colors.teal);
                   },
                 ),
                 _buildListItem(
@@ -151,7 +151,9 @@ class _SettingScreenState extends State<SettingScreen> {
                   title: '탈퇴하기',
                   showChevron: true,
                   titleColor: Colors.red,
-                  onTap: () {},
+                  onTap: () async {
+                    _withdrawConfirmDialog(context, Colors.teal);
+                  },
                 ),
               ],
             ),
@@ -230,7 +232,7 @@ class _SettingScreenState extends State<SettingScreen> {
   }
 }
 
-Future<void> _confirmDialog(BuildContext context, Color color) async {
+Future<void> _logoutConfirmDialog(BuildContext context, Color color) async {
   final confirmed = await showConfirmationDialog(
       context: context,
       title: "로그아웃",
@@ -242,6 +244,25 @@ Future<void> _confirmDialog(BuildContext context, Color color) async {
 
   if (confirmed == true) {
     await context.read<MeProvider>().logout();
+    if (context.mounted) {
+      context.go('/login');
+    }
+  }
+}
+
+Future<void> _withdrawConfirmDialog(BuildContext context, Color color) async {
+  final confirmed = await showConfirmationDialog(
+    context: context,
+    title: "회원 탈퇴",
+    description: "회원 탈퇴 후 개인정보를 포함한\n 데이터가 삭제되며 복구할 수 없습니다.\n정말 삭제하시겠습니까?",
+    confirmColor: color,
+  );
+
+  log("confimed value = $confirmed");
+
+  if (confirmed == true) {
+    //TODO 탈퇴 api 호출
+    // await context.read<MeProvider>().logout();
     if (context.mounted) {
       context.go('/login');
     }
