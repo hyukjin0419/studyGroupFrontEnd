@@ -240,8 +240,6 @@ Future<void> _logoutConfirmDialog(BuildContext context, Color color) async {
       confirmColor: color,
   );
 
-  log("confimed value = $confirmed");
-
   if (confirmed == true) {
     await context.read<MeProvider>().logout();
     if (context.mounted) {
@@ -258,11 +256,8 @@ Future<void> _withdrawConfirmDialog(BuildContext context, Color color) async {
     confirmColor: color,
   );
 
-  log("confimed value = $confirmed");
-
   if (confirmed == true) {
-    //TODO 탈퇴 api 호출
-    // await context.read<MeProvider>().logout();
+    await context.read<MeProvider>().delete();
     if (context.mounted) {
       context.go('/login');
     }

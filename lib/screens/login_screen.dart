@@ -202,6 +202,7 @@ class _LoginScreenState extends State<LoginScreen> {
       );
 
       await initIfLoggedIn(context);
+      //TODO 로그인 시 기존 캐시 삭제!
 
       if (mounted) {
         context.go('/personal');

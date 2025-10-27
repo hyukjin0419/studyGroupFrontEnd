@@ -70,7 +70,7 @@ class MeProvider with ChangeNotifier,LoadingNotifier {
     });
   }
 
-  Future<void> delete(int id) async {
+  Future<void> delete() async {
     await runWithLoading(() async {
       await meApiService.deleteMyAccount();
       _currentMember = null;
