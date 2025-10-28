@@ -127,15 +127,11 @@ class _SettingScreenState extends State<SettingScreen> {
 
                 _buildListItem(
                   isChecked: false,
-                  title: '비밀번호 변경하기',
+                  title: '계정 정보 확인하기',
                   showChevron: true,
-                  onTap: () {},
-                ),
-                _buildListItem(
-                  isChecked: false,
-                  title: '이메일 변경하기',
-                  showChevron: true,
-                  onTap: () {},
+                  onTap: () {
+                    context.push("/settings/me");
+                  },
                 ),
                 _buildListItem(
                   isChecked: false,

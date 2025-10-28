@@ -2,6 +2,7 @@ import 'dart:developer';
 
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
+import 'package:study_group_front_end/screens/setting/me_screen.dart';
 import 'package:study_group_front_end/splash_screen.dart';
 import 'package:study_group_front_end/dto/study/detail/study_detail_response.dart';
 import 'package:study_group_front_end/dto/study/update/study_update_request.dart';
@@ -103,6 +104,14 @@ final GoRouter router = GoRouter(
         final study = state.extra as StudyDetailResponse;
         return ChecklistScreen(study: study);
       }
+    ),
+    GoRoute(
+        path: '/settings/me',
+        builder: (context, state) {
+
+          // final study = state.extra as StudyDetailResponse;
+          return MeScreen();
+        }
     ),
   ],
 );
