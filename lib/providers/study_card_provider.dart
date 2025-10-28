@@ -43,7 +43,7 @@ class StudyCardProvider with ChangeNotifier {
   //================= DUE DATE =================//
   String getDueDateLabel(StudyDetailResponse study) {
     final dueDate = study.dueDate;
-    if (dueDate == null) return "마감일 없음";
+    if (dueDate == null) return "";
 
     final today = DateTime.now();
     final diffDays = dueDate.difference(today).inDays;
@@ -65,14 +65,14 @@ class StudyCardProvider with ChangeNotifier {
       return "오늘 할 일 완료!";
     }
 
-    if (dueDate == null) return "진행 중";
+    if (dueDate == null) return "Progressing";
 
     final now = DateTime.now();
     final diff = dueDate.difference(now).inDays;
 
-    if (diff < 0) return "마감 지남";
-    if (diff == 0) return "오늘 마감";
-    if (diff <= 3) return "마감 임박";
+    if (diff < 0) return "Progressing";
+    if (diff == 0) return "D-Day";
+    if (diff <= 3) return "In Three Days";
 
     return "진행 중";
   }

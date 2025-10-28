@@ -83,8 +83,8 @@ class StudyProvider with ChangeNotifier, LoadingNotifier {
           _selectedStudy = updated;
         }
 
-        _studies = await repository.fetchMyStudies();
-        _selectedStudy = await repository.fetchMyStudy(request.studyId);
+        // _studies = await repository.fetchMyStudies();
+        // _selectedStudy = await repository.fetchMyStudy(request.studyId);
       });
       notifyListeners();
     } catch (e) {
@@ -107,7 +107,7 @@ class StudyProvider with ChangeNotifier, LoadingNotifier {
         leaderName: prev.leaderName,
         joinCode: prev.joinCode,
         personalColor: req.personalColor,
-        dueDate: req.dueDate!,
+        dueDate: req.dueDate,
         status: prev.status,
         members: prev.members);
   }
