@@ -2,6 +2,7 @@ import 'dart:developer';
 
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
+import 'package:study_group_front_end/screens/setting/edit_email_screen.dart';
 import 'package:study_group_front_end/screens/setting/edit_user_name_screen.dart';
 import 'package:study_group_front_end/screens/setting/me_screen.dart';
 import 'package:study_group_front_end/splash_screen.dart';
@@ -119,9 +120,9 @@ final GoRouter router = GoRouter(
         }
     ),
     GoRoute(
-        path: '/settings/me/change-password',
+        path: '/settings/me/edit-email',
         builder: (context, state) {
-          return MeScreen();
+          return EditEmailScreen();
         }
     ),
   ],

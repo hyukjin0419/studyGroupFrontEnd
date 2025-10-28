@@ -74,8 +74,9 @@ class _SignUpScreenState extends State<SignUpScreen> {
                   }
 
                   final emailRegex = RegExp(
-                    r"^[a-zA-Z0-9.a-zA-Z0-9.!#$%&'*+/=?^_`{|}~-]+@[a-zA-Z0-9]+\.[a-zA-Z]+",
+                      r'^[\w-\.]+@([\w-]+\.)+[\w-]{2,4}$'
                   );
+
 
                   if (!emailRegex.hasMatch(val)) {
                     return '올바른 이메일 형식이 아닙니다';
