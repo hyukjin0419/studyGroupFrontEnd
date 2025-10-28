@@ -93,7 +93,9 @@ Future<void> showStudyDetailModal({
                       ),
                     ],
                     Text(
-                      '프로젝트 마감일 : ${formatKoreanDate(study.dueDate)}',
+                      study.dueDate != null
+                          ? '프로젝트 마감일 : ${formatKoreanDate(study.dueDate!)}'
+                          : '지정된 마감 날짜가 없습니다',
                       style: Theme.of(context).textTheme.bodyLarge,
                     ),
                   ],

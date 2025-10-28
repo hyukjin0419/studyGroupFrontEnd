@@ -8,7 +8,6 @@ class StudyCreateResponse extends BaseResDto {
   final String leaderName;
   final String personalColor;
   final DateTime dueDate;
-  final double progress;
   final String status;
 
   StudyCreateResponse({
@@ -19,7 +18,6 @@ class StudyCreateResponse extends BaseResDto {
     required this.leaderName,
     required this.personalColor,
     required this.dueDate,
-    required this.progress,
     required this.status,
     super.createdAt,
     super.modifiedAt,
@@ -34,7 +32,6 @@ class StudyCreateResponse extends BaseResDto {
       leaderName: json['leaderName'],
       personalColor: json['personalColor'],
       dueDate: DateTime.parse(json['dueDate']),
-      progress: (json['progress'] as num).toDouble(),
       status: json['status'],
       createdAt: json['createdAt'] != null ? DateTime.parse(json['createdAt']) : null,
       modifiedAt: json['modifiedAt'] != null ? DateTime.parse(json['modifiedAt']) : null,

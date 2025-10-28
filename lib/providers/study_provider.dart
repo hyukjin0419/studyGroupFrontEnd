@@ -42,8 +42,7 @@ class StudyProvider with ChangeNotifier, LoadingNotifier {
         leaderName: '',
         joinCode: '',
         personalColor: request.color,
-        dueDate: request.dueDate ?? DateTime.now(),
-        progress: 0.0,
+        dueDate: request.dueDate,
         status: '',
         members: const[]
     );
@@ -54,7 +53,7 @@ class StudyProvider with ChangeNotifier, LoadingNotifier {
     try {
       await runWithLoading(() async {
         await repository.createStudy(request);
-        _studies = await repository.fetchMyStudies();
+        // _studies = await repository.fetchMyStudies();
       });
       notifyListeners();
     } catch (e) {
@@ -109,7 +108,6 @@ class StudyProvider with ChangeNotifier, LoadingNotifier {
         joinCode: prev.joinCode,
         personalColor: req.personalColor,
         dueDate: req.dueDate!,
-        progress: prev.progress,
         status: prev.status,
         members: prev.members);
   }

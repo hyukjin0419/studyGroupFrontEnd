@@ -4,15 +4,11 @@ import 'dart:developer';
 import 'package:flutter/material.dart';
 import 'package:study_group_front_end/dto/checklist_item/create/checklist_item_create_request.dart';
 import 'package:study_group_front_end/dto/checklist_item/detail/checklist_item_detail_response.dart';
-import 'package:study_group_front_end/dto/checklist_item/update/checklist_item_content_update_request.dart';
-import 'package:study_group_front_end/dto/checklist_item/update/checklist_item_reorder_request.dart';
 import 'package:study_group_front_end/dto/study/detail/study_detail_response.dart';
 import 'package:study_group_front_end/dto/study/detail/study_member_summary_response.dart';
 import 'package:study_group_front_end/providers/loading_notifier.dart';
 import 'package:study_group_front_end/repository/checklist_item_repository.dart';
-import 'package:study_group_front_end/screens/checklist/personal/view_models/personal_checklist_group_vm.dart';
 import 'package:study_group_front_end/screens/checklist/team/view_models/member_checklist_group_vm.dart';
-import 'package:study_group_front_end/screens/checklist/team/view_models/member_checklist_item_vm.dart';
 import 'package:study_group_front_end/util/date_calculator.dart';
 
 class ChecklistItemProvider with ChangeNotifier, LoadingNotifier{
@@ -34,9 +30,12 @@ class ChecklistItemProvider with ChangeNotifier, LoadingNotifier{
 
   StreamSubscription<(bool delete, List<ChecklistItemDetailResponse> items)>? _subscription;
 
+  //same date & in this study!
   Map<int, ChecklistItemDetailResponse> _filteredMap = {};
   List<ChecklistItemDetailResponse> get filteredItems => _filteredMap.values.toList();
 
+  //same date
+  Map<int, List<ChecklistItemDetailResponse>> _todayItems = {};
 
   //--------------로딩---------------------------//
   bool _isLoading = false;
@@ -91,6 +90,22 @@ class ChecklistItemProvider with ChangeNotifier, LoadingNotifier{
   void _applyFiltering(List<ChecklistItemDetailResponse> newItems){
     log("applying Filter! studyId ${_study!.id}, date${_selectedDate!}", name: "ChecklistItemProvider");
 
+    //study_card를 위한 stats
+    final filteredByTodayDate = newItems.where((item) {
+      final sameDate = isSameDate(item.targetDate, _selectedDate!);
+      return sameDate;
+    }).toList();
+
+    _todayItems.clear();
+
+    for(final item in filteredByTodayDate) {
+      final studyId = item.studyId;
+      _todayItems.putIfAbsent(studyId, () => <ChecklistItemDetailResponse>[]).add(item);
+    }
+
+    notifyListeners();
+
+    //checklist_screen을 위한 stats
     final filtered = newItems.where((item) {
       final sameDate = isSameDate(item.targetDate, _selectedDate!);
       final inThisStudy = _study!.id == item.studyId;
@@ -303,6 +318,24 @@ class ChecklistItemProvider with ChangeNotifier, LoadingNotifier{
     for (int i = 0; i < group.items.length; i++) {
       group.items[i].orderIndex = i;
     }
+  }
+
+  //============= Study Progress ==============
+  double getProgress(int studyId){
+    final items = _todayItems[studyId] ?? [];
+    if (items.isEmpty) return 0.0;
+    final completed = items.where((i) => i.completed).length;
+    return completed / items.length;
+  }
+
+  Map<int, double> getProgressMap() {
+    final Map<int, double> map = {};
+    _todayItems.forEach((studyId, items){
+      if (items.isEmpty) return;
+      final completed = items.where((i) => i.completed).length;
+      map[studyId] = completed / items.length;
+    });
+    return map;
   }
 }
 
