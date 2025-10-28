@@ -4,7 +4,8 @@ import 'package:flutter/material.dart';
 import 'package:study_group_front_end/dto/member/detail/member_detail_response.dart';
 import 'package:study_group_front_end/dto/member/login/member_login_request.dart';
 import 'package:study_group_front_end/dto/member/signup/member_create_request.dart';
-import 'package:study_group_front_end/dto/member/update/member_update_request.dart';
+import 'package:study_group_front_end/dto/member/update/member_email_update_request.dart';
+import 'package:study_group_front_end/dto/member/update/member_user_name_update_request.dart';
 import 'package:study_group_front_end/providers/loading_notifier.dart';
 import 'package:study_group_front_end/api_service/auth_api_service.dart';
 import 'package:study_group_front_end/api_service/Auth/token_manager.dart';
@@ -63,10 +64,17 @@ class MeProvider with ChangeNotifier,LoadingNotifier {
     });
   }
 
-  Future<void> update(MemberUpdateRequest request) async {
+  Future<void> updateUserName(String userName) async {
     await runWithLoading(() async {
-      _currentMember = await meApiService.updateMyInfo(request);
+      _currentMember = await meApiService.updateUserName(userName);
        notifyListeners();
+    });
+  }
+
+  Future<void> updateUserEmail(String email) async {
+    await runWithLoading(() async {
+      _currentMember = await meApiService.updateEmail(email);
+      notifyListeners();
     });
   }
 

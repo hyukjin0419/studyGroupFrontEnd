@@ -2,6 +2,7 @@ import 'dart:developer';
 
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
+import 'package:study_group_front_end/screens/setting/edit_user_name_screen.dart';
 import 'package:study_group_front_end/screens/setting/me_screen.dart';
 import 'package:study_group_front_end/splash_screen.dart';
 import 'package:study_group_front_end/dto/study/detail/study_detail_response.dart';
@@ -108,8 +109,18 @@ final GoRouter router = GoRouter(
     GoRoute(
         path: '/settings/me',
         builder: (context, state) {
-
-          // final study = state.extra as StudyDetailResponse;
+          return MeScreen();
+        }
+    ),
+    GoRoute(
+        path: '/settings/me/edit-username',
+        builder: (context, state) {
+          return EditUserNameScreen();
+        }
+    ),
+    GoRoute(
+        path: '/settings/me/change-password',
+        builder: (context, state) {
           return MeScreen();
         }
     ),

@@ -1,9 +1,11 @@
 import 'dart:convert';
 
+import 'package:http/src/response.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:study_group_front_end/dto/member/delete/member_delete_response.dart';
 import 'package:study_group_front_end/dto/member/detail/member_detail_response.dart';
-import 'package:study_group_front_end/dto/member/update/member_update_request.dart';
+import 'package:study_group_front_end/dto/member/update/member_email_update_request.dart';
+import 'package:study_group_front_end/dto/member/update/member_user_name_update_request.dart';
 import 'package:study_group_front_end/api_service/base_api_service.dart';
 
 class MeApiService extends BaseApiService {
@@ -19,12 +21,25 @@ class MeApiService extends BaseApiService {
     }
   }
 
-  Future<MemberDetailResponse> updateMyInfo(MemberUpdateRequest request) async {
-    final response = await post(basePath, request.toJson);
+  Future<MemberDetailResponse> updateUserName(String userName) async {
+    final MemberUserNameUpdateRequest request = MemberUserNameUpdateRequest(userName: userName);
+    final response = await post("$basePath/update-user-name", request.toJson());
     if (response.statusCode == 200) {
       return MemberDetailResponse.fromJson(jsonDecode(response.body));
     } else {
-      throw Exception("내 정보 업데이트 실패");
+      var message = extractErrorMessageFromResponse(response);
+      throw Exception(message);
+    }
+  }
+
+  Future<MemberDetailResponse> updateEmail(String email) async {
+    final MemberEmailUpdateRequest request = MemberEmailUpdateRequest(email: email);
+    final response = await post("$basePath/update-email", request.toJson());
+    if (response.statusCode == 200) {
+      return MemberDetailResponse.fromJson(jsonDecode(response.body));
+    } else {
+      var message = extractErrorMessageFromResponse(response);
+      throw Exception(message);
     }
   }
 
@@ -35,5 +50,11 @@ class MeApiService extends BaseApiService {
     } else {
       throw Exception('내 회원 탈퇴 실패');
     }
+  }
+
+  extractErrorMessageFromResponse(Response response) {
+    final body = jsonDecode(response.body);
+    final message = body['message'];
+    return message;
   }
 }

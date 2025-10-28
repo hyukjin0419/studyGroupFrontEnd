@@ -38,7 +38,7 @@ class MeScreen extends StatelessWidget {
               children: [
                 _buildInfoTile(
                   icon: Icons.person_outline,
-                  title: '유저네임',
+                  title: '아이디',
                   value:
                   currentUser?.userName ??
                       '',
