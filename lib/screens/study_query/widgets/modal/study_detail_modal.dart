@@ -80,7 +80,7 @@ Future<void> showStudyDetailModal({
                       context,
                       '팀원',
                       study.personalColor,
-                      study.members.map((member) => member.userName).toList(),
+                      study.members.map((member) => member.displayName).toList(),
                     ),
                     const SizedBox(height: 8),
                     Divider(

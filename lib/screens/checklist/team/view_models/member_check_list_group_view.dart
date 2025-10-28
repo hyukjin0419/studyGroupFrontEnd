@@ -105,7 +105,7 @@ class _MemberChecklistGroupViewState extends State<MemberChecklistGroupView> {
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               MemberHeaderChip(
-                name: group.memberName,
+                name: group.memberDisplayName,
                 color: _personalColor,
                 onAddPressed: () => _startEditing(group.studyMemberId),
               ),

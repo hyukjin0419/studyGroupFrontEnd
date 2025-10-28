@@ -38,12 +38,12 @@ class MeScreen extends StatelessWidget {
               children: [
                 _buildInfoTile(
                   icon: Icons.person_outline,
-                  title: '아이디',
+                  title: '유저네임',
                   value:
-                  currentUser?.userName ??
+                  currentUser?.displayName ??
                       '',
                   onTap: () {
-                    context.push('/settings/me/edit-username');
+                    context.push('/settings/me/edit-displayName');
                   },
                 ),
                 _buildInfoTile(

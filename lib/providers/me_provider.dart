@@ -64,9 +64,9 @@ class MeProvider with ChangeNotifier,LoadingNotifier {
     });
   }
 
-  Future<void> updateUserName(String userName) async {
+  Future<void> updateDisplayName(String userName) async {
     await runWithLoading(() async {
-      _currentMember = await meApiService.updateUserName(userName);
+      _currentMember = await meApiService.updateDisplayName(userName);
        notifyListeners();
     });
   }

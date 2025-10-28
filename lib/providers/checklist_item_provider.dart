@@ -131,7 +131,7 @@ class ChecklistItemProvider with ChangeNotifier, LoadingNotifier{
       for (var sm in _studyMembers)
         sm.studyMemberId : MemberChecklistGroupVM(
           studyMemberId: sm.studyMemberId,
-          memberName: sm.userName,
+          memberDisplayName: sm.displayName,
           items: [],
         )
     };
@@ -144,7 +144,7 @@ class ChecklistItemProvider with ChangeNotifier, LoadingNotifier{
       for (var sm in _studyMembers)
         sm.studyMemberId : MemberChecklistGroupVM(
           studyMemberId: sm.studyMemberId,
-          memberName: sm.userName,
+          memberDisplayName: sm.displayName,
           items: [],
         )
     };

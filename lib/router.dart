@@ -114,9 +114,9 @@ final GoRouter router = GoRouter(
         }
     ),
     GoRoute(
-        path: '/settings/me/edit-username',
+        path: '/settings/me/edit-displayName',
         builder: (context, state) {
-          return EditUserNameScreen();
+          return EditDisplayNameScreen();
         }
     ),
     GoRoute(

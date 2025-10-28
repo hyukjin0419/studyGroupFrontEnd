@@ -1,13 +1,13 @@
 
 
-class MemberUserNameUpdateRequest {
-  final String userName;
+class MemberUserDisplayNameRequest {
+  final String displayName;
 
-  MemberUserNameUpdateRequest({
-    required this.userName,
+  MemberUserDisplayNameRequest({
+    required this.displayName,
   });
 
   Map<String, dynamic> toJson() => {
-    'userName': userName,
+    'displayName': displayName,
   };
 }

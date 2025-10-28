@@ -21,8 +21,8 @@ class MeApiService extends BaseApiService {
     }
   }
 
-  Future<MemberDetailResponse> updateUserName(String userName) async {
-    final MemberUserNameUpdateRequest request = MemberUserNameUpdateRequest(userName: userName);
+  Future<MemberDetailResponse> updateDisplayName(String userName) async {
+    final MemberUserDisplayNameRequest request = MemberUserDisplayNameRequest(displayName: userName);
     final response = await post("$basePath/update-user-name", request.toJson());
     if (response.statusCode == 200) {
       return MemberDetailResponse.fromJson(jsonDecode(response.body));

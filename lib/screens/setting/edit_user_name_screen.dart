@@ -4,14 +4,14 @@ import 'package:study_group_front_end/providers/me_provider.dart';
 import 'package:study_group_front_end/providers/study_provider.dart';
 import 'package:study_group_front_end/snack_bar/show_error_snackbar.dart';
 
-class EditUserNameScreen extends StatefulWidget {
-  const EditUserNameScreen({super.key});
+class EditDisplayNameScreen extends StatefulWidget {
+  const EditDisplayNameScreen({super.key});
 
   @override
-  State<EditUserNameScreen> createState() => _EditUserNameScreenState();
+  State<EditDisplayNameScreen> createState() => _EditUserDisplayScreenState();
 }
 
-class _EditUserNameScreenState extends State<EditUserNameScreen> {
+class _EditUserDisplayScreenState extends State<EditDisplayNameScreen> {
   final _controller = TextEditingController();
   final _formKey = GlobalKey<FormState>();
   bool _isLoading = false;
@@ -20,7 +20,7 @@ class _EditUserNameScreenState extends State<EditUserNameScreen> {
   void initState() {
     super.initState();
     final currentUser = context.read<MeProvider>().currentMember;
-    _controller.text = currentUser?.userName ?? '';
+    _controller.text = currentUser?.displayName ?? '';
   }
 
   @override
@@ -65,7 +65,7 @@ class _EditUserNameScreenState extends State<EditUserNameScreen> {
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   const Text(
-                    '새 아이디',
+                    '새 유저네임',
                     style: TextStyle(
                       fontSize: 14,
                       fontWeight: FontWeight.w600,
@@ -79,7 +79,7 @@ class _EditUserNameScreenState extends State<EditUserNameScreen> {
                       controller: _controller,
                       autofocus: true,
                       decoration: InputDecoration(
-                        hintText: '사용하실 새로운 아이디를 입력하세요.',
+                        hintText: '사용하실 새로운 유저네임을 입력해주세요.',
                         filled: true,
                         fillColor: Colors.white,
                         border: OutlineInputBorder(
@@ -96,7 +96,7 @@ class _EditUserNameScreenState extends State<EditUserNameScreen> {
                       ),
                       validator: (value) {
                         if (value == null || value.trim().isEmpty) {
-                          return '유저네임을 입력해주세요';
+                          return '사용하실 새로운 유저네임을 입력해주세요';
                         }
                         if (value.length < 2) {
                           return '유저네임은 2자 이상이어야 합니다';
@@ -113,7 +113,7 @@ class _EditUserNameScreenState extends State<EditUserNameScreen> {
               width: double.infinity,
               height: 50,
               child: ElevatedButton(
-                onPressed: _isLoading ? null : _saveUsername,
+                onPressed: _isLoading ? null : _saveDisplayName,
                 style: ElevatedButton.styleFrom(
                   backgroundColor: const Color(0xFF00BFA5),
                   shape: RoundedRectangleBorder(
@@ -138,16 +138,16 @@ class _EditUserNameScreenState extends State<EditUserNameScreen> {
     );
   }
 
-  Future<void> _saveUsername() async {
+  Future<void> _saveDisplayName() async {
     if (!_formKey.currentState!.validate()) return;
 
     setState(() => _isLoading = true);
 
     try {
-      await context.read<MeProvider>().updateUserName(_controller.text);
+      await context.read<MeProvider>().updateDisplayName(_controller.text);
       await context.read<StudyProvider>().getMyStudies();
       if (mounted) {
-        showSuccessSnackBar(context, "아이디가 업데이트 되었습니다!","새로운 아이디으로 다른 사용자에게 표시됩니다");
+        showSuccessSnackBar(context, "사용자 유저네임이 업데이트 되었습니다!","새로운 유저네임으로 다른 사용자에게 표시됩니다");
         Navigator.pop(context);
       }
 
