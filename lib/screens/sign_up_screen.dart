@@ -31,7 +31,7 @@ class _SignUpScreenState extends State<SignUpScreen> {
         MemberCreateRequest(userName: _userName, password: _password, email: _email),
       );
 
-      if (mounted) context.go('/studies');
+      if (mounted) context.go('/login');
     } catch (e) {
       String errorMessage;
 
