@@ -108,7 +108,6 @@ Future<void> showStudyDetailModal({
                 //Todo: 상세정보 보기
                 isLeader: isLeader,
                 onDetailPressed: () {
-                  // context.push('/studies/${study.id}');
                   context.push(
                     '/studies/${study.id}/update',
                     extra: StudyUpdateRequest(
@@ -121,7 +120,6 @@ Future<void> showStudyDetailModal({
                   Navigator.of(context).pop();
                 },
                 onDeletePressed: () {
-                  Navigator.of(context).pop();
                   _confirmAndDeleteStudy(context, study.id, study.personalColor);
                 },
                 onLeavePressed: () {
@@ -246,17 +244,19 @@ Future<void> _confirmAndDeleteStudy(BuildContext context, int studyId, String co
 
   if (confirmed != true) return;
 
-  if (context.mounted) {
-    Navigator.of(context).pop();
-  }
-
   try {
-    await context.read<StudyProvider>().deleteStudy(studyId);
+    log("ui단 호출");
+    final studyProvider = context.read<StudyProvider>();
+    log("Provider 찾음: ${studyProvider.runtimeType}");
+    await studyProvider.deleteStudy(studyId);
+
     if (context.mounted) {
       ScaffoldMessenger.of(context).showSnackBar(
         const SnackBar(content: Text('스터디가 삭제되었습니다.')),
       );
     }
+
+    Navigator.of(context).pop();
   } catch (e) {
     if (context.mounted) {
       ScaffoldMessenger.of(context).showSnackBar(
