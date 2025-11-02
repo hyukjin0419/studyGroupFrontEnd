@@ -5,12 +5,14 @@ class MemberDetailResponse extends BaseResDto {
   final String userName;
   final String displayName;
   final String email;
+  final bool emailVerified;
 
   MemberDetailResponse({
     required this.id,
     required this.userName,
     required this.displayName,
     required this.email,
+    required this.emailVerified,
     super.createdAt,
     super.modifiedAt,
   });
@@ -21,6 +23,7 @@ class MemberDetailResponse extends BaseResDto {
       userName: json['userName'],
       displayName: json['displayName'],
       email: json['email'],
+      emailVerified: json['emailVerified'],
       createdAt: json['createdAt'] != null
           ? DateTime.parse(json['createdAt'])
           : null,

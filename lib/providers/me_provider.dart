@@ -98,4 +98,8 @@ class MeProvider with ChangeNotifier,LoadingNotifier {
       notifyListeners();
     });
   }
+
+  Future<void> sendEmailVerification(String email) async {
+    await authApiService.sendEmailVerification(email);
+  }
 }

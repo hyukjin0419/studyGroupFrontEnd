@@ -50,6 +50,7 @@ class MeScreen extends StatelessWidget {
                   icon: Icons.email_outlined,
                   title: '이메일',
                   value: currentUser?.email ?? '',
+                  isVerified: currentUser?.emailVerified ?? true,
                   onTap: () {
                     context.push('/settings/me/edit-email');
                   },
@@ -75,6 +76,7 @@ class MeScreen extends StatelessWidget {
     required String title,
     required String value,
     required VoidCallback onTap,
+    bool isVerified = true,
   }) {
     return Container(
       margin: const EdgeInsets.only(bottom: 12),
@@ -113,6 +115,14 @@ class MeScreen extends StatelessWidget {
                   ],
                 ),
               ),
+              if (!isVerified) ...[
+                const Icon(
+                  Icons.warning_amber_rounded,
+                  color: Colors.amber,
+                  size: 20,
+                ),
+                const SizedBox(width: 8),
+              ],
               Icon(
                 Icons.chevron_right,
                 color: Colors.grey[400],

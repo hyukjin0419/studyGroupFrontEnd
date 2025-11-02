@@ -52,6 +52,7 @@ class MeApiService extends BaseApiService {
     }
   }
 
+
   extractErrorMessageFromResponse(Response response) {
     final body = jsonDecode(response.body);
     final message = body['message'];
