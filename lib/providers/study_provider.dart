@@ -53,7 +53,7 @@ class StudyProvider with ChangeNotifier, LoadingNotifier {
     try {
       await runWithLoading(() async {
         await repository.createStudy(request);
-        // _studies = await repository.fetchMyStudies();
+        _studies = await repository.fetchMyStudies();
       });
       notifyListeners();
     } catch (e) {

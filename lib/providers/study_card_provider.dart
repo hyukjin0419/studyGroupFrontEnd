@@ -65,7 +65,7 @@ class StudyCardProvider with ChangeNotifier {
       return "오늘 할 일 완료!";
     }
 
-    if (dueDate == null) return "Progressing";
+    if (dueDate == null) return "진행 중";
 
     final now = DateTime.now();
     final diff = dueDate.difference(now).inDays;
