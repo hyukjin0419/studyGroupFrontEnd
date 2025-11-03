@@ -87,36 +87,38 @@ class _MemberChecklistGroupViewState extends State<MemberChecklistGroupView> {
       return _buildEmptyState();
     }
 
-    return GestureDetector(
-      behavior: HitTestBehavior.translucent,
-      onTap: _quitEditing,
-      child: ListView.separated(
-        controller: _scrollController,
-        shrinkWrap: true,
-        physics: const NeverScrollableScrollPhysics(),
-        padding: const EdgeInsets.fromLTRB(22, 8, 16, 24),
-        itemCount: groups.length,
-        separatorBuilder: (_, __) => const SizedBox.shrink(),
-        itemBuilder: (context, i) {
-          final group = groups[i];
-          final isEditing = (_editingMemberId == group.studyMemberId);
+    return Center(
+      child: GestureDetector(
+        behavior: HitTestBehavior.translucent,
+        onTap: _quitEditing,
+        child: ListView.separated(
+          controller: _scrollController,
+          shrinkWrap: true,
+          physics: const NeverScrollableScrollPhysics(),
+          padding: const EdgeInsets.fromLTRB(22, 8, 16, 24),
+          itemCount: groups.length,
+          separatorBuilder: (_, __) => const SizedBox.shrink(),
+          itemBuilder: (context, i) {
+            final group = groups[i];
+            final isEditing = (_editingMemberId == group.studyMemberId);
 
-          return Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              MemberHeaderChip(
-                name: group.memberDisplayName,
-                color: _personalColor,
-                onAddPressed: () => _startEditing(group.studyMemberId),
-              ),
-              const SizedBox(height: 10),
+            return Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                MemberHeaderChip(
+                  name: group.memberDisplayName,
+                  color: _personalColor,
+                  onAddPressed: () => _startEditing(group.studyMemberId),
+                ),
+                const SizedBox(height: 10),
 
-              _buildChecklistItems(group, isEditing),
+                _buildChecklistItems(group, isEditing),
 
-              if (isEditing) _buildNewItemInputField(group.studyMemberId),
-            ],
-          );
-        },
+                if (isEditing) _buildNewItemInputField(group.studyMemberId),
+              ],
+            );
+          },
+        ),
       ),
     );
   }

@@ -72,7 +72,7 @@ class ChecklistItemProvider with ChangeNotifier, LoadingNotifier{
     });
 
     _setLoading(true);
-    await repository.fetchChecklistByWeek(date: _selectedDate!,studyId: _study!.id);
+    await repository.fetchChecklistByWeek(date: _selectedDate!,studyId: _study!.id, force: true);
   }
 
   Future<void> updateSelectedDate(DateTime newDate) async {
@@ -86,6 +86,12 @@ class ChecklistItemProvider with ChangeNotifier, LoadingNotifier{
     }
   }
 
+
+  Future<void> fetchChecklistByWeek() async {
+    _setLoading(true);
+    await repository.fetchChecklistByWeek(date: _selectedDate!,studyId: _study!.id,force: true);
+    _setLoading(false);
+  }
 
   void _applyFiltering(List<ChecklistItemDetailResponse> newItems){
     log("applying Filter! studyId ${_study!.id}, date${_selectedDate!}", name: "ChecklistItemProvider");

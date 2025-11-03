@@ -166,6 +166,12 @@ class PersonalChecklistProvider with ChangeNotifier, LoadingNotifier {
     notifyListeners();
   }
 
+  Future<void> fetchChecklistByWeek() async {
+    _setLoading(true);
+    await repository.fetchChecklistByWeek(date: _selectedDate!, memberId: _currentMemberId, force: true);
+    _setLoading(false);
+  }
+
   //========================== Grouping =========================
   void clearGroups() {
     final Map<int, PersonalCheckListGroupVM> groupMap = {

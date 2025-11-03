@@ -48,25 +48,38 @@ class _ChecklistScreenState extends State<ChecklistScreen> {
           },
         ),
       ),
-      body: SingleChildScrollView(
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            StudyHeaderCard(study: widget.study),     // 🧾 스터디 카드
-            WeeklyCalendar(                           // 달력
-              study: widget.study,
-              initialSelectedDay: provider.selectedDate,
-              onDaySelected: (date) {
-                log(" 날짜: $date",name: "ChecklistScreen");
-                _checklistItemProvider.updateSelectedDate(date);
-              },
-            ),
-            const SizedBox(height: 12),
-            MemberChecklistGroupView(
-              study: widget.study,
-              selectedDate: provider.selectedDate!,
-            ),
-          ],
+      body: RefreshIndicator(
+        // 로딩 색상 숨김
+        displacement: 100,
+        color: Colors.transparent,
+        backgroundColor: Colors.transparent,
+        elevation: 0,
+        strokeWidth: 0.1,
+        onRefresh: () async {
+          final provider = context.read<ChecklistItemProvider>();
+          await provider.fetchChecklistByWeek();
+        },
+        child: SingleChildScrollView(
+          physics: const AlwaysScrollableScrollPhysics(),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              StudyHeaderCard(study: widget.study),     // 🧾 스터디 카드
+              WeeklyCalendar(                           // 달력
+                study: widget.study,
+                initialSelectedDay: provider.selectedDate,
+                onDaySelected: (date) {
+                  log(" 날짜: $date",name: "ChecklistScreen");
+                  _checklistItemProvider.updateSelectedDate(date);
+                },
+              ),
+              const SizedBox(height: 12),
+              MemberChecklistGroupView(
+                study: widget.study,
+                selectedDate: provider.selectedDate!,
+              ),
+            ],
+          ),
         ),
       ),
     );

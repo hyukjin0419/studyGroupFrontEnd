@@ -48,10 +48,10 @@ class StudyHeaderCard extends StatelessWidget {
                           overflow: TextOverflow.ellipsis,
                         ),
                       ),
-                      const Icon(
-                        Icons.more_vert,
-                        size: 20,
-                      )
+                      // const Icon(
+                      //   Icons.more_vert,
+                      //   size: 20,
+                      // )
                     ],
                   ),
                   const SizedBox(height: 12),
