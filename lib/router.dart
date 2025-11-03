@@ -4,6 +4,7 @@ import 'package:study_group_front_end/dto/study/detail/study_detail_response.dar
 import 'package:study_group_front_end/dto/study/update/study_update_request.dart';
 import 'package:study_group_front_end/screens/auth/find_username_screen.dart';
 import 'package:study_group_front_end/screens/auth/login_screen.dart';
+import 'package:study_group_front_end/screens/auth/reset_password_screen.dart';
 import 'package:study_group_front_end/screens/auth/sign_up_screen.dart';
 import 'package:study_group_front_end/screens/checklist/personal/personal_screen.dart';
 import 'package:study_group_front_end/screens/checklist/team/checklist_screen.dart';
@@ -40,6 +41,10 @@ final GoRouter router = GoRouter(
     GoRoute(
       path: '/find-username',
       builder: (context, state) => const FindUsernameScreen(),
+    ),
+    GoRoute(
+      path: '/reset-password',
+      builder: (context, state) => const ResetPasswordScreen(),
     ),
 //==========================ShellRoute START==============================//
     ShellRoute(

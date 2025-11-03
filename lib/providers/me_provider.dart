@@ -106,4 +106,8 @@ class MeProvider with ChangeNotifier,LoadingNotifier {
   Future<void> sendIdRemainderEmail(String email) async {
     await authApiService.sendIdRemainderEmail(email);
   }
+
+  Future<void> sendPasswordResetEmail(String email) async {
+    await authApiService.sendPasswordResetEmail(email);
+  }
 }

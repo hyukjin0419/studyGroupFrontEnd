@@ -91,7 +91,7 @@ class _SignUpScreenState extends State<SignUpScreen> {
                 obscureText: true,
                 onSaved: (val) => _password = val!.trim(),
                 validator: (val) =>
-                (val == null || val.length < 6) ? '6자 이상 입력하세요' : null,
+                (val == null || val.length < 8) ? '8자 이상 입력하세요' : null,
               ),
               const SizedBox(height: 24),
               _isLoading

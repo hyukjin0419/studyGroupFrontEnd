@@ -5,14 +5,14 @@ import 'package:study_group_front_end/providers/me_provider.dart';
 import 'package:study_group_front_end/snack_bar/show_error_snackbar.dart';
 import 'package:study_group_front_end/util/color_converters.dart';
 
-class FindUsernameScreen extends StatefulWidget {
-  const FindUsernameScreen({super.key});
+class ResetPasswordScreen extends StatefulWidget {
+  const ResetPasswordScreen({super.key});
 
   @override
-  State<FindUsernameScreen> createState() => _FindUsernameScreenState();
+  State<ResetPasswordScreen> createState() => _ResetPasswordScreenState();
 }
 
-class _FindUsernameScreenState extends State<FindUsernameScreen> {
+class _ResetPasswordScreenState extends State<ResetPasswordScreen> {
   final _emailController = TextEditingController();
   final FocusNode _emailFocus = FocusNode();
   bool _isLoading = false;
@@ -51,9 +51,8 @@ class _FindUsernameScreenState extends State<FindUsernameScreen> {
                     ),
                   ),
                   const SizedBox(height: 40),
-                  // 아이디 찾기 제목
                   Text(
-                    '아이디 찾기',
+                    '비밀번호 찾기',
                     textAlign: TextAlign.center,
                     style: Theme.of(context).textTheme.bodyMedium?.copyWith(
                       color: hexToColor("0xFF1B325E"),
@@ -62,7 +61,7 @@ class _FindUsernameScreenState extends State<FindUsernameScreen> {
                   ),
                   const SizedBox(height: 10),
                   Text(
-                    '가입 시 등록한 이메일로\n아이디를 발송해드립니다',
+                    '가입 시 등록한 이메일로\n비밀번호 재설정 링크를 발송해드립니다',
                     textAlign: TextAlign.center,
                     style: Theme.of(context).textTheme.bodyMedium?.copyWith(
                       color: Colors.grey[600],
@@ -96,6 +95,11 @@ class _FindUsernameScreenState extends State<FindUsernameScreen> {
                                 borderRadius: BorderRadius.circular(8),
                                 borderSide: BorderSide.none,
                               ),
+                              // error: null,
+                              // errorText: null,
+                              // errorBorder: null,
+                              // errorMaxLines: null,
+                              // errorStyle: const TextStyle(height: 0),
                               contentPadding: const EdgeInsets.symmetric(
                                 vertical: 10,
                                 horizontal: 12,
@@ -249,7 +253,7 @@ class _FindUsernameScreenState extends State<FindUsernameScreen> {
 
     try {
       // TODO: 아이디 찾기 API 호출
-      await context.read<MeProvider>().sendIdRemainderEmail(_emailController.text);
+      await context.read<MeProvider>().sendPasswordResetEmail(_emailController.text);
 
       // 임시로 2초 대기 (실제 API 호출 시뮬레이션)
       await Future.delayed(const Duration(seconds: 2));

@@ -158,11 +158,9 @@ class _LoginScreenState extends State<LoginScreen> {
                           child: Row(
                             mainAxisAlignment: MainAxisAlignment.spaceBetween,
                             children: [
-                              //TODO: 아이디 찾기
                               TextButton(onPressed: () => context.push('/find-username'), child: const Text('아이디 찾기')),
                               Text(' | ', style: Theme.of(context).textTheme.bodySmall),
-                              //TODO: 비밀번호 찾기
-                              TextButton(onPressed: () {}, child: const Text('비밀번호 찾기')),
+                              TextButton(onPressed: () => context.push('/reset-password'), child: const Text('비밀번호 찾기')),
                               const Spacer(),
                               TextButton(onPressed: () => context.go('/signup'), child: const Text('회원가입')),
                             ],

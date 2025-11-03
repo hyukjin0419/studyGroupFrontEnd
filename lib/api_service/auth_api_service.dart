@@ -87,4 +87,18 @@ class AuthApiService extends BaseApiService {
       throw Exception(message);
     }
   }
+
+  Future<void> sendPasswordResetEmail(String email) async {
+    final response = await post(
+        '$basePath/email/password-reset/request?email=$email',
+        null
+    );
+    if (response.statusCode == 200) {
+      return;
+    } else {
+      var message = extractErrorMessageFromResponse(response);
+      throw Exception(message);
+    }
+  }
+
 }
