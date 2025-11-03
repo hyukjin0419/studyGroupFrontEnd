@@ -1,25 +1,24 @@
-import 'dart:developer';
-
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
+import 'package:study_group_front_end/dto/study/detail/study_detail_response.dart';
+import 'package:study_group_front_end/dto/study/update/study_update_request.dart';
+import 'package:study_group_front_end/screens/auth/find_username_screen.dart';
+import 'package:study_group_front_end/screens/auth/login_screen.dart';
+import 'package:study_group_front_end/screens/auth/sign_up_screen.dart';
+import 'package:study_group_front_end/screens/checklist/personal/personal_screen.dart';
+import 'package:study_group_front_end/screens/checklist/team/checklist_screen.dart';
+import 'package:study_group_front_end/screens/common_widgets/custom_bottom_navigation_bar.dart';
 import 'package:study_group_front_end/screens/setting/edit_email_screen.dart';
 import 'package:study_group_front_end/screens/setting/edit_user_name_screen.dart';
 import 'package:study_group_front_end/screens/setting/me_screen.dart';
-import 'package:study_group_front_end/splash_screen.dart';
-import 'package:study_group_front_end/dto/study/detail/study_detail_response.dart';
-import 'package:study_group_front_end/dto/study/update/study_update_request.dart';
-import 'package:study_group_front_end/screens/checklist/team/checklist_screen.dart';
-import 'package:study_group_front_end/screens/common_widgets/custom_bottom_navigation_bar.dart';
-import 'package:study_group_front_end/screens/login_screen.dart';
-import 'package:study_group_front_end/screens/checklist/personal/personal_screen.dart';
 import 'package:study_group_front_end/screens/setting/setting_screen.dart';
-import 'package:study_group_front_end/screens/sign_up_screen.dart';
+import 'package:study_group_front_end/screens/study_command/study_create_screen.dart';
 import 'package:study_group_front_end/screens/study_command/study_update_screen.dart';
 import 'package:study_group_front_end/screens/study_query/studies_screen.dart';
 import 'package:study_group_front_end/screens/study_query/study_detail_screen.dart';
 import 'package:study_group_front_end/screens/study_query/study_invitation_screen.dart';
 import 'package:study_group_front_end/screens/study_query/study_join_screen_with_qr.dart';
-import 'package:study_group_front_end/screens/study_command/study_create_screen.dart';
+import 'package:study_group_front_end/splash_screen.dart';
 import 'package:study_group_front_end/util/navigator_key.dart';
 
 final GoRouter router = GoRouter(
@@ -37,6 +36,10 @@ final GoRouter router = GoRouter(
     GoRoute(
       path: '/signup',
       builder: (context, state) => const SignUpScreen(),
+    ),
+    GoRoute(
+      path: '/find-username',
+      builder: (context, state) => const FindUsernameScreen(),
     ),
 //==========================ShellRoute START==============================//
     ShellRoute(
