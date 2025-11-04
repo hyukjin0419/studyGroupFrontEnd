@@ -162,9 +162,9 @@ class _MemberChecklistGroupViewState extends State<MemberChecklistGroupView> {
         provider.setHoveredItem(dragged.data.id);
         provider.moveItem(
           item: dragged.data,
-          fromMemberId: dragged.data.studyMemberId,
+          fromStudyMemberId: dragged.data.studyMemberId,
           fromIndex: provider.getIndexOf(dragged.data),
-          toMemberId: g.studyMemberId,
+          toStudyMemberId: g.studyMemberId,
           toIndex: 0,
         );
         return true;
@@ -202,9 +202,9 @@ class _MemberChecklistGroupViewState extends State<MemberChecklistGroupView> {
         provider.setHoveredItem(item.id);
         provider.moveItem(
           item: dragged.data,
-          fromMemberId: dragged.data.studyMemberId,
+          fromStudyMemberId: dragged.data.studyMemberId,
           fromIndex: provider.getIndexOf(dragged.data),
-          toMemberId: g.studyMemberId,
+          toStudyMemberId: g.studyMemberId,
           toIndex: index,
         );
         return true;
@@ -353,6 +353,8 @@ class _MemberChecklistGroupViewState extends State<MemberChecklistGroupView> {
   Future<void> _reorderChecklists() async {
     final provider = context.read<ChecklistItemProvider>();
     final requests = provider.buildReorderRequests();
+
+    provider.updateCacheAfterReorder(requests);
 
     try {
       await provider.reorderChecklistItem(requests);

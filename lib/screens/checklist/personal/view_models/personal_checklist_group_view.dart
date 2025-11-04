@@ -344,6 +344,8 @@ class _PersonalChecklistGroupViewState extends State<PersonalChecklistGroupView>
     final provider = context.read<PersonalChecklistProvider>();
     final requests = provider.buildReorderRequests();
 
+    provider.updateCacheAfterReorder(requests);
+
     try {
       await provider.reorderChecklistItem(requests);
     } catch (e) {

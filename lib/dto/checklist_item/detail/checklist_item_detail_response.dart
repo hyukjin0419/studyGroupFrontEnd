@@ -2,7 +2,7 @@ class ChecklistItemDetailResponse {
   final int id;
   final String type; // ChecklistItemType enum as String
   int studyId;
-  final int memberId;
+  int memberId;
   final int? tempId;
   int studyMemberId;
   final String? studyName;

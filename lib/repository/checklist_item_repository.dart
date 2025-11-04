@@ -229,6 +229,22 @@ class InMemoryChecklistItemRepository{
     }
   }
 
+  void updateCacheAfterReorder(List<ChecklistItemDetailResponse> reorderedItems, DateTime date){
+    for (final item in reorderedItems) {
+      _cache.removeWhere((key, value) => value?.id == item.id);
+
+      final newKey = _studyIdMemberIdChecklistIdDateKey(
+        studyId: item.studyId,
+        memberId: item.memberId,
+        checklistId: item.id,
+        date: item.targetDate,
+      );
+      _cache[newKey] = item;
+    }
+
+    _emitFromCache(delete: true);
+  }
+
   Future<void> reorder(List<ChecklistItemDetailResponse> items, DateTime date) async {
     try {
       final requests = items
@@ -245,6 +261,8 @@ class InMemoryChecklistItemRepository{
             date: date);
         _cache[key] = item;
       }
+
+      _emitFromCache(delete: true);
     } catch (e, stackTrace) {
 
       log("createdChecklistItem error $e", name: "InMemoryChecklistItemRepository");

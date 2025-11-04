@@ -21,6 +21,13 @@ class ChecklistItemProvider with ChangeNotifier, LoadingNotifier{
   List<StudyMemberSummaryResponse> _studyMembers = [];
   void setStudyMembers(List<StudyMemberSummaryResponse> members) => (_studyMembers = members);
 
+  Map<int, int> get _studyMemberToMemberMap {
+    return {
+      for (final sm in _studyMembers)
+        sm.studyMemberId: sm.memberId,
+    };
+  }
+
   StudyDetailResponse? _study;
   StudyDetailResponse? get study => _study;
   void updateStudy(StudyDetailResponse? study) => _study = study;
@@ -253,11 +260,13 @@ class ChecklistItemProvider with ChangeNotifier, LoadingNotifier{
   }
 
   Future<void> reorderChecklistItem(List<ChecklistItemDetailResponse> requests) async {
+    log("reorderChecklistItem 호출");
     await repository.reorder(requests, _selectedDate!);
     notifyListeners();
   }
 
   List<ChecklistItemDetailResponse> buildReorderRequests() {
+    log("buildReorderRequests 호출");
     return _groups.expand((group) {
       return group.items
           .asMap()
@@ -268,6 +277,10 @@ class ChecklistItemProvider with ChangeNotifier, LoadingNotifier{
         return item;
       });
     }).toList();
+  }
+
+  void updateCacheAfterReorder(List<ChecklistItemDetailResponse> reorderedItems){
+    repository.updateCacheAfterReorder(reorderedItems, _selectedDate!);
   }
 
   // ================= Drag & Drop =================
@@ -291,17 +304,21 @@ class ChecklistItemProvider with ChangeNotifier, LoadingNotifier{
 
   void moveItem({
     required ChecklistItemDetailResponse item,
-    required int fromMemberId,
+    required int fromStudyMemberId,
     required int fromIndex,
-    required int toMemberId,
+    required int toStudyMemberId,
     required int toIndex,
   }) {
-    final fromGroup = _groups.firstWhere((g) => g.studyMemberId == fromMemberId);
-    final toGroup   = _groups.firstWhere((g) => g.studyMemberId == toMemberId);
+    log("move Item 호출");
+    final toMemberId = _studyMemberToMemberMap[toStudyMemberId];
+
+    final fromGroup = _groups.firstWhere((g) => g.studyMemberId == fromStudyMemberId);
+    final toGroup   = _groups.firstWhere((g) => g.studyMemberId == toStudyMemberId);
 
     fromGroup.items.removeAt(fromIndex);
 
-    item.studyMemberId = toMemberId;
+    item.studyMemberId = toStudyMemberId;
+    item.memberId = toMemberId!;
 
     toGroup.items.insert(toIndex, item);
 

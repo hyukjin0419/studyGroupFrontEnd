@@ -31,8 +31,7 @@ class PersonalChecklistProvider with ChangeNotifier, LoadingNotifier {
 
   DateTime? get selectedDate => _selectedDate;
 
-  StreamSubscription<
-      (bool delete, List<ChecklistItemDetailResponse> items)>? _subscription;
+  StreamSubscription<(bool delete, List<ChecklistItemDetailResponse> items)>? _subscription;
 
   List<PersonalCheckListGroupVM> _groups = [];
 
@@ -179,6 +178,7 @@ class PersonalChecklistProvider with ChangeNotifier, LoadingNotifier {
         s.id: PersonalCheckListGroupVM(
           studyId: s.id,
           studyName: s.name,
+          studyMemberId: s.members.firstWhere((m) => m.memberId == _currentMemberId).studyMemberId,
           items: [],
         ),
     };
@@ -190,9 +190,11 @@ class PersonalChecklistProvider with ChangeNotifier, LoadingNotifier {
   void _updateGroups(List<ChecklistItemDetailResponse> items) {
     final Map<int, PersonalCheckListGroupVM> groupMap = {
       for (var s in _myStudies)
+        // log("mystudy : ${s.name}"),
         s.id: PersonalCheckListGroupVM(
           studyId: s.id,
           studyName: s.name,
+          studyMemberId: s.members.firstWhere((m) => m.memberId == _currentMemberId).studyMemberId,
           items: [],
         ),
     };
@@ -204,6 +206,7 @@ class PersonalChecklistProvider with ChangeNotifier, LoadingNotifier {
             PersonalCheckListGroupVM(
               studyId: item.studyId,
               studyName: item.studyName,
+              studyMemberId: item.studyMemberId,
               items: [],
             ),
       );
@@ -226,7 +229,6 @@ class PersonalChecklistProvider with ChangeNotifier, LoadingNotifier {
     }
   }
 
-//TODO CRUD Provider
   // =============================== CRUD (Optimistic) ===========================//
 
   Future<void> createPersonalChecklist(int studyId, String content) async {
@@ -295,7 +297,7 @@ class PersonalChecklistProvider with ChangeNotifier, LoadingNotifier {
   }
 
   Future<void> reorderChecklistItem(
-      List<ChecklistItemDetailResponse> requests) async {
+    List<ChecklistItemDetailResponse> requests) async {
     await repository.reorder(requests, _selectedDate!);
     notifyListeners();
   }
@@ -311,6 +313,10 @@ class PersonalChecklistProvider with ChangeNotifier, LoadingNotifier {
         return item;
       });
     }).toList();
+  }
+
+  void updateCacheAfterReorder(List<ChecklistItemDetailResponse> reorderedItems){
+    repository.updateCacheAfterReorder(reorderedItems, _selectedDate!);
   }
 
 // ================= Drag & Drop =================
@@ -345,6 +351,7 @@ class PersonalChecklistProvider with ChangeNotifier, LoadingNotifier {
     fromGroup.items.removeAt(fromIndex);
 
     item.studyId = toStudyId;
+    item.studyMemberId = toGroup.studyMemberId;
 
     toGroup.items.insert(toIndex, item);
 
@@ -354,8 +361,6 @@ class PersonalChecklistProvider with ChangeNotifier, LoadingNotifier {
     }
 
     _sortGroups();
-
-    notifyListeners();
   }
 
   int getIndexOf(ChecklistItemDetailResponse item) {

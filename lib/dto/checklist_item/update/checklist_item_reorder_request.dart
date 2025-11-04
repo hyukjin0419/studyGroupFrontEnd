@@ -3,13 +3,13 @@ import 'package:study_group_front_end/screens/checklist/team/view_models/member_
 
 class ChecklistItemReorderRequest {
   final int checklistItemId;
-  final int memberId;
+  final int studyId;
   final int studyMemberId;
   final int orderIndex;
 
   ChecklistItemReorderRequest({
     required this.checklistItemId,
-    required this.memberId,
+    required this.studyId,
     required this.studyMemberId,
     required this.orderIndex,
   });
@@ -17,7 +17,7 @@ class ChecklistItemReorderRequest {
   factory ChecklistItemReorderRequest.fromDetail(ChecklistItemDetailResponse dto) {
     return ChecklistItemReorderRequest(
       checklistItemId: dto.id,
-      memberId: dto.memberId,
+      studyId: dto.studyId,
       studyMemberId: dto.studyMemberId,
       orderIndex: dto.orderIndex ?? 0,
     );
@@ -26,6 +26,7 @@ class ChecklistItemReorderRequest {
   Map<String, dynamic> toJson() {
     return {
       'checklistItemId': checklistItemId,
+      'studyId': studyId,
       'studyMemberId': studyMemberId,
       'orderIndex': orderIndex,
     };
