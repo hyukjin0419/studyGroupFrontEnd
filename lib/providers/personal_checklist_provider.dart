@@ -344,7 +344,7 @@ class PersonalChecklistProvider with ChangeNotifier, LoadingNotifier {
 
     fromGroup.items.removeAt(fromIndex);
 
-    item = item.copyWith(studyId: toStudyId);
+    item.studyId = toStudyId;
 
     toGroup.items.insert(toIndex, item);
 

@@ -301,7 +301,7 @@ class ChecklistItemProvider with ChangeNotifier, LoadingNotifier{
 
     fromGroup.items.removeAt(fromIndex);
 
-    item = item.copyWith(studyMemberId: toMemberId);
+    item.studyMemberId = toMemberId;
 
     toGroup.items.insert(toIndex, item);
 
@@ -311,8 +311,6 @@ class ChecklistItemProvider with ChangeNotifier, LoadingNotifier{
     }
 
     _sortGroups();
-
-    notifyListeners();
   }
 
   int getIndexOf(ChecklistItemDetailResponse item) {
