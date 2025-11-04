@@ -9,8 +9,7 @@ class StudyDetailResponse extends BaseResDto {
   final String leaderName;
   final String joinCode;
   final String personalColor;
-  final DateTime dueDate;
-  final double progress;
+  final DateTime? dueDate;
   final String status;
   final List<StudyMemberSummaryResponse> members;
 
@@ -22,8 +21,7 @@ class StudyDetailResponse extends BaseResDto {
     required this.leaderName,
     required this.joinCode,
     required this.personalColor,
-    required this.dueDate,
-    required this.progress,
+    this.dueDate,
     required this.status,
     required this.members,
     super.createdAt,
@@ -39,8 +37,7 @@ class StudyDetailResponse extends BaseResDto {
       leaderName: json['leaderName'],
       joinCode: json['joinCode'],
       personalColor: json['personalColor'],
-      dueDate: DateTime.parse(json['dueDate']),
-      progress: (json['progress'] as num).toDouble(),
+      dueDate: json['dueDate'] != null ? DateTime.parse(json['dueDate']) : null,
       status: json['status'],
       members: (json['members'] as List)
           .map((m) => StudyMemberSummaryResponse.fromJson(m))

@@ -16,6 +16,7 @@ import 'package:study_group_front_end/providers/checklist_item_provider.dart';
 import 'package:study_group_front_end/providers/me_provider.dart';
 import 'package:study_group_front_end/providers/personal_checklist_provider.dart';
 import 'package:study_group_front_end/providers/personal_stats_provider.dart';
+import 'package:study_group_front_end/providers/study_card_provider.dart';
 import 'package:study_group_front_end/providers/study_join_provider.dart';
 import 'package:study_group_front_end/providers/study_provider.dart';
 import 'package:study_group_front_end/repository/checklist_item_repository.dart';
@@ -90,11 +91,18 @@ Future<void> main() async {
             },
           ),
           ChangeNotifierProxyProvider<PersonalChecklistProvider, PersonalStatsProvider>(
-              create: (context) => PersonalStatsProvider(
-                context.read<PersonalChecklistProvider>(),
-              ),
-              update: (context, checklistProvider, previous)
-                => previous ?? PersonalStatsProvider(checklistProvider),
+            create: (context) => PersonalStatsProvider(
+              context.read<PersonalChecklistProvider>(),
+            ),
+            update: (context, checklistProvider, previous)
+              => previous ?? PersonalStatsProvider(checklistProvider),
+          ),
+          ChangeNotifierProxyProvider<ChecklistItemProvider, StudyCardProvider>(
+            create: (context) => StudyCardProvider(
+                context.read<ChecklistItemProvider>()
+            ),
+            update: (context, checklistItemProvider, previous)
+              => previous ?? StudyCardProvider(checklistItemProvider),
           ),
         ],
         child: MaterialApp.router(

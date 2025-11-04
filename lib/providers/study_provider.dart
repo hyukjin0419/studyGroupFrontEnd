@@ -42,8 +42,7 @@ class StudyProvider with ChangeNotifier, LoadingNotifier {
         leaderName: '',
         joinCode: '',
         personalColor: request.color,
-        dueDate: request.dueDate ?? DateTime.now(),
-        progress: 0.0,
+        dueDate: request.dueDate,
         status: '',
         members: const[]
     );
@@ -84,8 +83,8 @@ class StudyProvider with ChangeNotifier, LoadingNotifier {
           _selectedStudy = updated;
         }
 
-        _studies = await repository.fetchMyStudies();
-        _selectedStudy = await repository.fetchMyStudy(request.studyId);
+        // _studies = await repository.fetchMyStudies();
+        // _selectedStudy = await repository.fetchMyStudy(request.studyId);
       });
       notifyListeners();
     } catch (e) {
@@ -108,8 +107,7 @@ class StudyProvider with ChangeNotifier, LoadingNotifier {
         leaderName: prev.leaderName,
         joinCode: prev.joinCode,
         personalColor: req.personalColor,
-        dueDate: req.dueDate!,
-        progress: prev.progress,
+        dueDate: req.dueDate,
         status: prev.status,
         members: prev.members);
   }

@@ -4,7 +4,8 @@ import 'package:flutter/material.dart';
 import 'package:study_group_front_end/dto/member/detail/member_detail_response.dart';
 import 'package:study_group_front_end/dto/member/login/member_login_request.dart';
 import 'package:study_group_front_end/dto/member/signup/member_create_request.dart';
-import 'package:study_group_front_end/dto/member/update/member_update_request.dart';
+import 'package:study_group_front_end/dto/member/update/member_email_update_request.dart';
+import 'package:study_group_front_end/dto/member/update/member_user_name_update_request.dart';
 import 'package:study_group_front_end/providers/loading_notifier.dart';
 import 'package:study_group_front_end/api_service/auth_api_service.dart';
 import 'package:study_group_front_end/api_service/Auth/token_manager.dart';
@@ -63,14 +64,21 @@ class MeProvider with ChangeNotifier,LoadingNotifier {
     });
   }
 
-  Future<void> update(MemberUpdateRequest request) async {
+  Future<void> updateDisplayName(String userName) async {
     await runWithLoading(() async {
-      _currentMember = await meApiService.updateMyInfo(request);
+      _currentMember = await meApiService.updateDisplayName(userName);
        notifyListeners();
     });
   }
 
-  Future<void> delete(int id) async {
+  Future<void> updateUserEmail(String email) async {
+    await runWithLoading(() async {
+      _currentMember = await meApiService.updateEmail(email);
+      notifyListeners();
+    });
+  }
+
+  Future<void> delete() async {
     await runWithLoading(() async {
       await meApiService.deleteMyAccount();
       _currentMember = null;
@@ -80,7 +88,7 @@ class MeProvider with ChangeNotifier,LoadingNotifier {
 
   Future<void> logout() async {
     await runWithLoading(() async{
-      final fcmToken = await TokenManager.getFcmToken(); // ✅ await 필요
+      final fcmToken = await TokenManager.getFcmToken();
       if (fcmToken == null) {
         throw Exception("로그아웃 실패: FCM 토큰 없음");
       }
@@ -89,5 +97,17 @@ class MeProvider with ChangeNotifier,LoadingNotifier {
       _currentMember = null;
       notifyListeners();
     });
+  }
+
+  Future<void> sendEmailVerification(String email) async {
+    await authApiService.sendEmailVerification(email);
+  }
+
+  Future<void> sendIdRemainderEmail(String email) async {
+    await authApiService.sendIdRemainderEmail(email);
+  }
+
+  Future<void> sendPasswordResetEmail(String email) async {
+    await authApiService.sendPasswordResetEmail(email);
   }
 }

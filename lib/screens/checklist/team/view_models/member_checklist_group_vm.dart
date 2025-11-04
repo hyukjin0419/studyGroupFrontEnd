@@ -5,12 +5,12 @@ import 'package:study_group_front_end/screens/checklist/team/view_models/member_
 
 class MemberChecklistGroupVM{
   final int studyMemberId;
-  final String memberName;
+  final String memberDisplayName;
   final List<ChecklistItemDetailResponse> items;
 
   MemberChecklistGroupVM({
     required this.studyMemberId,
-    required this.memberName,
+    required this.memberDisplayName,
     required this.items
   });
 

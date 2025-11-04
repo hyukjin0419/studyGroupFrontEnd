@@ -31,7 +31,7 @@ class _SignUpScreenState extends State<SignUpScreen> {
         MemberCreateRequest(userName: _userName, password: _password, email: _email),
       );
 
-      if (mounted) context.go('/studies');
+      if (mounted) context.go('/login');
     } catch (e) {
       String errorMessage;
 
@@ -74,8 +74,9 @@ class _SignUpScreenState extends State<SignUpScreen> {
                   }
 
                   final emailRegex = RegExp(
-                    r"^[a-zA-Z0-9.a-zA-Z0-9.!#$%&'*+/=?^_`{|}~-]+@[a-zA-Z0-9]+\.[a-zA-Z]+",
+                      r'^[\w-\.]+@([\w-]+\.)+[\w-]{2,4}$'
                   );
+
 
                   if (!emailRegex.hasMatch(val)) {
                     return '올바른 이메일 형식이 아닙니다';
@@ -90,7 +91,7 @@ class _SignUpScreenState extends State<SignUpScreen> {
                 obscureText: true,
                 onSaved: (val) => _password = val!.trim(),
                 validator: (val) =>
-                (val == null || val.length < 6) ? '6자 이상 입력하세요' : null,
+                (val == null || val.length < 8) ? '8자 이상 입력하세요' : null,
               ),
               const SizedBox(height: 24),
               _isLoading

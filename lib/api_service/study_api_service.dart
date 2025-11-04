@@ -1,4 +1,5 @@
 import 'dart:convert';
+import 'dart:developer';
 
 import 'package:study_group_front_end/dto/study/create/study_create_request.dart';
 import 'package:study_group_front_end/dto/study/create/study_create_response.dart';
@@ -11,15 +12,13 @@ import 'package:study_group_front_end/api_service/base_api_service.dart';
 class StudyApiService extends BaseApiService {
   final String basePath = '/studies';
 
-  Future<StudyCreateResponse> createStudy(StudyCreateRequest request) async {
+  Future<void> createStudy(StudyCreateRequest request) async {
     final response = await post(
       '$basePath/create',
       request.toJson()
     );
 
-    if (response.statusCode == 200) {
-      return StudyCreateResponse.fromJson(jsonDecode(response.body));
-    } else {
+    if (response.statusCode != 200) {
       throw Exception('[USER] STUDY_API createStudy_본인이 속한 스터디 생성 실패: ${response.statusCode}');
     }
   }
@@ -54,6 +53,7 @@ class StudyApiService extends BaseApiService {
     );
 
     if (response.statusCode == 200) {
+      log("📦 Response Body: ${response.body}", name: "DELETE THIS LOG AFTER TEST");
       return StudyDetailResponse.fromJson(jsonDecode(response.body));
     } else {
       throw Exception('[USER] STUDY_API updateStudy_본인 속한 단일 스터디 업데이트 실패: ${response.statusCode}');

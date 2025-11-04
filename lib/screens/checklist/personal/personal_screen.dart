@@ -42,23 +42,36 @@ class _PersonalScreenState extends State<PersonalScreen> {
           style: Theme.of(context).textTheme.bodyLarge!,
         ),
       ),
-      body: SingleChildScrollView(
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            PersonalStatsCard(
-              completedCount: cardProvider.completedCount,
-              totalCount: cardProvider.totalCount,
-            ),
-            WeeklyCalendar(
-              initialSelectedDay: provider.selectedDate,
-              onDaySelected: (date) {
-                log(" 날짜: $date", name: "PersonalScreen");
-                _personalChecklistProvider.updateSelectedDate(date);
-              },
-            ),
-            PersonalChecklistGroupView(selectedDate: provider.selectedDate!, primaryColor: Colors.teal)
-          ],
+      body: RefreshIndicator(
+        // 로딩 색상 숨김
+        displacement: 100,
+        color: Colors.transparent,
+        backgroundColor: Colors.transparent,
+        elevation: 0,
+        strokeWidth: 0.1,
+        onRefresh: () async {
+          final provider = context.read<PersonalChecklistProvider>();
+          await provider.fetchChecklistByWeek();
+        },
+        child: SingleChildScrollView(
+          physics: const AlwaysScrollableScrollPhysics(),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              PersonalStatsCard(
+                completedCount: cardProvider.completedCount,
+                totalCount: cardProvider.totalCount,
+              ),
+              WeeklyCalendar(
+                initialSelectedDay: provider.selectedDate,
+                onDaySelected: (date) {
+                  log(" 날짜: $date", name: "PersonalScreen");
+                  _personalChecklistProvider.updateSelectedDate(date);
+                },
+              ),
+              PersonalChecklistGroupView(selectedDate: provider.selectedDate!, primaryColor: Colors.teal)
+            ],
+          ),
         ),
       ),
     );

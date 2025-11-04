@@ -52,13 +52,52 @@ class AuthApiService extends BaseApiService {
     final response = await post(
       '$basePath/logout',
       {
-        "deviceToken": deviceToken, // 서버가 요구하는 DTO
+        "deviceToken": deviceToken,
       },
       authRequired: true,
     );
 
     if (response.statusCode != 200) {
       throw Exception('logout failed: ${response.statusCode}');
+    }
+  }
+
+  Future<void> sendEmailVerification(String email) async {
+    final response = await post(
+        '$basePath/email/send-verification-email?email=$email',
+        null
+    );
+    if (response.statusCode == 200) {
+      return;
+    } else {
+      var message = extractErrorMessageFromResponse(response);
+      throw Exception(message);
+    }
+  }
+
+  Future<void> sendIdRemainderEmail(String email) async {
+    final response = await post(
+        '$basePath/email/find-username?email=$email',
+        null
+    );
+    if (response.statusCode == 200) {
+      return;
+    } else {
+      var message = extractErrorMessageFromResponse(response);
+      throw Exception(message);
+    }
+  }
+
+  Future<void> sendPasswordResetEmail(String email) async {
+    final response = await post(
+        '$basePath/email/password-reset/request?email=$email',
+        null
+    );
+    if (response.statusCode == 200) {
+      return;
+    } else {
+      var message = extractErrorMessageFromResponse(response);
+      throw Exception(message);
     }
   }
 

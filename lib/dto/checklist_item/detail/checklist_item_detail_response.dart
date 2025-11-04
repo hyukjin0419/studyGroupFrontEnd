@@ -1,10 +1,10 @@
 class ChecklistItemDetailResponse {
   final int id;
   final String type; // ChecklistItemType enum as String
-  final int studyId;
+  int studyId;
   final int memberId;
   final int? tempId;
-  final int studyMemberId;
+  int studyMemberId;
   final String? studyName;
   final String content;
   final bool completed;

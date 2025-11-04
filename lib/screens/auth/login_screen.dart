@@ -30,8 +30,6 @@ class _LoginScreenState extends State<LoginScreen> {
   @override
   void initState() {
     super.initState();
-
-    WidgetsBinding.instance.addPostFrameCallback((_) => _idFocus.requestFocus());
   }
   @override
   Widget build(BuildContext context) {
@@ -143,11 +141,13 @@ class _LoginScreenState extends State<LoginScreen> {
                             child: const Text("로그인"),
                             style: ElevatedButton.styleFrom(
                               backgroundColor: hexToColor('0xFF73B4E3'),
-                              foregroundColor: Colors.black,
+                              foregroundColor: Colors.white,
                               shape: RoundedRectangleBorder(
                                 borderRadius: BorderRadius.circular(8),
                               ),
-                              textStyle: Theme.of(context).textTheme.bodySmall,
+                              textStyle: Theme.of(context).textTheme.bodySmall?.copyWith(
+                                fontWeight: FontWeight.w600,
+                              ),
                             ),
                           ),
                         ),
@@ -158,11 +158,9 @@ class _LoginScreenState extends State<LoginScreen> {
                           child: Row(
                             mainAxisAlignment: MainAxisAlignment.spaceBetween,
                             children: [
-                              //TODO: 아이디 찾기
-                              TextButton(onPressed: () {}, child: const Text('아이디찾기')),
+                              TextButton(onPressed: () => context.push('/find-username'), child: const Text('아이디 찾기')),
                               Text(' | ', style: Theme.of(context).textTheme.bodySmall),
-                              //TODO: 비밀번호 찾기
-                              TextButton(onPressed: () {}, child: const Text('비밀번호 찾기')),
+                              TextButton(onPressed: () => context.push('/reset-password'), child: const Text('비밀번호 찾기')),
                               const Spacer(),
                               TextButton(onPressed: () => context.go('/signup'), child: const Text('회원가입')),
                             ],
@@ -204,6 +202,7 @@ class _LoginScreenState extends State<LoginScreen> {
       );
 
       await initIfLoggedIn(context);
+      //TODO 로그인 시 기존 캐시 삭제!
 
       if (mounted) {
         context.go('/personal');

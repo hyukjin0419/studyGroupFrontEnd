@@ -33,14 +33,14 @@ Future<void> showStudyDetailModal({
       ),
       builder: (context) {
         return Padding(
-          padding: const EdgeInsets.fromLTRB(16, 8, 16, 16),
+          padding: const EdgeInsets.fromLTRB(16, 0, 16, 7),
           child: Column(
             mainAxisSize: MainAxisSize.min,
             crossAxisAlignment: CrossAxisAlignment.stretch,
             children: [
               //title
               Container(
-                padding: const EdgeInsets.all(12),
+                padding: const EdgeInsets.fromLTRB(12,5,12,5),
                 decoration: BoxDecoration(
                   color: Colors.white,
                   borderRadius: BorderRadius.circular(10),
@@ -80,7 +80,7 @@ Future<void> showStudyDetailModal({
                       context,
                       '팀원',
                       study.personalColor,
-                      study.members.map((member) => member.userName).toList(),
+                      study.members.map((member) => member.displayName).toList(),
                     ),
                     const SizedBox(height: 8),
                     Divider(
@@ -93,7 +93,9 @@ Future<void> showStudyDetailModal({
                       ),
                     ],
                     Text(
-                      '프로젝트 마감일 : ${formatKoreanDate(study.dueDate)}',
+                      study.dueDate != null
+                          ? '프로젝트 마감일 : ${formatKoreanDate(study.dueDate!)}'
+                          : '지정된 마감 날짜가 없습니다',
                       style: Theme.of(context).textTheme.bodyLarge,
                     ),
                   ],
@@ -106,7 +108,6 @@ Future<void> showStudyDetailModal({
                 //Todo: 상세정보 보기
                 isLeader: isLeader,
                 onDetailPressed: () {
-                  // context.push('/studies/${study.id}');
                   context.push(
                     '/studies/${study.id}/update',
                     extra: StudyUpdateRequest(
@@ -243,17 +244,19 @@ Future<void> _confirmAndDeleteStudy(BuildContext context, int studyId, String co
 
   if (confirmed != true) return;
 
-  if (context.mounted) {
-    Navigator.of(context).pop();
-  }
-
   try {
-    await context.read<StudyProvider>().deleteStudy(studyId);
+    log("ui단 호출");
+    final studyProvider = context.read<StudyProvider>();
+    log("Provider 찾음: ${studyProvider.runtimeType}");
+    await studyProvider.deleteStudy(studyId);
+
     if (context.mounted) {
       ScaffoldMessenger.of(context).showSnackBar(
         const SnackBar(content: Text('스터디가 삭제되었습니다.')),
       );
     }
+
+    Navigator.of(context).pop();
   } catch (e) {
     if (context.mounted) {
       ScaffoldMessenger.of(context).showSnackBar(

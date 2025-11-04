@@ -13,31 +13,44 @@ import 'package:study_group_front_end/util/date_calculator.dart';
 
 class PersonalChecklistProvider with ChangeNotifier, LoadingNotifier {
   final InMemoryChecklistItemRepository _repository;
+
   PersonalChecklistProvider(this._repository);
+
   InMemoryChecklistItemRepository get repository => _repository;
 
   List<StudyDetailResponse> _myStudies = [];
-  void setMyStudies(List<StudyDetailResponse> studies) => (_myStudies = studies);
+
+  void setMyStudies(List<StudyDetailResponse> studies) =>
+      (_myStudies = studies);
 
   int _currentMemberId = 0;
+
   void setCurrentMemberId(int memberId) => _currentMemberId = memberId;
 
   DateTime? _selectedDate = DateTime.now();
+
   DateTime? get selectedDate => _selectedDate;
 
-  StreamSubscription<(bool delete, List<ChecklistItemDetailResponse> items)>? _subscription;
+  StreamSubscription<
+      (bool delete, List<ChecklistItemDetailResponse> items)>? _subscription;
 
   List<PersonalCheckListGroupVM> _groups = [];
+
   List<PersonalCheckListGroupVM> get groups => _groups;
 
   Map<int, ChecklistItemDetailResponse> _filteredMap = {};
-  List<ChecklistItemDetailResponse> get filteredItems => _filteredMap.values.toList();
+
+  List<ChecklistItemDetailResponse> get filteredItems =>
+      _filteredMap.values.toList();
 
   Map<int, ChecklistItemDetailResponse> _todayItemsMap = {};
-  List<ChecklistItemDetailResponse> get todayItem => _todayItemsMap.values.toList();
+
+  List<ChecklistItemDetailResponse> get todayItem =>
+      _todayItemsMap.values.toList();
 
   //--------------로딩---------------------------//
   bool _isLoading = false;
+
   bool get isLoading => _isLoading;
 
   void _setLoading(bool value) {
@@ -46,57 +59,62 @@ class PersonalChecklistProvider with ChangeNotifier, LoadingNotifier {
   }
 
   //=================Init======================//
-  void initializeContext() async{
-
+  void initializeContext() async {
     _selectedDate ??= DateTime.now();
 
     _subscription = repository.stream.listen((event) {
       final (isDelete, newItems) = event;
 
-      if(isDelete) {
+      if (isDelete) {
         _filteredMap.clear();
         _todayItemsMap.clear();
       }
 
-      log("📡 stream 데이터 수신: ${newItems.length}개", name: "ChecklistItemProvider");
+      log("📡 stream 데이터 수신: ${newItems.length}개",
+          name: "ChecklistItemProvider");
 
       _applyFiltering(newItems);
       _setLoading(false);
     });
 
     _setLoading(true);
-    await repository.fetchChecklistByWeek(date: _selectedDate!,memberId: _currentMemberId);
+    await repository.fetchChecklistByWeek(
+        date: _selectedDate!, memberId: _currentMemberId);
   }
 
   Future<void> updateSelectedDate(DateTime newDate) async {
     if (!isSameDate(_selectedDate!, newDate)) {
-      _filteredMap={};
+      _filteredMap = {};
       clearGroups();
       _selectedDate = newDate;
 
       _setLoading(true);
-      await repository.fetchChecklistByWeek(date: newDate, memberId: _currentMemberId);
+      await repository.fetchChecklistByWeek(
+          date: newDate, memberId: _currentMemberId);
     }
   }
 
-  void _applyFiltering(List<ChecklistItemDetailResponse> allItems){
-    log("applying Filter! currentMemberId ${_currentMemberId}, date${_selectedDate}", name: "PersonalProvider");
+  void _applyFiltering(List<ChecklistItemDetailResponse> allItems) {
+    log(
+        "applying Filter! currentMemberId ${_currentMemberId}, date${_selectedDate}",
+        name: "PersonalProvider");
     log("mystudies = ", name: "PersonalProvider");
-    for(var studyId in _myStudies){
+    for (var studyId in _myStudies) {
       log("ㄴ ${studyId.id}", name: "PersonalProvider");
     }
     //1차 필터링
     final filtered = allItems.where((item) {
       final sameMember = item.memberId == _currentMemberId;
-      final inMyStudy = _myStudies.any((s)=>s.id == item.studyId);
+      final inMyStudy = _myStudies.any((s) => s.id == item.studyId);
       return sameMember && inMyStudy;
     }).toList();
 
     //personal stats 내용
     final today = DateTime.now();
-    final todayItems = filtered.where((item) => isSameDate(item.targetDate, today)).toList();
+    final todayItems = filtered.where((item) =>
+        isSameDate(item.targetDate, today)).toList();
 
-    for (var item in todayItems){
+    for (var item in todayItems) {
       final id = item.id;
       final tempId = item.tempId;
 
@@ -108,7 +126,7 @@ class PersonalChecklistProvider with ChangeNotifier, LoadingNotifier {
       }
 
       //기존에 있는데 업데이트되는 경우를 위해
-      if(_todayItemsMap.containsKey(item.id)){
+      if (_todayItemsMap.containsKey(item.id)) {
         _todayItemsMap[item.id] = item;
         continue;
       }
@@ -118,10 +136,12 @@ class PersonalChecklistProvider with ChangeNotifier, LoadingNotifier {
     }
 
     //UI 반영용 checklist
-    final selectedDateItems =  filtered.where((item) => isSameDate(item.targetDate, _selectedDate!)).toList();
+    final selectedDateItems = filtered.where((item) =>
+        isSameDate(item.targetDate, _selectedDate!)).toList();
 
-    for (var item in selectedDateItems){
-      log("Today: ${item.targetDate}, studyId: ${item.studyId}, content: ${item.content}", name: "PersonalProvider");
+    for (var item in selectedDateItems) {
+      log("Today: ${item.targetDate}, studyId: ${item.studyId}, content: ${item
+          .content}", name: "PersonalProvider");
       final id = item.id;
       final tempId = item.tempId;
 
@@ -133,7 +153,7 @@ class PersonalChecklistProvider with ChangeNotifier, LoadingNotifier {
       }
 
       //기존에 있는데 업데이트되는 경우를 위해
-      if(_filteredMap.containsKey(item.id)){
+      if (_filteredMap.containsKey(item.id)) {
         _filteredMap[item.id] = item;
         continue;
       }
@@ -146,11 +166,17 @@ class PersonalChecklistProvider with ChangeNotifier, LoadingNotifier {
     notifyListeners();
   }
 
+  Future<void> fetchChecklistByWeek() async {
+    _setLoading(true);
+    await repository.fetchChecklistByWeek(date: _selectedDate!, memberId: _currentMemberId, force: true);
+    _setLoading(false);
+  }
+
   //========================== Grouping =========================
-  void clearGroups(){
+  void clearGroups() {
     final Map<int, PersonalCheckListGroupVM> groupMap = {
       for (var s in _myStudies)
-        s.id : PersonalCheckListGroupVM(
+        s.id: PersonalCheckListGroupVM(
           studyId: s.id,
           studyName: s.name,
           items: [],
@@ -161,40 +187,41 @@ class PersonalChecklistProvider with ChangeNotifier, LoadingNotifier {
     notifyListeners();
   }
 
-  void _updateGroups(List<ChecklistItemDetailResponse> items){
+  void _updateGroups(List<ChecklistItemDetailResponse> items) {
     final Map<int, PersonalCheckListGroupVM> groupMap = {
       for (var s in _myStudies)
-        s.id : PersonalCheckListGroupVM(
+        s.id: PersonalCheckListGroupVM(
           studyId: s.id,
           studyName: s.name,
           items: [],
         ),
     };
 
-    for (final item in items){
+    for (final item in items) {
       groupMap.putIfAbsent(
         item.studyId,
-        ()=> PersonalCheckListGroupVM(
-          studyId: item.studyId,
-          studyName: item.studyName,
-          items: [],
-        ),
+            () =>
+            PersonalCheckListGroupVM(
+              studyId: item.studyId,
+              studyName: item.studyName,
+              items: [],
+            ),
       );
-        groupMap[item.studyId]!.items.add(item);
-      }
+      groupMap[item.studyId]!.items.add(item);
+    }
 
     _groups = groupMap.values.toList();
     _sortGroups();
     notifyListeners();
   }
 
-  void _sortGroups(){
-    for (final group in _groups){
-      group.items.sort((a,b) {
-        if(a.completed == b.completed){
+  void _sortGroups() {
+    for (final group in _groups) {
+      group.items.sort((a, b) {
+        if (a.completed == b.completed) {
           return (a.orderIndex ?? 0).compareTo(b.orderIndex ?? 0);
         }
-        return a.completed ? 1: -1;
+        return a.completed ? 1 : -1;
       });
     }
   }
@@ -203,10 +230,14 @@ class PersonalChecklistProvider with ChangeNotifier, LoadingNotifier {
   // =============================== CRUD (Optimistic) ===========================//
 
   Future<void> createPersonalChecklist(int studyId, String content) async {
-    final PersonalCheckListGroupVM group = _groups.firstWhere((g) => g.studyId == studyId);
-    final tempId = -DateTime.now().millisecondsSinceEpoch;
+    final PersonalCheckListGroupVM group = _groups.firstWhere((g) =>
+    g.studyId == studyId);
+    final tempId = -DateTime
+        .now()
+        .millisecondsSinceEpoch;
     final study = _myStudies.firstWhere((s) => s.id == studyId);
-    final studyMember = study.members.firstWhere((m) => m.memberId == _currentMemberId);
+    final studyMember = study.members.firstWhere((m) =>
+    m.memberId == _currentMemberId);
 
     final tempItem = ChecklistItemDetailResponse(
       id: tempId,
@@ -222,12 +253,13 @@ class PersonalChecklistProvider with ChangeNotifier, LoadingNotifier {
       orderIndex: group.totalCount,
     );
 
-    log("createdChecklistItem시 Optimistic 하게 Item 추가", name: "PersonalChecklistProvider");
+    log("createdChecklistItem시 Optimistic 하게 Item 추가",
+        name: "PersonalChecklistProvider");
     _filteredMap[tempId] = tempItem;
     _updateGroups(_filteredMap.values.toList());
     notifyListeners();
 
-    try{
+    try {
       final request = ChecklistItemCreateRequest(
         tempId: tempId,
         content: content,
@@ -237,9 +269,12 @@ class PersonalChecklistProvider with ChangeNotifier, LoadingNotifier {
         orderIndex: group.totalCount,
       );
 
-      await repository.createChecklistItem(studyId: studyId, memberId: _currentMemberId, request: request, fromStudy: false);
+      await repository.createChecklistItem(studyId: studyId,
+          memberId: _currentMemberId,
+          request: request,
+          fromStudy: false);
     } catch (e, stackTrace) {
-      if(_filteredMap.containsKey(tempId)) {
+      if (_filteredMap.containsKey(tempId)) {
         _filteredMap.remove(tempId);
         _updateGroups(_filteredMap.values.toList());
         notifyListeners();
@@ -250,7 +285,8 @@ class PersonalChecklistProvider with ChangeNotifier, LoadingNotifier {
     }
   }
 
-  Future<void> updateChecklistItemContent(ChecklistItemDetailResponse newItem) async {
+  Future<void> updateChecklistItemContent(
+      ChecklistItemDetailResponse newItem) async {
     await repository.updateContent(newItem);
   }
 
@@ -258,7 +294,8 @@ class PersonalChecklistProvider with ChangeNotifier, LoadingNotifier {
     await repository.softDelete(item);
   }
 
-  Future<void> reorderChecklistItem(List<ChecklistItemDetailResponse> requests) async {
+  Future<void> reorderChecklistItem(
+      List<ChecklistItemDetailResponse> requests) async {
     await repository.reorder(requests, _selectedDate!);
     notifyListeners();
   }
@@ -303,11 +340,11 @@ class PersonalChecklistProvider with ChangeNotifier, LoadingNotifier {
     required int toIndex,
   }) {
     final fromGroup = _groups.firstWhere((g) => g.studyId == fromStudyId);
-    final toGroup   = _groups.firstWhere((g) => g.studyId == toStudyId);
+    final toGroup = _groups.firstWhere((g) => g.studyId == toStudyId);
 
     fromGroup.items.removeAt(fromIndex);
 
-    item = item.copyWith(studyId: toStudyId);
+    item.studyId = toStudyId;
 
     toGroup.items.insert(toIndex, item);
 
