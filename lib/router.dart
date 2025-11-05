@@ -9,6 +9,7 @@ import 'package:study_group_front_end/screens/auth/sign_up_screen.dart';
 import 'package:study_group_front_end/screens/checklist/personal/personal_screen.dart';
 import 'package:study_group_front_end/screens/checklist/team/checklist_screen.dart';
 import 'package:study_group_front_end/screens/common_widgets/custom_bottom_navigation_bar.dart';
+import 'package:study_group_front_end/screens/insight/InsightScreen.dart';
 import 'package:study_group_front_end/screens/setting/edit_email_screen.dart';
 import 'package:study_group_front_end/screens/setting/edit_user_name_screen.dart';
 import 'package:study_group_front_end/screens/setting/me_screen.dart';
@@ -73,6 +74,12 @@ final GoRouter router = GoRouter(
           path: '/settings',
           pageBuilder: (context,state) => NoTransitionPage(
             child: const SettingScreen(),
+          ),
+        ),
+        GoRoute(
+          path: '/insight',
+          pageBuilder: (context,state) => NoTransitionPage(
+            child: const InsightScreen(),
           ),
         ),
       ]

@@ -17,7 +17,7 @@ class CustomBottomNavigationBar extends StatelessWidget {
       child: NavigationBar(
         height: 75,
         indicatorShape: RoundedRectangleBorder(
-          borderRadius: BorderRadius.circular(8), // 둥근 정도 줄이기
+          borderRadius: BorderRadius.circular(8),
         ),
         backgroundColor: Colors.transparent,
         surfaceTintColor: Colors.transparent,
@@ -34,7 +34,7 @@ class CustomBottomNavigationBar extends StatelessWidget {
               context.go('/studies');
               break;
             case 2:
-              context.go('/studies');
+              context.go('/insight');
               break;
             case 3:
               context.go('/settings');
@@ -45,7 +45,7 @@ class CustomBottomNavigationBar extends StatelessWidget {
           destinations: const [
           NavigationDestination(icon: Icon(Icons.person_3_outlined), label: '개인'),
           NavigationDestination(icon: Icon(Icons.workspaces_outline), label: '팀'),
-          NavigationDestination(icon: Icon(Icons.notifications_outlined), label: '알림'),
+          NavigationDestination(icon: Icon(Icons.insights), label: '인사이트'),
           NavigationDestination(icon: Icon(Icons.settings_outlined), label: '설정'),
         ],
       ),

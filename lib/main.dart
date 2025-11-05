@@ -5,6 +5,7 @@ import 'package:intl/date_symbol_data_local.dart';
 import 'package:provider/provider.dart';
 import 'package:study_group_front_end/api_service/auth_api_service.dart';
 import 'package:study_group_front_end/api_service/checklist_item_api_service.dart';
+import 'package:study_group_front_end/api_service/insight_api_service.dart';
 import 'package:study_group_front_end/api_service/me_api_service.dart';
 import 'package:study_group_front_end/api_service/personal_checklist_api_service.dart';
 import 'package:study_group_front_end/api_service/study_api_service.dart';
@@ -13,6 +14,7 @@ import 'package:study_group_front_end/firebase_options.dart';
 import 'package:study_group_front_end/notification_service/fcm/fcm_initializer.dart';
 import 'package:study_group_front_end/notification_service/local/local_notifications_service.dart';
 import 'package:study_group_front_end/providers/checklist_item_provider.dart';
+import 'package:study_group_front_end/providers/insight_provider.dart';
 import 'package:study_group_front_end/providers/me_provider.dart';
 import 'package:study_group_front_end/providers/personal_checklist_provider.dart';
 import 'package:study_group_front_end/providers/personal_stats_provider.dart';
@@ -20,7 +22,6 @@ import 'package:study_group_front_end/providers/study_card_provider.dart';
 import 'package:study_group_front_end/providers/study_join_provider.dart';
 import 'package:study_group_front_end/providers/study_provider.dart';
 import 'package:study_group_front_end/repository/checklist_item_repository.dart';
-import 'package:study_group_front_end/repository/personal_checklist_repository.dart';
 import 'package:study_group_front_end/repository/study_repository.dart';
 import 'package:study_group_front_end/router.dart';
 
@@ -103,6 +104,9 @@ Future<void> main() async {
             ),
             update: (context, checklistItemProvider, previous)
               => previous ?? StudyCardProvider(checklistItemProvider),
+          ),
+          ChangeNotifierProvider(
+            create: (_) => InsightProvider(InsightApiService()),
           ),
         ],
         child: MaterialApp.router(
