@@ -1,7 +1,10 @@
+import 'dart:developer';
+
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:study_group_front_end/dto/insight/weekly_insight_response.dart';
 import 'package:study_group_front_end/providers/insight_provider.dart';
+import 'package:study_group_front_end/util/date_calculator.dart';
 
 class InsightScreen extends StatefulWidget {
   const InsightScreen({Key? key}) : super(key: key);
@@ -41,21 +44,51 @@ class _InsightScreenState extends State<InsightScreen> {
       ),
       body: provider.isLoading
           ? const Center(child: CircularProgressIndicator())
-          : insight == null
-          ? const Center(child: Text('데이터가 없습니다 😢'))
           : SingleChildScrollView(
         child: Column(
           children: [
             _buildWeekSelector(provider),
-            _buildSummaryCard(insight),
-            _buildWeeklyChart(insight),
-            _buildStudyActivityCard(insight),
+
+            if (provider.insight == null)
+              const Padding(
+                padding: EdgeInsets.only(top: 120),
+                child: Text('데이터를 불러올 수 없습니다 😢'),
+              )
+            else if (provider.isEmpty)
+              //TODO 일단 mvp에서는 체크리스트 없으면 렌더링 자체를 안하도록 진행.
+              _buildEmptyState()
+            else ...[
+                _buildSummaryCard(provider.insight!),
+                _buildWeeklyChart(provider),
+                _buildStudyActivityCard(provider.insight!),
+              ],
+
             const SizedBox(height: 20),
           ],
         ),
       ),
     );
   }
+  Widget _buildEmptyState() {
+    return Center(
+      child: Padding(
+        padding: const EdgeInsets.symmetric(horizontal: 32, vertical: 200),
+        child: Column(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            Icon(Icons.hourglass_empty, color: Colors.grey[400], size: 72),
+            const SizedBox(height: 16),
+            Text(
+              '이번 주에 할당된 체크리스트가 없습니다!',
+              style: TextStyle(fontSize: 16, color: Colors.grey[600]),
+              textAlign: TextAlign.center,
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+
 
   Widget _buildWeekSelector(InsightProvider provider) {
     final start = provider.startDateOfWeek;
@@ -206,11 +239,32 @@ class _InsightScreenState extends State<InsightScreen> {
   }
 
   //TODO 없는 날은 차트가 안뜸..!
-  Widget _buildWeeklyChart(WeeklyInsightResponse insight) {
-    final data = insight.dailyChecklistCompletion.map((e) => e.count.toDouble()).toList();
-    final labels = insight.dailyChecklistCompletion
-        .map((e) => '${e.date.month}/${e.date.day}')
-        .toList();
+  Widget _buildWeeklyChart(InsightProvider provider) {
+    final WeeklyInsightResponse? insight = provider.insight;
+    final startOfWeek = provider.startDateOfWeek;
+
+    final weekDates = List.generate(7, (i) => startOfWeek.add(Duration(days: i)));
+
+    final dailyMap = {
+      for (var e in insight!.dailyChecklistCompletion)
+        e.date: e.count.toDouble(),
+    };
+
+    double _getCountForDate(DateTime day, Map<DateTime, double> dailyMap) {
+      for (final entry in dailyMap.entries) {
+        if (isSameDate(entry.key, day)) {
+          return entry.value;
+        }
+      }
+      return 0.0;
+    }
+
+    final data = weekDates.map((d) => _getCountForDate(d, dailyMap)).toList();
+    final labels = weekDates.map((d) => '${d.month}/${d.day}').toList();
+
+    final maxValue = (data.isEmpty || data.reduce((a, b) => a > b ? a : b) <= 0)
+        ? 1.0
+        : data.reduce((a, b) => a > b ? a : b);
 
     return Container(
       margin: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
@@ -221,6 +275,7 @@ class _InsightScreenState extends State<InsightScreen> {
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
+        mainAxisSize: MainAxisSize.min,
         children: [
           Text(
             '일별 완료 현황',
@@ -236,7 +291,7 @@ class _InsightScreenState extends State<InsightScreen> {
             child: CustomBarChart(
               data: data,
               labels: labels,
-              maxValue: (data.isEmpty ? 1 : data.reduce((a, b) => a > b ? a : b)),
+              maxValue: maxValue,
             ),
           ),
         ],
@@ -322,29 +377,36 @@ class CustomBarChart extends StatelessWidget {
   final double maxValue;
 
   const CustomBarChart({
-    Key? key,
+    super.key,
     required this.data,
     required this.labels,
     required this.maxValue,
-  }) : super(key: key);
+  });
 
   @override
   Widget build(BuildContext context) {
+    final safeMax = (maxValue.isNaN || maxValue <= 0) ? 1.0 : maxValue;
+    log('[CustomBarChart] data=$data, maxValue=$maxValue');
+
     return Column(
+      mainAxisSize: MainAxisSize.min,
       children: [
-        Expanded(
+        SizedBox(
+          height: 150,
           child: Row(
             mainAxisAlignment: MainAxisAlignment.spaceEvenly,
             crossAxisAlignment: CrossAxisAlignment.end,
             children: List.generate(data.length, (index) {
-              final height = (data[index] / maxValue);
-              return Expanded(
+              final ratio = (data[index] / safeMax).clamp(0.0, 1.0);
+              final barHeight = (ratio * 120).clamp(0.0, 120.0);
+
+              return Flexible(
                 child: GestureDetector(
                   onTap: () {
-                    // 툴팁 표시
                     ScaffoldMessenger.of(context).showSnackBar(
                       SnackBar(
-                        content: Text('${labels[index]}: ${data[index].toInt()}개'),
+                        content:
+                        Text('${labels[index]}: ${data[index].toInt()}개'),
                         duration: const Duration(seconds: 1),
                         behavior: SnackBarBehavior.floating,
                         backgroundColor: Colors.grey[800],
@@ -354,7 +416,6 @@ class CustomBarChart extends StatelessWidget {
                   child: Column(
                     mainAxisAlignment: MainAxisAlignment.end,
                     children: [
-                      // 값 표시 (선택적)
                       if (data[index] > 0)
                         Padding(
                           padding: const EdgeInsets.only(bottom: 4),
@@ -367,10 +428,9 @@ class CustomBarChart extends StatelessWidget {
                             ),
                           ),
                         ),
-                      // 막대
                       Container(
                         margin: const EdgeInsets.symmetric(horizontal: 4),
-                        height: height * 150, // 최대 높이 150px
+                        height: barHeight,
                         decoration: BoxDecoration(
                           gradient: LinearGradient(
                             colors: [
@@ -394,7 +454,6 @@ class CustomBarChart extends StatelessWidget {
           ),
         ),
         const SizedBox(height: 12),
-        // X축 라벨
         Row(
           mainAxisAlignment: MainAxisAlignment.spaceEvenly,
           children: labels.map((label) {

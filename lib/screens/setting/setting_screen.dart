@@ -85,11 +85,11 @@ class _SettingScreenState extends State<SettingScreen> {
             child: ListView(
               padding: const EdgeInsets.symmetric(horizontal: 20),
               children: [
-                _buildListItem(
-                  isChecked: isAlarmEnabled,
-                  title: '알람 설정',
-                  onTap: () => setState(() => isAlarmEnabled = !isAlarmEnabled),
-                ),
+                // _buildListItem(
+                //   isChecked: isAlarmEnabled,
+                //   title: '알람 설정',
+                //   onTap: () => setState(() => isAlarmEnabled = !isAlarmEnabled),
+                // ),
 
                 const SizedBox(height: 24),
                 const Text(
