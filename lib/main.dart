@@ -70,7 +70,9 @@ Future<void> main() async {
 
               final repo = context.read<InMemoryChecklistItemRepository>();
 
-              return ChecklistItemProvider(repo);
+              final provider = previous ?? ChecklistItemProvider(repo);
+
+              return provider;
               }
           ),
           ChangeNotifierProxyProvider2<MeProvider, StudyProvider, PersonalChecklistProvider>(

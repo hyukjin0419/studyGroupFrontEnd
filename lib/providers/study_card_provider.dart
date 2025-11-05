@@ -1,5 +1,4 @@
 import 'package:flutter/foundation.dart';
-import 'package:study_group_front_end/dto/checklist_item/detail/checklist_item_detail_response.dart';
 import 'package:study_group_front_end/dto/study/detail/study_detail_response.dart';
 import 'package:study_group_front_end/providers/checklist_item_provider.dart';
 

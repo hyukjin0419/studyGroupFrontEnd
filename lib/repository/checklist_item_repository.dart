@@ -65,8 +65,8 @@ class InMemoryChecklistItemRepository{
 
   void _emitFromCache({ChecklistItemDetailResponse? newItem, bool delete = false}) {
     if (newItem != null) {
-      log("📤 emit(단일): ${newItem.id} (${newItem.content})",
-          name: "InMemoryChecklistItemRepository");
+      // log("📤 emit(단일): ${newItem.id} (${newItem.content})",
+      //     name: "InMemoryChecklistItemRepository");
       _subject.add((false, [newItem]));
       return;
     }
@@ -76,14 +76,14 @@ class InMemoryChecklistItemRepository{
         .toList();
 
     if(delete){
-      log("📤 emit(전체) with delete = true: ${nonNullItems.length}개 (null 제외)",
-          name: "InMemoryChecklistItemRepository");
+      // log("📤 emit(전체) with delete = true: ${nonNullItems.length}개 (null 제외)",
+      //     name: "InMemoryChecklistItemRepository");
       _subject.add((true, nonNullItems));
       return;
     }
 
-    log("📤 emit(전체): ${nonNullItems.length}개 (null 제외)",
-        name: "InMemoryChecklistItemRepository");
+    // log("📤 emit(전체): ${nonNullItems.length}개 (null 제외)",
+    //     name: "InMemoryChecklistItemRepository");
     _subject.add((false,nonNullItems));
 
 
@@ -95,22 +95,22 @@ class InMemoryChecklistItemRepository{
     log("studyId $studyId, memberId $memberId", name: "InMemoryChecklistItemRepository");
     final hit = cacheHit(memberId:memberId, studyId: studyId, date: date);
 
-    log("캐시 히트? $hit", name: "InMemoryChecklistItemRepository");
+    // log("캐시 히트? $hit", name: "InMemoryChecklistItemRepository");
     if (hit && !force){
-      log("💾 캐시 히트 → API 호출 스킵", name: "InMemoryChecklistItemRepository");
+      // log("💾 캐시 히트 → API 호출 스킵", name: "InMemoryChecklistItemRepository");
       _emitFromCache();
       return;
     }
-    log("🔍 캐시 미스 -> 데이터 fetch후 빈 날짜 더미 캐시값으로 생성", name: "InMemoryChecklistItemRepository");
+    // log("🔍 캐시 미스 -> 데이터 fetch후 빈 날짜 더미 캐시값으로 생성", name: "InMemoryChecklistItemRepository");
 
     try {
       final startOfWeek = date.subtract(Duration(days: date.weekday % 7));
       List<ChecklistItemDetailResponse> fetched;
       if (studyId != null && memberId == null) {
-        log('🚀 [스터디 체크리스트] 서버 fetch 실행: studyId=$studyId / $keyDate', name: "InMemoryChecklistItemRepository");
+        // log('🚀 [스터디 체크리스트] 서버 fetch 실행: studyId=$studyId / $keyDate', name: "InMemoryChecklistItemRepository");
         fetched = await teamApi.getChecklistItemsOfStudyByWeek(studyId, startOfWeek);
       } else if (studyId == null && memberId != null) {
-        log('🚀 [개인 체크리스트] 서버 fetch 실행: memberId=$memberId / $keyDate', name: "InMemoryChecklistItemRepository");
+        // log('🚀 [개인 체크리스트] 서버 fetch 실행: memberId=$memberId / $keyDate', name: "InMemoryChecklistItemRepository");
         fetched = await personalApi.getMyChecklistsByWeek(startOfWeek);
       } else {
         throw ArgumentError("study Id 또는 MemberId 중 하나는 반드시 지정되어야 합니다.");
@@ -160,13 +160,13 @@ class InMemoryChecklistItemRepository{
       }
 
       bool keyExisted = _cache.containsKey(tempKey);
-      log("삭제전 $keyExisted", name: "InMemoryChecklistItemRepository");
+      // log("삭제전 $keyExisted", name: "InMemoryChecklistItemRepository");
       _cache.remove(tempKey);
       keyExisted = _cache.containsKey(tempKey);
-      log("삭제후 $keyExisted", name: "InMemoryChecklistItemRepository");
+      // log("삭제후 $keyExisted", name: "InMemoryChecklistItemRepository");
 
 
-      log("realkey 만들어서 캐시에 아이템 추가", name: "InMemoryChecklistItemRepository");
+      // log("realkey 만들어서 캐시에 아이템 추가", name: "InMemoryChecklistItemRepository");
       final realKey = _studyIdMemberIdChecklistIdDateKey(studyId: created.studyId, memberId: created.memberId, checklistId: created.id, date: created.targetDate);
       _cache[realKey] = created;
 

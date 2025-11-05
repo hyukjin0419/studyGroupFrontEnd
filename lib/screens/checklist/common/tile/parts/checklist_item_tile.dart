@@ -62,7 +62,6 @@ class _ChecklistItemTileState extends State<ChecklistItemTile> {
       _completed = !_completed;
     });
     try {
-      log("id? ${widget.item.id}");
       final provider = context.read<ChecklistItemProvider>();
       await provider.updateChecklistItemStatus(widget.item);
     } catch (e) {
