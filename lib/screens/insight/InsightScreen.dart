@@ -196,7 +196,7 @@ class _InsightScreenState extends State<InsightScreen> {
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    _buildSummaryItem('🎯', '${insight.completedCount}개 완료', '총 20개 중'),
+                    _buildSummaryItem('🎯', '${insight.completedCount}개 완료', '총 ${insight.totalCount}개 중'),
                     const SizedBox(height: 16),
                     _buildSummaryItem('📚', '${insight.studyCount}개 스터디', '참여 중'),
                   ],

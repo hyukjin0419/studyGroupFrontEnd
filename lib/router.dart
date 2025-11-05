@@ -71,17 +71,18 @@ final GoRouter router = GoRouter(
             ),
         ),
         GoRoute(
-          path: '/settings',
-          pageBuilder: (context,state) => NoTransitionPage(
-            child: const SettingScreen(),
-          ),
-        ),
-        GoRoute(
           path: '/insight',
           pageBuilder: (context,state) => NoTransitionPage(
             child: const InsightScreen(),
           ),
         ),
+        GoRoute(
+          path: '/settings',
+          pageBuilder: (context,state) => NoTransitionPage(
+            child: const SettingScreen(),
+          ),
+        ),
+
       ]
     ),
 //==========================ShellRoute END==============================//
@@ -147,7 +148,7 @@ final GoRouter router = GoRouter(
 int _calculateIndex(String location) {
   if (location.startsWith('/personal')) return 0;
   if (location.startsWith('/studies')) return 1;
-  if (location.startsWith('/schedule')) return 2;
+  if (location.startsWith('/insight')) return 2;
   if (location.startsWith('/settings')) return 3;
   return 0;
 }
