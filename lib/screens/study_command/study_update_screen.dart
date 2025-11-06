@@ -53,7 +53,7 @@ class _StudyUpdateScreenState extends State<StudyUpdateScreen> {
       appBar: AppBar(
         title: Text(
           '팀 수정하기',
-          style: Theme.of(context).textTheme.displayMedium,
+          style: Theme.of(context).textTheme.bodyLarge!,
         ),
         leading: IconButton(
           icon: const Icon(Icons.arrow_back),

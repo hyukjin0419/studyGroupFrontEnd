@@ -40,7 +40,7 @@ class _StudyCreateScreenState extends State<StudyCreateScreen> {
       appBar: AppBar(
         title: Text(
           '팀 생성하기',
-            style: Theme.of(context).textTheme.displayMedium,
+          style: Theme.of(context).textTheme.bodyLarge!,
         ),
         leading: IconButton(
           icon: const Icon(Icons.arrow_back),
