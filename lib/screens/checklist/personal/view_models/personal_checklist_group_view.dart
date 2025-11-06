@@ -88,16 +88,18 @@ class _PersonalChecklistGroupViewState extends State<PersonalChecklistGroupView>
         controller: _scrollController,
         shrinkWrap: true,
         physics: const NeverScrollableScrollPhysics(),
-        padding: const EdgeInsets.fromLTRB(22, 8, 16, 24),
+        padding: const EdgeInsets.fromLTRB(22, 0, 16, 24),
         itemCount: groups.length,
         separatorBuilder: (_, __) => const SizedBox.shrink(),
         itemBuilder: (context, i) {
           final group = groups[i];
           final isEditing = (_editingStudyId == group.studyId);
 
+
           return Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
+              const SizedBox(height: 10),
               StudyHeaderChip(
                 name: group.studyName,
                 color: color,
@@ -170,12 +172,26 @@ class _PersonalChecklistGroupViewState extends State<PersonalChecklistGroupView>
         final isHovered = candidateData.isNotEmpty;
         return Container(
           height: _emptyTargetHeight,
+          padding: const EdgeInsets.symmetric(horizontal: 12),
           decoration: BoxDecoration(
-            border:  Border.all(
-              color: isHovered ? widget.primaryColor : Colors.transparent,
+            border: Border.all(
+              color: isHovered ? widget.primaryColor : Colors.grey[300]!,
             ),
             borderRadius: BorderRadius.circular(8),
             color: isHovered ? widget.primaryColor.withOpacity(0.1) : Colors.transparent,
+          ),
+          child: Align(
+            alignment: Alignment.centerLeft,
+            child: isHovered
+                ? null
+                : Text(
+              '아직 할당된 체크리스트가 없습니다. 드래그하거나 추가해보세요!',
+              style: TextStyle(
+                color: Colors.grey[400],
+                fontSize: 12,
+                fontWeight: FontWeight.w400,
+              ),
+            ),
           ),
         );
       },

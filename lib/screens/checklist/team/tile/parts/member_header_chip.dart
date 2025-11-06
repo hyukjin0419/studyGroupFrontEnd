@@ -22,7 +22,6 @@ class MemberHeaderChip extends StatelessWidget {
       padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 1),
       child: InkWell(
         onTap: (){
-          // log("hello");
           onAddPressed();
         },
         child: Row(
