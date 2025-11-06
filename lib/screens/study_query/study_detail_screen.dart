@@ -48,7 +48,10 @@ class _StudyDetailScreenState extends State<StudyDetailScreen> {
             icon: const Icon(Icons.arrow_back),
             onPressed: () => GoRouter.of(context).pop(),
           ),
-          title: Text('${study?.name}')),
+          title: Text(
+              '${study?.name}',
+              style: Theme.of(context).textTheme.bodyLarge!),
+      ),
       body: _isloading
         ? const Center(child: Text("스터디 상세"))
         : study == null

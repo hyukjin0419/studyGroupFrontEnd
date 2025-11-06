@@ -39,7 +39,7 @@ class _StudyScreenState extends State<StudiesScreen> {
               SizedBox(width: 5),
               Text(
                 "Sync Mate",
-                style: Theme.of(context).textTheme.displayMedium?.copyWith(
+                  style: Theme.of(context).textTheme.bodyLarge!.copyWith(
                   color: hexToColor("0xFF1B325E"),
                 ),
               ),

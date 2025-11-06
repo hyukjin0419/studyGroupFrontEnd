@@ -85,7 +85,10 @@ class _StudyInvitationScreenState extends State<StudyInvitationScreen> {
   Widget build(BuildContext context){
     return Scaffold(
       appBar: AppBar(
-        title: const Text("스터디 멤버 초대"),
+        title: Text(
+            "스터디 멤버 초대",
+            style: Theme.of(context).textTheme.bodyLarge!
+        ),
       ),
       body: Column(
         children: [
