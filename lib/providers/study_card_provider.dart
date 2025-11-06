@@ -44,17 +44,23 @@ class StudyCardProvider with ChangeNotifier {
 
 
   double getProgress(int studyId) {
-    return _progressCache[studyId]!;
+    return _progressCache[studyId]! ?? 0.0;
   }
 
   void _updateProgressCache(List<ChecklistItemDetailResponse> items){
     // log("update Progress Cache. 들어온 아이템");
+
     for (var item in items) {
       _itemsByStudy.putIfAbsent(item.studyId, () => []).add(item);
       // log("     ㄴ ${item.studyId}");
     }
 
     _itemsByStudy.forEach((studyId, items){
+      if (items.isEmpty) {
+        _progressCache[studyId] = 0.0;
+        return;
+      }
+
       final completed = items.where((i) => i.completed).length;
       final progress = completed / items.length;
       // log("studyId: $studyId -> progress: $progress");

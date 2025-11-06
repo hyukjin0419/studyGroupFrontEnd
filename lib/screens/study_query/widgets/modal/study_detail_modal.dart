@@ -27,6 +27,7 @@ Future<void> showStudyDetailModal({
       context: context,
       useSafeArea: true,
       showDragHandle: true,
+      isScrollControlled: true,
       backgroundColor: Theme.of(context).colorScheme.surface,
       shape: const RoundedRectangleBorder(
         borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
@@ -107,7 +108,10 @@ Future<void> showStudyDetailModal({
               _buildModalFooter(
                 //Todo: 상세정보 보기
                 isLeader: isLeader,
-                onDetailPressed: () {
+                onDetailPressed : () {
+                  context.push('/studies/${study.id}');
+                },
+                onEditPressed: () {
                   context.push(
                     '/studies/${study.id}/update',
                     extra: StudyUpdateRequest(
@@ -207,6 +211,7 @@ Widget _buildInviteCodeRow(BuildContext context, String inviteCode) {
 
 Widget _buildModalFooter({
   required bool isLeader,
+  required VoidCallback onEditPressed,
   required VoidCallback onDetailPressed,
   required VoidCallback onDeletePressed,
   required VoidCallback onLeavePressed,
@@ -215,17 +220,16 @@ Widget _buildModalFooter({
   return Row(
     mainAxisAlignment: MainAxisAlignment.spaceBetween,
     children: [
-      // 상세정보 버튼
-      Expanded(
-        child:
-          ActionButton(icon: Icons.info_outline, label: '상세정보', onTap: onDetailPressed),
-      ),
-      const SizedBox(width: 15),
-      // 리더냐 아니냐에 따라 오른쪽 버튼 변경
       Expanded(
         child: isLeader
-            ? ActionButton(icon: Icons.delete_outline, label: '삭제', onTap: onDeletePressed, color: Colors.redAccent)
-            : ActionButton(icon: Icons.exit_to_app, label: '탈퇴', onTap: onLeavePressed, color: Colors.redAccent)
+          ? ActionButton(icon: Icons.edit_outlined, label: '수정하기', onTap: onEditPressed)
+          : ActionButton(icon: Icons.info_outline, label: '상세정보', onTap: onDetailPressed),
+      ),
+      const SizedBox(width: 15),
+      Expanded(
+        child: isLeader
+          ? ActionButton(icon: Icons.delete_outline, label: '삭제', onTap: onDeletePressed, color: Colors.redAccent)
+          : ActionButton(icon: Icons.exit_to_app, label: '탈퇴', onTap: onLeavePressed, color: Colors.redAccent)
       ),
     ],
   );
