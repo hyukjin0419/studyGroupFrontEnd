@@ -155,4 +155,23 @@ class StudyProvider with ChangeNotifier, LoadingNotifier {
       rethrow;
     }
   }
+
+  //---------------Leave---------------//
+  Future<void> leaveStudy(int studyId) async{
+    //shallow copy
+    final prev = List<StudyDetailResponse>.from(_studies);
+    _studies.removeWhere((s) => s.id == studyId);
+    notifyListeners();
+
+    try{
+      await repository.leaveStudy(studyId);
+      _studies = await repository.fetchMyStudies();
+      notifyListeners();
+    } catch (e) {
+      log("deleteStudy 실패: $e\nRoll back 합니다.", name: "[Study Provider]");
+      _studies = prev;
+      notifyListeners();
+      rethrow;
+    }
+  }
 }

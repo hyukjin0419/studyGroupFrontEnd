@@ -4,7 +4,6 @@ import 'dart:developer';
 import 'package:flutter/foundation.dart';
 import 'package:study_group_front_end/dto/checklist_item/detail/checklist_item_detail_response.dart';
 import 'package:study_group_front_end/dto/study/detail/study_detail_response.dart';
-import 'package:study_group_front_end/providers/checklist_item_provider.dart';
 import 'package:study_group_front_end/repository/checklist_item_repository.dart';
 
 class StudyCardProvider with ChangeNotifier {
@@ -49,16 +48,16 @@ class StudyCardProvider with ChangeNotifier {
   }
 
   void _updateProgressCache(List<ChecklistItemDetailResponse> items){
-    log("update Progress Cache. 들어온 아이템");
+    // log("update Progress Cache. 들어온 아이템");
     for (var item in items) {
       _itemsByStudy.putIfAbsent(item.studyId, () => []).add(item);
-      log("     ㄴ ${item.studyId}");
+      // log("     ㄴ ${item.studyId}");
     }
 
     _itemsByStudy.forEach((studyId, items){
       final completed = items.where((i) => i.completed).length;
       final progress = completed / items.length;
-      log("studyId: $studyId -> progress: $progress");
+      // log("studyId: $studyId -> progress: $progress");
       _progressCache[studyId] = progress;
     });
   }

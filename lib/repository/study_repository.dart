@@ -30,6 +30,10 @@ class StudyRepository {
     return api.deleteStudy(studyId);
   }
 
+  Future<void> leaveStudy(int studyId) {
+    return api.leaveStudy(studyId);
+  }
+
   Future<void> updateStudiesOrder(List<StudyOrderUpdateRequest> request) {
     return api.updateStudiesOrder(request);
   }

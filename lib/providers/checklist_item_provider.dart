@@ -132,7 +132,7 @@ class ChecklistItemProvider with ChangeNotifier, LoadingNotifier{
 
     _updateGroups(_filteredMap.values.toList());
     _sortGroups();
-    log("filter");
+    // log("filter");
     notifyListeners();
   }
 

@@ -123,8 +123,7 @@ Future<void> showStudyDetailModal({
                   _confirmAndDeleteStudy(context, study.id, study.personalColor);
                 },
                 onLeavePressed: () {
-                  Navigator.of(context).pop();
-                  //Todo: 스터디 탈퇴 로직
+                  _confirmAndLeaveStudy(context, study.id, study.personalColor);
                 },
               ),
               SizedBox(height: 20),
@@ -245,14 +244,47 @@ Future<void> _confirmAndDeleteStudy(BuildContext context, int studyId, String co
   if (confirmed != true) return;
 
   try {
-    log("ui단 호출");
+    // log("ui단 호출");
     final studyProvider = context.read<StudyProvider>();
-    log("Provider 찾음: ${studyProvider.runtimeType}");
+    // log("Provider 찾음: ${studyProvider.runtimeType}");
     await studyProvider.deleteStudy(studyId);
 
     if (context.mounted) {
       ScaffoldMessenger.of(context).showSnackBar(
         const SnackBar(content: Text('스터디가 삭제되었습니다.')),
+      );
+    }
+
+    Navigator.of(context).pop();
+  } catch (e) {
+    if (context.mounted) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text('삭제 실패: $e')),
+      );
+    }
+  }
+}
+
+Future<void> _confirmAndLeaveStudy(BuildContext context, int studyId, String color) async {
+  final confirmed = await showConfirmationDialog(
+    context: context,
+    title: "정말 탈퇴 하시겠어요?",
+    description: "탈퇴한 팀에 할당된 사용자님의 모든 체크리스트가 삭제되고\n 그 후로는 복구가 어렵습니다.",
+    confirmColor: hexToColor(color),
+  );
+
+
+  if (confirmed != true) return;
+
+  try {
+    // log("ui단 호출");
+    final studyProvider = context.read<StudyProvider>();
+    // log("Provider 찾음: ${studyProvider.runtimeType}");
+    await studyProvider.leaveStudy(studyId);
+
+    if (context.mounted) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text('정상적으로 탈퇴되었습니다.')),
       );
     }
 
