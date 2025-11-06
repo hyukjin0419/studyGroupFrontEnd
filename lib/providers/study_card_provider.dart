@@ -44,7 +44,7 @@ class StudyCardProvider with ChangeNotifier {
 
 
   double getProgress(int studyId) {
-    return _progressCache[studyId]! ?? 0.0;
+    return _progressCache[studyId] ?? 0.0;
   }
 
   void _updateProgressCache(List<ChecklistItemDetailResponse> items){
