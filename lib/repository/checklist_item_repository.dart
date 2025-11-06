@@ -48,20 +48,9 @@ class InMemoryChecklistItemRepository{
     return false;
   }
 
-  // ✅ delete 여부와 items 리스트를 함께 보낼 수 있도록 타입 수정
   static final BehaviorSubject<(bool delete, List<ChecklistItemDetailResponse> items)> _subject = BehaviorSubject.seeded((false, []));
 
   Stream<(bool delete, List<ChecklistItemDetailResponse> items)> get stream => _subject.stream;
-
-
-  // void _emitFromCache() {
-  //   final nonNullItems = _cache.values
-  //       .whereType<ChecklistItemDetailResponse>()
-  //       .toList();
-  //
-  //   log("📤 emit: ${nonNullItems.length}개 (null 제외)", name: "InMemoryChecklistItemRepository");
-  //   _subject.add(nonNullItems);
-  // }
 
   void _emitFromCache({ChecklistItemDetailResponse? newItem, bool delete = false}) {
     if (newItem != null) {
@@ -85,8 +74,6 @@ class InMemoryChecklistItemRepository{
     // log("📤 emit(전체): ${nonNullItems.length}개 (null 제외)",
     //     name: "InMemoryChecklistItemRepository");
     _subject.add((false,nonNullItems));
-
-
   }
 
 

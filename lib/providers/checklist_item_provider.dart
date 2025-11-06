@@ -63,7 +63,6 @@ class ChecklistItemProvider with ChangeNotifier, LoadingNotifier{
     _selectedDate ??= DateTime.now();
 
     _subscription = repository.stream.listen((event) {
-      log("stream");
       final (isDelete, newItems) = event;
 
       if(isDelete) {
@@ -325,6 +324,8 @@ class ChecklistItemProvider with ChangeNotifier, LoadingNotifier{
     }
   }
 
+
+  //TODO 여기 삭제하고 study_card_provider에서 stream 구독한다음에 하자
   //============= Study Progress ==============
   double getProgress(int studyId) {
     final items = _filteredMap.values

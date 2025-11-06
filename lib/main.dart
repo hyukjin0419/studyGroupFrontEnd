@@ -61,19 +61,10 @@ Future<void> main() async {
               create: (_) => StudyJoinProvider(StudyJoinApiService()),
           ),
           //TODO inmemory 수정 바람
-          ChangeNotifierProxyProvider<MeProvider, ChecklistItemProvider>(
+          ChangeNotifierProvider(
             create: (context) => ChecklistItemProvider(
               context.read<InMemoryChecklistItemRepository>(),
             ),
-            update: (context,me,previous) {
-              if(me.currentMember == null) return previous!;
-
-              final repo = context.read<InMemoryChecklistItemRepository>();
-
-              final provider = previous ?? ChecklistItemProvider(repo);
-
-              return provider;
-              }
           ),
           ChangeNotifierProxyProvider2<MeProvider, StudyProvider, PersonalChecklistProvider>(
             create: (context) => PersonalChecklistProvider(
@@ -100,12 +91,10 @@ Future<void> main() async {
             update: (context, checklistProvider, previous)
               => previous ?? PersonalStatsProvider(checklistProvider),
           ),
-          ChangeNotifierProxyProvider<ChecklistItemProvider, StudyCardProvider>(
+          ChangeNotifierProvider(
             create: (context) => StudyCardProvider(
-                context.read<ChecklistItemProvider>()
+              context.read<InMemoryChecklistItemRepository>(),
             ),
-            update: (context, checklistItemProvider, previous)
-              => previous ?? StudyCardProvider(checklistItemProvider),
           ),
           ChangeNotifierProvider(
             create: (_) => InsightProvider(InsightApiService()),
