@@ -88,7 +88,7 @@ Future<void> showStudyDetailModal({
                       color: Theme.of(context).colorScheme.surface,
                     ),
                     if(isLeader) ... [
-                      _buildInviteCodeRow(context, study.joinCode),
+                      _buildInviteCodeRow(context, study.joinCode, study.personalColor),
                       Divider(
                         color: Theme.of(context).colorScheme.surface,
                       ),
@@ -181,7 +181,7 @@ Widget _buildLabelAndChips(BuildContext context, String label, String color, Lis
   );
 }
 
-Widget _buildInviteCodeRow(BuildContext context, String inviteCode) {
+Widget _buildInviteCodeRow(BuildContext context, String inviteCode, String color) {
   return Row(
     crossAxisAlignment: CrossAxisAlignment.center,
       children: [
@@ -198,7 +198,10 @@ Widget _buildInviteCodeRow(BuildContext context, String inviteCode) {
           onPressed: (){
             showDialog(
                 context: context,
-                builder: (_) => StudyJoinCodeToQrDialog(joinCode: inviteCode)
+                builder: (_) => StudyJoinCodeToQrDialog(
+                  color: color,
+                  joinCode: inviteCode
+                )
             );
           },
           visualDensity: VisualDensity.compact,
