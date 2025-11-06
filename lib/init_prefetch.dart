@@ -25,7 +25,7 @@ Future<bool> initIfLoggedIn(BuildContext context) async {
     await studyProvider.getMyStudies();
     final studies = studyProvider.studies;
 
-    //TODO 한번에 호출하는 api가 필요함. 현재 너무 많은 api 호출 발생.
+    //TODO 한번에 호출하는 api가 필요함. 현재 너무 많은 api 호출 발생. MVP이후 해결.
     for (final study in studies) {
       try{
         await checklistRepository.fetchChecklistByWeek(date: DateTime.now(), studyId: study.id, force: false);
