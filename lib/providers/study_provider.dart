@@ -1,16 +1,16 @@
 import 'dart:developer';
 
 import 'package:flutter/material.dart';
+import 'package:study_group_front_end/api_service/study_api_service.dart';
 import 'package:study_group_front_end/dto/study/create/study_create_request.dart';
 import 'package:study_group_front_end/dto/study/detail/study_detail_response.dart';
 import 'package:study_group_front_end/dto/study/update/study_order_update_request.dart';
 import 'package:study_group_front_end/dto/study/update/study_update_request.dart';
 import 'package:study_group_front_end/providers/loading_notifier.dart';
-import 'package:study_group_front_end/repository/study_repository.dart';
 
 class StudyProvider with ChangeNotifier, LoadingNotifier {
-  final StudyRepository repository;
-  StudyProvider(this.repository);
+  final StudyApiService api;
+  StudyProvider(this.api);
 
   List<StudyDetailResponse> _studies = [];
   StudyDetailResponse? _selectedStudy;
@@ -21,13 +21,13 @@ class StudyProvider with ChangeNotifier, LoadingNotifier {
   //--------------------Read--------------------//
   Future<void> getMyStudies() async {
     await runWithLoading(() async {
-      _studies = await repository.fetchMyStudies();
+      _studies = await api.getMyStudies();
     });
   }
 
   Future<void> getMyStudy(int studyId) async {
     await runWithLoading(() async {
-      _selectedStudy = await repository.fetchMyStudy(studyId);
+      _selectedStudy = await api.getMyStudy(studyId);
     });
   }
 
@@ -52,8 +52,8 @@ class StudyProvider with ChangeNotifier, LoadingNotifier {
 
     try {
       await runWithLoading(() async {
-        await repository.createStudy(request);
-        _studies = await repository.fetchMyStudies();
+        await api.createStudy(request);
+        _studies = await api.getMyStudies();
       });
       notifyListeners();
     } catch (e) {
@@ -77,7 +77,7 @@ class StudyProvider with ChangeNotifier, LoadingNotifier {
 
     try {
       await runWithLoading(() async {
-        final updated = await repository.updateStudy(request);
+        final updated = await api.updateStudy(request);
         _studies[idx] = updated;
         if (_selectedStudy?.id == request.studyId) {
           _selectedStudy = updated;
@@ -120,8 +120,8 @@ class StudyProvider with ChangeNotifier, LoadingNotifier {
     notifyListeners();
 
     try{
-      await repository.deleteStudy(studyId);
-      _studies = await repository.fetchMyStudies();
+      await api.deleteStudy(studyId);
+      _studies = await api.getMyStudies();
       notifyListeners();
     } catch (e) {
       log("deleteStudy 실패: $e\nRoll back 합니다.", name: "[Study Provider]");
@@ -145,8 +145,8 @@ class StudyProvider with ChangeNotifier, LoadingNotifier {
     )).toList();
 
     try {
-      await repository.updateStudiesOrder(request);
-      _studies= await repository.fetchMyStudies();
+      await api.updateStudiesOrder(request);
+      _studies= await api.getMyStudies();
       notifyListeners();
     } catch (e) {
       log("deleteStudy 실패: $e\nRoll back 합니다.", name: "[Study Provider]");
@@ -164,8 +164,8 @@ class StudyProvider with ChangeNotifier, LoadingNotifier {
     notifyListeners();
 
     try{
-      await repository.leaveStudy(studyId);
-      _studies = await repository.fetchMyStudies();
+      await api.leaveStudy(studyId);
+      _studies = await api.getMyStudies();
       notifyListeners();
     } catch (e) {
       log("deleteStudy 실패: $e\nRoll back 합니다.", name: "[Study Provider]");

@@ -1,3 +1,5 @@
+import 'dart:developer';
+
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:reorderable_grid_view/reorderable_grid_view.dart';
@@ -5,6 +7,7 @@ import 'package:study_group_front_end/providers/study_provider.dart';
 import 'package:study_group_front_end/screens/study_query/widgets/floating_menu_overlay.dart';
 import 'package:study_group_front_end/screens/study_query/widgets/study_card.dart';
 import 'package:study_group_front_end/util/color_converters.dart';
+import 'package:study_group_front_end/util/study_toggle_button.dart';
 
 class StudiesScreen extends StatefulWidget {
   const StudiesScreen({super.key});
@@ -14,13 +17,11 @@ class StudiesScreen extends StatefulWidget {
 }
 
 class _StudyScreenState extends State<StudiesScreen> {
+  bool isProgressSelected = true;
 
   @override
   void initState() {
     super.initState();
-    // WidgetsBinding.instance.addPostFrameCallback((_) {
-    //   Provider.of<StudyProvider>(context, listen: false).getMyStudies();
-    // });
   }
 
   @override
@@ -46,6 +47,21 @@ class _StudyScreenState extends State<StudiesScreen> {
             ],
           ),
         ),
+        actions: [
+          Padding(
+            padding: const EdgeInsets.fromLTRB(5,10,8,0),
+            child: StudyToggleButton(
+                isProgress: isProgressSelected,
+                onToggle: (bool isProgress) {
+                  setState(() {
+                    // log("pressed $isProgress");
+                    isProgressSelected = isProgress;
+                    // log("pressed $isProgressSelected");
+                  });
+            }),
+          ),
+          SizedBox(width: 10),
+        ],
       ),
       body: RefreshIndicator(
         // 로딩 색상 숨김
@@ -122,10 +138,6 @@ class _StudyScreenState extends State<StudiesScreen> {
           ),
         ),
       ),
-      //skin
-      // bottomNavigationBar: CustomBottomNavigationBar(
-      //   selectedIndex: 0,
-      // ),
     );
   }
 }

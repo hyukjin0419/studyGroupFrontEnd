@@ -22,7 +22,6 @@ import 'package:study_group_front_end/providers/study_card_provider.dart';
 import 'package:study_group_front_end/providers/study_join_provider.dart';
 import 'package:study_group_front_end/providers/study_provider.dart';
 import 'package:study_group_front_end/repository/checklist_item_repository.dart';
-import 'package:study_group_front_end/repository/study_repository.dart';
 import 'package:study_group_front_end/router.dart';
 
 Future<void> main() async {
@@ -55,7 +54,7 @@ Future<void> main() async {
             create: (_) => MeProvider(AuthApiService(), MeApiService()),
           ),
           ChangeNotifierProvider(
-            create: (_) => StudyProvider(StudyRepository(StudyApiService())),
+            create: (_) => StudyProvider(StudyApiService()),
           ),
           ChangeNotifierProvider(
               create: (_) => StudyJoinProvider(StudyJoinApiService()),
