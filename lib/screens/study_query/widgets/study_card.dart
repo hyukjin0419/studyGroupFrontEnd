@@ -35,7 +35,10 @@ class StudyCard extends StatelessWidget {
 
           return Card(
             elevation: 0,
-            color: hexToColor(study.personalColor),
+            color: study.status == StudyStatus.DONE
+                ? Colors.grey
+                : hexToColor(study.personalColor),
+
             child: Stack(
               children: [
                 Positioned(

@@ -81,6 +81,10 @@ class StudyCardProvider with ChangeNotifier {
     final today = DateTime.now();
     final diffDays = dueDate.difference(today).inDays;
 
+    if (study.status == StudyStatus.DONE){
+      return "DONE";
+    }
+
     if (diffDays > 0) {
       return "D-$diffDays";
     } else if (diffDays == 0) {
@@ -93,6 +97,10 @@ class StudyCardProvider with ChangeNotifier {
   String getProgressStatus(StudyDetailResponse study) {
     // final progress = getProgress(study.id);
     final dueDate = study.dueDate;
+
+    if (study.status == StudyStatus.DONE){
+      return "완료된 프로젝트 입니다!";
+    }
 
     if (getProgress(study.id) == 1.0) {
       return "오늘 할 일 완료!";
