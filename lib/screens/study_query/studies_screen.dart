@@ -3,6 +3,7 @@ import 'dart:developer';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:reorderable_grid_view/reorderable_grid_view.dart';
+import 'package:study_group_front_end/dto/study/detail/study_detail_response.dart';
 import 'package:study_group_front_end/providers/study_provider.dart';
 import 'package:study_group_front_end/screens/study_query/widgets/floating_menu_overlay.dart';
 import 'package:study_group_front_end/screens/study_query/widgets/study_card.dart';
@@ -82,7 +83,23 @@ class _StudyScreenState extends State<StudiesScreen> {
                 return const Center(child: CircularProgressIndicator());
               }
 
-              final studies = provider.studies;
+              final allStudies = provider.studies;
+
+              final filteredStudies = allStudies
+                  .where((s) => isProgressSelected
+                  ? s.status == StudyStatus.PROGRESSING
+                  : s.status == StudyStatus.DONE)
+                  .toList();
+
+              if (filteredStudies.isEmpty) {
+                return Center(
+                  child: Text(
+                    isProgressSelected
+                        ? "진행중인 스터디가 없습니다."
+                        : "완료된 스터디가 없습니다.",
+                  ),
+                );
+              }
 
               return ReorderableGridView.builder(
                 physics: const AlwaysScrollableScrollPhysics(),
@@ -92,9 +109,9 @@ class _StudyScreenState extends State<StudiesScreen> {
                   mainAxisSpacing: 12,
                   childAspectRatio: 10 / 10,
                 ),
-                itemCount: studies.length,
+                itemCount: filteredStudies.length,
                 itemBuilder: (context, index) {
-                  final study = studies[index];
+                  final study = filteredStudies[index];
                   return StudyCard(
                     key: ValueKey(study.id),
                     study: study

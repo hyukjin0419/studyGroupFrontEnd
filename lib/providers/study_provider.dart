@@ -18,6 +18,7 @@ class StudyProvider with ChangeNotifier, LoadingNotifier {
   List<StudyDetailResponse> get studies => _studies;
   StudyDetailResponse? get selectedStudy => _selectedStudy;
 
+
   //--------------------Read--------------------//
   Future<void> getMyStudies() async {
     await runWithLoading(() async {
@@ -43,7 +44,7 @@ class StudyProvider with ChangeNotifier, LoadingNotifier {
         joinCode: '',
         personalColor: request.color,
         dueDate: request.dueDate,
-        status: '',
+        status: StudyStatus.PROGRESSING,
         members: const[]
     );
 
