@@ -20,8 +20,13 @@ class PersonalChecklistProvider with ChangeNotifier, LoadingNotifier {
 
   List<StudyDetailResponse> _myStudies = [];
 
-  void setMyStudies(List<StudyDetailResponse> studies) =>
-      (_myStudies = studies);
+  void setMyStudies(List<StudyDetailResponse> studies) {
+    // log("setmystudeis호출");
+    _myStudies = studies.where((s) => s.status == StudyStatus.PROGRESSING).toList();
+    // for(var study in _myStudies){
+    //   log(" ㄴ ${study.name} + ${study.status}");
+    // }
+  }
 
   int _currentMemberId = 0;
 

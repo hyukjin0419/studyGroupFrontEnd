@@ -84,7 +84,7 @@ class StudyProvider with ChangeNotifier, LoadingNotifier {
           _selectedStudy = updated;
         }
 
-        // _studies = await repository.fetchMyStudies();
+        _studies = await api.getMyStudies();
         // _selectedStudy = await repository.fetchMyStudy(request.studyId);
       });
       notifyListeners();
