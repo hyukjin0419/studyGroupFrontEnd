@@ -18,14 +18,6 @@ class StudyCardProvider with ChangeNotifier {
   final Map<int, double> _progressCache = {};
   Map<int, double> get progressMap => _progressCache;
 
-  //init은 어디서 호출? 앱 진입시 호출!
-    //init에서 구독 시작
-    //strea.linsten에서
-    //<int studyId, List<ChecklistItemResponse>>로 ?? 아니면 바로 _progressCache 작성..? -> 바로 작성하는 게 좋기는 하다
-      //-> 위 과정이 updateAllProgress를 대치
-    //나머지는 동일
-
-
   void init(){
     log("init study card provider");
     _subscription = repository.stream.listen((event){
@@ -48,28 +40,43 @@ class StudyCardProvider with ChangeNotifier {
   }
 
   void _updateProgressCache(List<ChecklistItemDetailResponse> items){
-    // log("update Progress Cache. 들어온 아이템");
+    final today = DateTime.now();
+    final todayItems = items.where((i) {
+      final date = i.targetDate;
+      return date.year == today.year &&
+          date.month == today.month &&
+          date.day == today.day;
+    }).toList();
 
-    for (var item in items) {
-      _itemsByStudy.putIfAbsent(item.studyId, () => []).add(item);
-      // log("     ㄴ ${item.studyId}");
+
+    for (var item in todayItems) {
+      final list = _itemsByStudy.putIfAbsent(item.studyId, () => []);
+      final index = list.indexWhere((i) => i.id == item.id);
+      if (index >= 0) {
+        list[index] = item;
+      } else {
+        list.add(item);
+      }
     }
 
-    _itemsByStudy.forEach((studyId, items){
-      if (items.isEmpty) {
+    _itemsByStudy.forEach((studyId, todayItems){
+      if (todayItems.isEmpty) {
         _progressCache[studyId] = 0.0;
         return;
       }
 
-      final completed = items.where((i) => i.completed).length;
-      final progress = completed / items.length;
-      // log("studyId: $studyId -> progress: $progress");
+      final completed = todayItems.where((i) => i.completed).length;
+      final progress = completed / todayItems.length;
+      // log("     ㄴ ${studyId}: ${completed} / ${todayItems.length} = ${progress}");
       _progressCache[studyId] = progress;
     });
+
+    notifyListeners();
   }
 
   void clearCache() {
     _progressCache.clear();
+    _itemsByStudy.clear();
     notifyListeners();
   }
 

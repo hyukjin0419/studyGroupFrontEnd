@@ -20,6 +20,7 @@ class StudyCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+
     return GestureDetector(
       onTap:(){
         context.push(
