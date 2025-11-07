@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
+import 'package:study_group_front_end/dto/study/detail/study_detail_response.dart';
 import 'package:study_group_front_end/dto/study/update/study_update_request.dart';
 import 'package:study_group_front_end/providers/study_provider.dart';
 import 'package:study_group_front_end/screens/study_command/widgets/calendar_card.dart';
@@ -23,7 +24,7 @@ class StudyUpdateScreen extends StatefulWidget {
 class _StudyUpdateScreenState extends State<StudyUpdateScreen> {
   final _formKey = GlobalKey<FormState>();
   late final TextEditingController _controller;
-  bool _isLoading = false;
+  final bool _isLoading = false;
 
   // 날짜/달력 상태
   DateTime? _selectedDate;
@@ -33,12 +34,16 @@ class _StudyUpdateScreenState extends State<StudyUpdateScreen> {
   // 색상 상태
   late Color _selectedColor;
 
+  //완료 상태
+  late StudyStatus _status;
+
   @override
   void initState() {
     super.initState();
     _selectedDate = widget.initialData.dueDate;
     _selectedColor = hexToColor(widget.initialData.personalColor);
     _controller = TextEditingController(text: widget.initialData.name);
+    _status = widget.initialData.status;
   }
 
   @override
@@ -157,6 +162,8 @@ class _StudyUpdateScreenState extends State<StudyUpdateScreen> {
               secondChild: const SizedBox(height: 4, width: double.infinity),
             ),
 
+            //TODO 여기 완료하기 버튼 추가
+            _buildCompletionSection(),
             const Spacer(),
 
             // 생성 버튼
@@ -212,7 +219,8 @@ class _StudyUpdateScreenState extends State<StudyUpdateScreen> {
         studyId: widget.initialData.studyId,
         name: _controller.text.trim(),
         personalColor: colorToHex(_selectedColor),
-        dueDate: _selectedDate
+        dueDate: _selectedDate,
+        status: _status
       );
 
       if (!mounted) return;
@@ -224,12 +232,93 @@ class _StudyUpdateScreenState extends State<StudyUpdateScreen> {
       if (!mounted) return;
       ScaffoldMessenger.of(context)
           .showSnackBar(const SnackBar(content: Text('팀이 수정되었습니다.')));
-      Navigator.of(context).pop();
     } catch (e) {
       if (!mounted) return;
       ScaffoldMessenger.of(context)
           .showSnackBar(SnackBar(content: Text('수정 실패: $e')));
     }
   }
+
+  Widget _buildCompletionSection() {
+    final isDone = _status == StudyStatus.DONE;
+
+    return Padding(
+      padding: const EdgeInsets.fromLTRB(20, 16, 20, 0),
+      child: Container(
+        decoration: BoxDecoration(
+          color: isDone
+              ? const Color(0xFFE8F5E9)  // 연한 초록 배경
+              : Colors.grey.shade50,
+          borderRadius: BorderRadius.circular(12),
+          border: Border.all(
+            color: isDone
+                ? Colors.green.withOpacity(0.3)
+                : Colors.grey.shade300,
+            width: 1,
+          ),
+        ),
+        child: Material(
+          color: Colors.transparent,
+          child: InkWell(
+            onTap: () => _toggleCompletionStatus(),
+            borderRadius: BorderRadius.circular(12),
+            child: Padding(
+              padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
+              child: Row(
+                children: [
+                  // 체크박스
+                  SizedBox(
+                    width: 24,
+                    height: 24,
+                    child: Checkbox(
+                      value: isDone,
+                      onChanged: (_) => _toggleCompletionStatus(),
+                      activeColor: Colors.green,
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(4),
+                      ),
+                    ),
+                  ),
+                  const SizedBox(width: 12),
+
+                  // 텍스트
+                  Expanded(
+                    child: Text(
+                      isDone ? '팀 프로젝트 완료됨' : '팀 프로젝트 완료하기',
+                      style: Theme.of(context).textTheme.bodyLarge?.copyWith(
+                        fontWeight: FontWeight.w600,
+                        color: isDone
+                            ? Colors.green.shade700
+                            : Colors.black87,
+                      ),
+                    ),
+                  ),
+
+                  // 상태 아이콘
+                  if (isDone)
+                    Icon(
+                      Icons.check_circle,
+                      color: Colors.green.shade600,
+                      size: 22,
+                    ),
+                ],
+              ),
+            ),
+          ),
+        ),
+      ),
+    );
+  }
+
+// 상태 토글 메소드 추가
+  void _toggleCompletionStatus() {
+    setState(() {
+      _status = _status == StudyStatus.DONE
+          ? StudyStatus.PROGRESSING
+          : StudyStatus.DONE;
+    });
+  }
 }
+
+
 

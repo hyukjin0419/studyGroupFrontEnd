@@ -106,7 +106,6 @@ Future<void> showStudyDetailModal({
 
               //footer
               _buildModalFooter(
-                //Todo: 상세정보 보기
                 isLeader: isLeader,
                 onDetailPressed : () {
                   context.push('/studies/${study.id}');
@@ -119,6 +118,7 @@ Future<void> showStudyDetailModal({
                       name: study.name,
                       personalColor: study.personalColor,
                       dueDate: study.dueDate,
+                      status: study.status
                     ),
                   );
                   Navigator.of(context).pop();
