@@ -40,7 +40,7 @@ class _StudyCreateScreenState extends State<StudyCreateScreen> {
       appBar: AppBar(
         title: Text(
           '팀 생성하기',
-            style: Theme.of(context).textTheme.displayMedium,
+          style: Theme.of(context).textTheme.bodyLarge!,
         ),
         leading: IconButton(
           icon: const Icon(Icons.arrow_back),
@@ -91,7 +91,12 @@ class _StudyCreateScreenState extends State<StudyCreateScreen> {
                   ),
 
                   GestureDetector(
-                    onTap: () => setState(() => _calendarOpen = !_calendarOpen),
+                    onTap: () {
+                      FocusScope.of(context).unfocus();
+                      Future.delayed(const Duration(milliseconds: 100), (){
+                        setState(() => _calendarOpen = !_calendarOpen);
+                      });
+                    },
                     child: AbsorbPointer(
                       child: Padding(
                         padding: const EdgeInsets.all(20.0),

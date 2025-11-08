@@ -20,8 +20,13 @@ class PersonalChecklistProvider with ChangeNotifier, LoadingNotifier {
 
   List<StudyDetailResponse> _myStudies = [];
 
-  void setMyStudies(List<StudyDetailResponse> studies) =>
-      (_myStudies = studies);
+  void setMyStudies(List<StudyDetailResponse> studies) {
+    // log("setmystudeis호출");
+    _myStudies = studies.where((s) => s.status == StudyStatus.PROGRESSING).toList();
+    // for(var study in _myStudies){
+    //   log(" ㄴ ${study.name} + ${study.status}");
+    // }
+  }
 
   int _currentMemberId = 0;
 
@@ -31,8 +36,7 @@ class PersonalChecklistProvider with ChangeNotifier, LoadingNotifier {
 
   DateTime? get selectedDate => _selectedDate;
 
-  StreamSubscription<
-      (bool delete, List<ChecklistItemDetailResponse> items)>? _subscription;
+  StreamSubscription<(bool delete, List<ChecklistItemDetailResponse> items)>? _subscription;
 
   List<PersonalCheckListGroupVM> _groups = [];
 
@@ -70,8 +74,8 @@ class PersonalChecklistProvider with ChangeNotifier, LoadingNotifier {
         _todayItemsMap.clear();
       }
 
-      log("📡 stream 데이터 수신: ${newItems.length}개",
-          name: "ChecklistItemProvider");
+      // log("📡 stream 데이터 수신: ${newItems.length}개",
+      //     name: "ChecklistItemProvider");
 
       _applyFiltering(newItems);
       _setLoading(false);
@@ -95,13 +99,13 @@ class PersonalChecklistProvider with ChangeNotifier, LoadingNotifier {
   }
 
   void _applyFiltering(List<ChecklistItemDetailResponse> allItems) {
-    log(
-        "applying Filter! currentMemberId ${_currentMemberId}, date${_selectedDate}",
-        name: "PersonalProvider");
-    log("mystudies = ", name: "PersonalProvider");
-    for (var studyId in _myStudies) {
-      log("ㄴ ${studyId.id}", name: "PersonalProvider");
-    }
+    // log(
+    //     "applying Filter! currentMemberId ${_currentMemberId}, date${_selectedDate}",
+    //     name: "PersonalProvider");
+    // log("mystudies = ", name: "PersonalProvider");
+    // for (var studyId in _myStudies) {
+    //   log("ㄴ ${studyId.id}", name: "PersonalProvider");
+    // }
     //1차 필터링
     final filtered = allItems.where((item) {
       final sameMember = item.memberId == _currentMemberId;
@@ -140,8 +144,8 @@ class PersonalChecklistProvider with ChangeNotifier, LoadingNotifier {
         isSameDate(item.targetDate, _selectedDate!)).toList();
 
     for (var item in selectedDateItems) {
-      log("Today: ${item.targetDate}, studyId: ${item.studyId}, content: ${item
-          .content}", name: "PersonalProvider");
+      // log("Today: ${item.targetDate}, studyId: ${item.studyId}, content: ${item
+      //     .content}", name: "PersonalProvider");
       final id = item.id;
       final tempId = item.tempId;
 
@@ -179,6 +183,7 @@ class PersonalChecklistProvider with ChangeNotifier, LoadingNotifier {
         s.id: PersonalCheckListGroupVM(
           studyId: s.id,
           studyName: s.name,
+          studyMemberId: s.members.firstWhere((m) => m.memberId == _currentMemberId).studyMemberId,
           items: [],
         ),
     };
@@ -190,9 +195,11 @@ class PersonalChecklistProvider with ChangeNotifier, LoadingNotifier {
   void _updateGroups(List<ChecklistItemDetailResponse> items) {
     final Map<int, PersonalCheckListGroupVM> groupMap = {
       for (var s in _myStudies)
+        // log("mystudy : ${s.name}"),
         s.id: PersonalCheckListGroupVM(
           studyId: s.id,
           studyName: s.name,
+          studyMemberId: s.members.firstWhere((m) => m.memberId == _currentMemberId).studyMemberId,
           items: [],
         ),
     };
@@ -204,6 +211,7 @@ class PersonalChecklistProvider with ChangeNotifier, LoadingNotifier {
             PersonalCheckListGroupVM(
               studyId: item.studyId,
               studyName: item.studyName,
+              studyMemberId: item.studyMemberId,
               items: [],
             ),
       );
@@ -226,7 +234,6 @@ class PersonalChecklistProvider with ChangeNotifier, LoadingNotifier {
     }
   }
 
-//TODO CRUD Provider
   // =============================== CRUD (Optimistic) ===========================//
 
   Future<void> createPersonalChecklist(int studyId, String content) async {
@@ -253,8 +260,8 @@ class PersonalChecklistProvider with ChangeNotifier, LoadingNotifier {
       orderIndex: group.totalCount,
     );
 
-    log("createdChecklistItem시 Optimistic 하게 Item 추가",
-        name: "PersonalChecklistProvider");
+    // log("createdChecklistItem시 Optimistic 하게 Item 추가",
+    //     name: "PersonalChecklistProvider");
     _filteredMap[tempId] = tempItem;
     _updateGroups(_filteredMap.values.toList());
     notifyListeners();
@@ -295,7 +302,7 @@ class PersonalChecklistProvider with ChangeNotifier, LoadingNotifier {
   }
 
   Future<void> reorderChecklistItem(
-      List<ChecklistItemDetailResponse> requests) async {
+    List<ChecklistItemDetailResponse> requests) async {
     await repository.reorder(requests, _selectedDate!);
     notifyListeners();
   }
@@ -311,6 +318,10 @@ class PersonalChecklistProvider with ChangeNotifier, LoadingNotifier {
         return item;
       });
     }).toList();
+  }
+
+  void updateCacheAfterReorder(List<ChecklistItemDetailResponse> reorderedItems){
+    repository.updateCacheAfterReorder(reorderedItems, _selectedDate!);
   }
 
 // ================= Drag & Drop =================
@@ -345,6 +356,7 @@ class PersonalChecklistProvider with ChangeNotifier, LoadingNotifier {
     fromGroup.items.removeAt(fromIndex);
 
     item.studyId = toStudyId;
+    item.studyMemberId = toGroup.studyMemberId;
 
     toGroup.items.insert(toIndex, item);
 
@@ -354,8 +366,6 @@ class PersonalChecklistProvider with ChangeNotifier, LoadingNotifier {
     }
 
     _sortGroups();
-
-    notifyListeners();
   }
 
   int getIndexOf(ChecklistItemDetailResponse item) {

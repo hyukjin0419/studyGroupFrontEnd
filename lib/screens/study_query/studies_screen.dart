@@ -1,10 +1,14 @@
+import 'dart:developer';
+
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:reorderable_grid_view/reorderable_grid_view.dart';
+import 'package:study_group_front_end/dto/study/detail/study_detail_response.dart';
 import 'package:study_group_front_end/providers/study_provider.dart';
 import 'package:study_group_front_end/screens/study_query/widgets/floating_menu_overlay.dart';
 import 'package:study_group_front_end/screens/study_query/widgets/study_card.dart';
 import 'package:study_group_front_end/util/color_converters.dart';
+import 'package:study_group_front_end/util/study_toggle_button.dart';
 
 class StudiesScreen extends StatefulWidget {
   const StudiesScreen({super.key});
@@ -14,13 +18,11 @@ class StudiesScreen extends StatefulWidget {
 }
 
 class _StudyScreenState extends State<StudiesScreen> {
+  bool isProgressSelected = true;
 
   @override
   void initState() {
     super.initState();
-    // WidgetsBinding.instance.addPostFrameCallback((_) {
-    //   Provider.of<StudyProvider>(context, listen: false).getMyStudies();
-    // });
   }
 
   @override
@@ -39,13 +41,28 @@ class _StudyScreenState extends State<StudiesScreen> {
               SizedBox(width: 5),
               Text(
                 "Sync Mate",
-                style: Theme.of(context).textTheme.displayMedium?.copyWith(
+                  style: Theme.of(context).textTheme.bodyLarge!.copyWith(
                   color: hexToColor("0xFF1B325E"),
                 ),
               ),
             ],
           ),
         ),
+        actions: [
+          Padding(
+            padding: const EdgeInsets.fromLTRB(5,10,8,0),
+            child: StudyToggleButton(
+                isProgress: isProgressSelected,
+                onToggle: (bool isProgress) {
+                  setState(() {
+                    // log("pressed $isProgress");
+                    isProgressSelected = isProgress;
+                    // log("pressed $isProgressSelected");
+                  });
+            }),
+          ),
+          SizedBox(width: 10),
+        ],
       ),
       body: RefreshIndicator(
         // 로딩 색상 숨김
@@ -66,7 +83,23 @@ class _StudyScreenState extends State<StudiesScreen> {
                 return const Center(child: CircularProgressIndicator());
               }
 
-              final studies = provider.studies;
+              final allStudies = provider.studies;
+
+              final filteredStudies = allStudies
+                  .where((s) => isProgressSelected
+                  ? s.status == StudyStatus.PROGRESSING
+                  : s.status == StudyStatus.DONE)
+                  .toList();
+
+              if (filteredStudies.isEmpty) {
+                return Center(
+                  child: Text(
+                    isProgressSelected
+                        ? "진행중인 스터디가 없습니다."
+                        : "완료된 스터디가 없습니다.",
+                  ),
+                );
+              }
 
               return ReorderableGridView.builder(
                 physics: const AlwaysScrollableScrollPhysics(),
@@ -76,9 +109,9 @@ class _StudyScreenState extends State<StudiesScreen> {
                   mainAxisSpacing: 12,
                   childAspectRatio: 10 / 10,
                 ),
-                itemCount: studies.length,
+                itemCount: filteredStudies.length,
                 itemBuilder: (context, index) {
-                  final study = studies[index];
+                  final study = filteredStudies[index];
                   return StudyCard(
                     key: ValueKey(study.id),
                     study: study
@@ -122,10 +155,6 @@ class _StudyScreenState extends State<StudiesScreen> {
           ),
         ),
       ),
-      //skin
-      // bottomNavigationBar: CustomBottomNavigationBar(
-      //   selectedIndex: 0,
-      // ),
     );
   }
 }

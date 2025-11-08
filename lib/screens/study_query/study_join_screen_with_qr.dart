@@ -23,7 +23,7 @@ class _StudyJoinScreenWithQrState extends State<StudyJoinScreenWithQr>{
       appBar: AppBar(
         title: Text(
           "팀 참여하기",
-          style: Theme.of(context).textTheme.displayMedium,
+          style: Theme.of(context).textTheme.bodyLarge!,
         ),
       ),
       body: Padding(

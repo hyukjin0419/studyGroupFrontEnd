@@ -73,7 +73,6 @@ class _ChecklistScreenState extends State<ChecklistScreen> {
                   _checklistItemProvider.updateSelectedDate(date);
                 },
               ),
-              const SizedBox(height: 12),
               MemberChecklistGroupView(
                 study: widget.study,
                 selectedDate: provider.selectedDate!,

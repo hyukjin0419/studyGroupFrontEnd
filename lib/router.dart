@@ -9,6 +9,7 @@ import 'package:study_group_front_end/screens/auth/sign_up_screen.dart';
 import 'package:study_group_front_end/screens/checklist/personal/personal_screen.dart';
 import 'package:study_group_front_end/screens/checklist/team/checklist_screen.dart';
 import 'package:study_group_front_end/screens/common_widgets/custom_bottom_navigation_bar.dart';
+import 'package:study_group_front_end/screens/insight/InsightScreen.dart';
 import 'package:study_group_front_end/screens/setting/edit_email_screen.dart';
 import 'package:study_group_front_end/screens/setting/edit_user_name_screen.dart';
 import 'package:study_group_front_end/screens/setting/me_screen.dart';
@@ -70,11 +71,18 @@ final GoRouter router = GoRouter(
             ),
         ),
         GoRoute(
+          path: '/insight',
+          pageBuilder: (context,state) => NoTransitionPage(
+            child: const InsightScreen(),
+          ),
+        ),
+        GoRoute(
           path: '/settings',
           pageBuilder: (context,state) => NoTransitionPage(
             child: const SettingScreen(),
           ),
         ),
+
       ]
     ),
 //==========================ShellRoute END==============================//
@@ -140,7 +148,7 @@ final GoRouter router = GoRouter(
 int _calculateIndex(String location) {
   if (location.startsWith('/personal')) return 0;
   if (location.startsWith('/studies')) return 1;
-  if (location.startsWith('/schedule')) return 2;
+  if (location.startsWith('/insight')) return 2;
   if (location.startsWith('/settings')) return 3;
   return 0;
 }

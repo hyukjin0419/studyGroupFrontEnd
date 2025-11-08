@@ -27,6 +27,7 @@ Future<void> showStudyDetailModal({
       context: context,
       useSafeArea: true,
       showDragHandle: true,
+      isScrollControlled: true,
       backgroundColor: Theme.of(context).colorScheme.surface,
       shape: const RoundedRectangleBorder(
         borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
@@ -87,7 +88,7 @@ Future<void> showStudyDetailModal({
                       color: Theme.of(context).colorScheme.surface,
                     ),
                     if(isLeader) ... [
-                      _buildInviteCodeRow(context, study.joinCode),
+                      _buildInviteCodeRow(context, study.joinCode, study.personalColor),
                       Divider(
                         color: Theme.of(context).colorScheme.surface,
                       ),
@@ -105,9 +106,11 @@ Future<void> showStudyDetailModal({
 
               //footer
               _buildModalFooter(
-                //Todo: 상세정보 보기
                 isLeader: isLeader,
-                onDetailPressed: () {
+                onDetailPressed : () {
+                  context.push('/studies/${study.id}');
+                },
+                onEditPressed: () {
                   context.push(
                     '/studies/${study.id}/update',
                     extra: StudyUpdateRequest(
@@ -115,6 +118,7 @@ Future<void> showStudyDetailModal({
                       name: study.name,
                       personalColor: study.personalColor,
                       dueDate: study.dueDate,
+                      status: study.status
                     ),
                   );
                   Navigator.of(context).pop();
@@ -123,8 +127,7 @@ Future<void> showStudyDetailModal({
                   _confirmAndDeleteStudy(context, study.id, study.personalColor);
                 },
                 onLeavePressed: () {
-                  Navigator.of(context).pop();
-                  //Todo: 스터디 탈퇴 로직
+                  _confirmAndLeaveStudy(context, study.id, study.personalColor);
                 },
               ),
               SizedBox(height: 20),
@@ -178,7 +181,7 @@ Widget _buildLabelAndChips(BuildContext context, String label, String color, Lis
   );
 }
 
-Widget _buildInviteCodeRow(BuildContext context, String inviteCode) {
+Widget _buildInviteCodeRow(BuildContext context, String inviteCode, String color) {
   return Row(
     crossAxisAlignment: CrossAxisAlignment.center,
       children: [
@@ -195,7 +198,10 @@ Widget _buildInviteCodeRow(BuildContext context, String inviteCode) {
           onPressed: (){
             showDialog(
                 context: context,
-                builder: (_) => StudyJoinCodeToQrDialog(joinCode: inviteCode)
+                builder: (_) => StudyJoinCodeToQrDialog(
+                  color: color,
+                  joinCode: inviteCode
+                )
             );
           },
           visualDensity: VisualDensity.compact,
@@ -208,6 +214,7 @@ Widget _buildInviteCodeRow(BuildContext context, String inviteCode) {
 
 Widget _buildModalFooter({
   required bool isLeader,
+  required VoidCallback onEditPressed,
   required VoidCallback onDetailPressed,
   required VoidCallback onDeletePressed,
   required VoidCallback onLeavePressed,
@@ -216,17 +223,16 @@ Widget _buildModalFooter({
   return Row(
     mainAxisAlignment: MainAxisAlignment.spaceBetween,
     children: [
-      // 상세정보 버튼
-      Expanded(
-        child:
-          ActionButton(icon: Icons.info_outline, label: '상세정보', onTap: onDetailPressed),
-      ),
-      const SizedBox(width: 15),
-      // 리더냐 아니냐에 따라 오른쪽 버튼 변경
       Expanded(
         child: isLeader
-            ? ActionButton(icon: Icons.delete_outline, label: '삭제', onTap: onDeletePressed, color: Colors.redAccent)
-            : ActionButton(icon: Icons.exit_to_app, label: '탈퇴', onTap: onLeavePressed, color: Colors.redAccent)
+          ? ActionButton(icon: Icons.edit_outlined, label: '수정하기', onTap: onEditPressed)
+          : ActionButton(icon: Icons.info_outline, label: '상세정보', onTap: onDetailPressed),
+      ),
+      const SizedBox(width: 15),
+      Expanded(
+        child: isLeader
+          ? ActionButton(icon: Icons.delete_outline, label: '삭제', onTap: onDeletePressed, color: Colors.redAccent)
+          : ActionButton(icon: Icons.exit_to_app, label: '탈퇴', onTap: onLeavePressed, color: Colors.redAccent)
       ),
     ],
   );
@@ -245,14 +251,47 @@ Future<void> _confirmAndDeleteStudy(BuildContext context, int studyId, String co
   if (confirmed != true) return;
 
   try {
-    log("ui단 호출");
+    // log("ui단 호출");
     final studyProvider = context.read<StudyProvider>();
-    log("Provider 찾음: ${studyProvider.runtimeType}");
+    // log("Provider 찾음: ${studyProvider.runtimeType}");
     await studyProvider.deleteStudy(studyId);
 
     if (context.mounted) {
       ScaffoldMessenger.of(context).showSnackBar(
         const SnackBar(content: Text('스터디가 삭제되었습니다.')),
+      );
+    }
+
+    Navigator.of(context).pop();
+  } catch (e) {
+    if (context.mounted) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text('삭제 실패: $e')),
+      );
+    }
+  }
+}
+
+Future<void> _confirmAndLeaveStudy(BuildContext context, int studyId, String color) async {
+  final confirmed = await showConfirmationDialog(
+    context: context,
+    title: "정말 탈퇴 하시겠어요?",
+    description: "탈퇴한 팀에 할당된 사용자님의 모든 체크리스트가 삭제되고\n 그 후로는 복구가 어렵습니다.",
+    confirmColor: hexToColor(color),
+  );
+
+
+  if (confirmed != true) return;
+
+  try {
+    // log("ui단 호출");
+    final studyProvider = context.read<StudyProvider>();
+    // log("Provider 찾음: ${studyProvider.runtimeType}");
+    await studyProvider.leaveStudy(studyId);
+
+    if (context.mounted) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text('정상적으로 탈퇴되었습니다.')),
       );
     }
 

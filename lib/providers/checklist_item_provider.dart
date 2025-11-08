@@ -21,6 +21,13 @@ class ChecklistItemProvider with ChangeNotifier, LoadingNotifier{
   List<StudyMemberSummaryResponse> _studyMembers = [];
   void setStudyMembers(List<StudyMemberSummaryResponse> members) => (_studyMembers = members);
 
+  Map<int, int> get _studyMemberToMemberMap {
+    return {
+      for (final sm in _studyMembers)
+        sm.studyMemberId: sm.memberId,
+    };
+  }
+
   StudyDetailResponse? _study;
   StudyDetailResponse? get study => _study;
   void updateStudy(StudyDetailResponse? study) => _study = study;
@@ -33,9 +40,6 @@ class ChecklistItemProvider with ChangeNotifier, LoadingNotifier{
   //same date & in this study!
   Map<int, ChecklistItemDetailResponse> _filteredMap = {};
   List<ChecklistItemDetailResponse> get filteredItems => _filteredMap.values.toList();
-
-  //same date
-  Map<int, List<ChecklistItemDetailResponse>> _todayItems = {};
 
   //--------------로딩---------------------------//
   bool _isLoading = false;
@@ -51,10 +55,10 @@ class ChecklistItemProvider with ChangeNotifier, LoadingNotifier{
   void initializeContext(StudyDetailResponse? study, List<StudyMemberSummaryResponse> members) async {
     updateStudy(study);
     setStudyMembers(members);
-    log("해당 스터디 ${_study!.id}의 members", name: "ChecklistItemProvider");
-    for(var member in _studyMembers) {
-      log("ㄴ ${member.userName}", name: "ChecklistItemProvider");
-    }
+    // log("해당 스터디 ${_study!.id}의 members", name: "ChecklistItemProvider");
+    // for(var member in _studyMembers) {
+    //   log("ㄴ ${member.userName}", name: "ChecklistItemProvider");
+    // }
 
     _selectedDate ??= DateTime.now();
 
@@ -65,7 +69,7 @@ class ChecklistItemProvider with ChangeNotifier, LoadingNotifier{
         _filteredMap.clear();
       }
 
-      log("📡 stream 데이터 수신: ${newItems.length}개", name: "ChecklistItemProvider");
+      // log("📡 stream 데이터 수신: ${newItems.length}개", name: "ChecklistItemProvider");
 
       _applyFiltering(newItems);
       _setLoading(false);
@@ -94,22 +98,7 @@ class ChecklistItemProvider with ChangeNotifier, LoadingNotifier{
   }
 
   void _applyFiltering(List<ChecklistItemDetailResponse> newItems){
-    log("applying Filter! studyId ${_study!.id}, date${_selectedDate!}", name: "ChecklistItemProvider");
-
-    //study_card를 위한 stats
-    final filteredByTodayDate = newItems.where((item) {
-      final sameDate = isSameDate(item.targetDate, _selectedDate!);
-      return sameDate;
-    }).toList();
-
-    _todayItems.clear();
-
-    for(final item in filteredByTodayDate) {
-      final studyId = item.studyId;
-      _todayItems.putIfAbsent(studyId, () => <ChecklistItemDetailResponse>[]).add(item);
-    }
-
-    notifyListeners();
+    // log("applying Filter! studyId ${_study!.id}, date${_selectedDate!}", name: "ChecklistItemProvider");
 
     //checklist_screen을 위한 stats
     final filtered = newItems.where((item) {
@@ -120,7 +109,7 @@ class ChecklistItemProvider with ChangeNotifier, LoadingNotifier{
 
 
     for (var item in filtered){
-      log("Today: ${item.targetDate}, studyId: ${item.studyId}, checklistId: ${item.id}, content: ${item.content}", name: "ChecklistItemProvider");
+      // log("Today: ${item.targetDate}, studyId: ${item.studyId}, checklistId: ${item.id}, content: ${item.content}", name: "ChecklistItemProvider");
       final id = item.id;
       final tempId = item.tempId;
 
@@ -143,6 +132,7 @@ class ChecklistItemProvider with ChangeNotifier, LoadingNotifier{
 
     _updateGroups(_filteredMap.values.toList());
     _sortGroups();
+    // log("filter");
     notifyListeners();
   }
 
@@ -253,11 +243,13 @@ class ChecklistItemProvider with ChangeNotifier, LoadingNotifier{
   }
 
   Future<void> reorderChecklistItem(List<ChecklistItemDetailResponse> requests) async {
+    // log("reorderChecklistItem 호출");
     await repository.reorder(requests, _selectedDate!);
     notifyListeners();
   }
 
   List<ChecklistItemDetailResponse> buildReorderRequests() {
+    // log("buildReorderRequests 호출");
     return _groups.expand((group) {
       return group.items
           .asMap()
@@ -268,6 +260,10 @@ class ChecklistItemProvider with ChangeNotifier, LoadingNotifier{
         return item;
       });
     }).toList();
+  }
+
+  void updateCacheAfterReorder(List<ChecklistItemDetailResponse> reorderedItems){
+    repository.updateCacheAfterReorder(reorderedItems, _selectedDate!);
   }
 
   // ================= Drag & Drop =================
@@ -291,17 +287,21 @@ class ChecklistItemProvider with ChangeNotifier, LoadingNotifier{
 
   void moveItem({
     required ChecklistItemDetailResponse item,
-    required int fromMemberId,
+    required int fromStudyMemberId,
     required int fromIndex,
-    required int toMemberId,
+    required int toStudyMemberId,
     required int toIndex,
   }) {
-    final fromGroup = _groups.firstWhere((g) => g.studyMemberId == fromMemberId);
-    final toGroup   = _groups.firstWhere((g) => g.studyMemberId == toMemberId);
+    // log("move Item 호출");
+    final toMemberId = _studyMemberToMemberMap[toStudyMemberId];
+
+    final fromGroup = _groups.firstWhere((g) => g.studyMemberId == fromStudyMemberId);
+    final toGroup   = _groups.firstWhere((g) => g.studyMemberId == toStudyMemberId);
 
     fromGroup.items.removeAt(fromIndex);
 
-    item.studyMemberId = toMemberId;
+    item.studyMemberId = toStudyMemberId;
+    item.memberId = toMemberId!;
 
     toGroup.items.insert(toIndex, item);
 
@@ -324,21 +324,39 @@ class ChecklistItemProvider with ChangeNotifier, LoadingNotifier{
     }
   }
 
+
+  //TODO 여기 삭제하고 study_card_provider에서 stream 구독한다음에 하자
   //============= Study Progress ==============
-  double getProgress(int studyId){
-    final items = _todayItems[studyId] ?? [];
+  double getProgress(int studyId) {
+    final items = _filteredMap.values
+        .where((item) => item.studyId == studyId)
+        .toList();
+
     if (items.isEmpty) return 0.0;
+
     final completed = items.where((i) => i.completed).length;
-    return completed / items.length;
+    final progress = completed / items.length;
+
+    return progress;
   }
 
   Map<int, double> getProgressMap() {
+    final Map<int, List<ChecklistItemDetailResponse>> byStudy = {};
+    for (final item in _filteredMap.values) {
+      byStudy.putIfAbsent(item.studyId, () => []).add(item);
+    }
+
     final Map<int, double> map = {};
-    _todayItems.forEach((studyId, items){
+    byStudy.forEach((studyId, items) {
       if (items.isEmpty) return;
       final completed = items.where((i) => i.completed).length;
-      map[studyId] = completed / items.length;
+      final progress = completed / items.length;
+      map[studyId] = progress;
+
+      // log(" ㄴ studyId=$studyId → completed=$completed / total=${items.length} → progress=$progress",
+      //     name: "ChecklistItemProvider");
     });
+
     return map;
   }
 }
@@ -347,32 +365,3 @@ enum HoverStatus{
   hovering,
   notHovering,
 }
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-

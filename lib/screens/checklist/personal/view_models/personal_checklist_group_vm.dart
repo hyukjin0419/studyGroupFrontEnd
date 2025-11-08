@@ -3,11 +3,13 @@ import 'package:study_group_front_end/dto/checklist_item/detail/checklist_item_d
 class PersonalCheckListGroupVM{
   final int studyId;
   final String? studyName;
+  final int studyMemberId;
   final List<ChecklistItemDetailResponse> items;
 
   PersonalCheckListGroupVM({
     required this.studyId,
     required this.studyName,
+    required this.studyMemberId,
     required this.items,
   });
 

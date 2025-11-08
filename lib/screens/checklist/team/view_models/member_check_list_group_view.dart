@@ -95,7 +95,7 @@ class _MemberChecklistGroupViewState extends State<MemberChecklistGroupView> {
           controller: _scrollController,
           shrinkWrap: true,
           physics: const NeverScrollableScrollPhysics(),
-          padding: const EdgeInsets.fromLTRB(22, 8, 16, 24),
+          padding: const EdgeInsets.fromLTRB(22, 0, 16, 24),
           itemCount: groups.length,
           separatorBuilder: (_, __) => const SizedBox.shrink(),
           itemBuilder: (context, i) {
@@ -105,6 +105,7 @@ class _MemberChecklistGroupViewState extends State<MemberChecklistGroupView> {
             return Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
+                SizedBox(height: 10),
                 MemberHeaderChip(
                   name: group.memberDisplayName,
                   color: _personalColor,
@@ -162,9 +163,9 @@ class _MemberChecklistGroupViewState extends State<MemberChecklistGroupView> {
         provider.setHoveredItem(dragged.data.id);
         provider.moveItem(
           item: dragged.data,
-          fromMemberId: dragged.data.studyMemberId,
+          fromStudyMemberId: dragged.data.studyMemberId,
           fromIndex: provider.getIndexOf(dragged.data),
-          toMemberId: g.studyMemberId,
+          toStudyMemberId: g.studyMemberId,
           toIndex: 0,
         );
         return true;
@@ -177,12 +178,26 @@ class _MemberChecklistGroupViewState extends State<MemberChecklistGroupView> {
         final isHovered = candidateData.isNotEmpty;
         return Container(
           height: _emptyTargetHeight,
+          padding: const EdgeInsets.symmetric(horizontal: 12),
           decoration: BoxDecoration(
             border: Border.all(
-              color: isHovered ? _personalColor : Colors.transparent,
+              color: isHovered ? _personalColor : Colors.grey[300]!,
             ),
             borderRadius: BorderRadius.circular(8),
             color: isHovered ? _personalColor.withOpacity(0.1) : Colors.transparent,
+          ),
+          child: Align(
+            alignment: Alignment.centerLeft,
+            child: isHovered
+                ? null
+                : Text(
+              '아직 할당된 체크리스트가 없습니다. 드래그하거나 추가해보세요!',
+              style: TextStyle(
+                color: Colors.grey[400],
+                fontSize: 12,
+                fontWeight: FontWeight.w400,
+              ),
+            ),
           ),
         );
       },
@@ -202,9 +217,9 @@ class _MemberChecklistGroupViewState extends State<MemberChecklistGroupView> {
         provider.setHoveredItem(item.id);
         provider.moveItem(
           item: dragged.data,
-          fromMemberId: dragged.data.studyMemberId,
+          fromStudyMemberId: dragged.data.studyMemberId,
           fromIndex: provider.getIndexOf(dragged.data),
-          toMemberId: g.studyMemberId,
+          toStudyMemberId: g.studyMemberId,
           toIndex: index,
         );
         return true;
@@ -353,6 +368,8 @@ class _MemberChecklistGroupViewState extends State<MemberChecklistGroupView> {
   Future<void> _reorderChecklists() async {
     final provider = context.read<ChecklistItemProvider>();
     final requests = provider.buildReorderRequests();
+
+    provider.updateCacheAfterReorder(requests);
 
     try {
       await provider.reorderChecklistItem(requests);

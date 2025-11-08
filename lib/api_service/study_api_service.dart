@@ -86,4 +86,15 @@ class StudyApiService extends BaseApiService {
       throw Exception('[USER] STUDY_API deleteStudy_리더로써 스터디 삭제 실패: ${response.statusCode}');
     }
   }
+
+  Future<void> leaveStudy(int studyId) async {
+    final response = await delete(
+      '$basePath/leave/$studyId',
+    );
+
+    if (response.statusCode != 200) {
+      throw Exception('[USER] STUDY_API leaveStudy_스터디 탈퇴 실패: ${response.statusCode}');
+    }
+  }
+
 }

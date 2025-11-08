@@ -12,8 +12,6 @@ class StudyHeaderCard extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final color = hexToColor(study.personalColor);
-    // final dDay = study.dueDate.difference(DateTime.now()).inDays;
-    // final progress = (study.progress >= 0 && study.progress <= 1) ? study.progress : 0.0;
 
     return Padding(
       padding: const EdgeInsets.all(15.0),

@@ -15,7 +15,7 @@ class FloatingMenuOverlay extends StatelessWidget {
           ),
         Positioned(
             right:16,
-            bottom: 96,
+            bottom: 91,
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.end,
               children: [

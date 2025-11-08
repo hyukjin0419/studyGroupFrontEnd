@@ -1,42 +1,82 @@
+import 'dart:async';
+import 'dart:developer';
+
 import 'package:flutter/foundation.dart';
 import 'package:study_group_front_end/dto/checklist_item/detail/checklist_item_detail_response.dart';
 import 'package:study_group_front_end/dto/study/detail/study_detail_response.dart';
-import 'package:study_group_front_end/providers/checklist_item_provider.dart';
+import 'package:study_group_front_end/repository/checklist_item_repository.dart';
 
 class StudyCardProvider with ChangeNotifier {
-  final ChecklistItemProvider checklistItemProvider;
-  StudyCardProvider(this.checklistItemProvider){
-    checklistItemProvider.addListener(updateAllProgress);
-    updateAllProgress();
+  final InMemoryChecklistItemRepository repository;
+  StudyCardProvider(this.repository);
+
+  StreamSubscription<(bool delete, List<ChecklistItemDetailResponse> items)>? _subscription;
+
+  final Map<int, List<ChecklistItemDetailResponse>> _itemsByStudy = {};
+  Map<int, List<ChecklistItemDetailResponse>> get itemsByStudy => _itemsByStudy;
+
+  final Map<int, double> _progressCache = {};
+  Map<int, double> get progressMap => _progressCache;
+
+  void init(){
+    log("init study card provider");
+    _subscription = repository.stream.listen((event){
+      final (isDelete, newItems) = event;
+
+      if(isDelete) {
+        clearCache();
+      }
+
+      _updateProgressCache(newItems);
+    });
   }
 
 
 //================= Progress =================//
-  Map<int, double> _progressCache = {};
-  Map<int, double> get progressMap => _progressCache;
+
 
   double getProgress(int studyId) {
-    if (_progressCache.containsKey(studyId)) {
-      return _progressCache[studyId]!;
+    return _progressCache[studyId] ?? 0.0;
+  }
+
+  void _updateProgressCache(List<ChecklistItemDetailResponse> items){
+    final today = DateTime.now();
+    final todayItems = items.where((i) {
+      final date = i.targetDate;
+      return date.year == today.year &&
+          date.month == today.month &&
+          date.day == today.day;
+    }).toList();
+
+
+    for (var item in todayItems) {
+      final list = _itemsByStudy.putIfAbsent(item.studyId, () => []);
+      final index = list.indexWhere((i) => i.id == item.id);
+      if (index >= 0) {
+        list[index] = item;
+      } else {
+        list.add(item);
+      }
     }
 
-    final progress = checklistItemProvider.getProgress(studyId);
-    _progressCache[studyId] = progress;
-    return progress;
-  }
+    _itemsByStudy.forEach((studyId, todayItems){
+      if (todayItems.isEmpty) {
+        _progressCache[studyId] = 0.0;
+        return;
+      }
 
-  void updateAllProgress() {
-    _progressCache = checklistItemProvider.getProgressMap();
-    notifyListeners();
-  }
+      final completed = todayItems.where((i) => i.completed).length;
+      final progress = completed / todayItems.length;
+      // log("     ㄴ ${studyId}: ${completed} / ${todayItems.length} = ${progress}");
+      _progressCache[studyId] = progress;
+    });
 
-  void updateProgressForStudy(int studyId) {
-    _progressCache[studyId] = checklistItemProvider.getProgress(studyId);
     notifyListeners();
   }
 
   void clearCache() {
     _progressCache.clear();
+    _itemsByStudy.clear();
     notifyListeners();
   }
 
@@ -48,6 +88,10 @@ class StudyCardProvider with ChangeNotifier {
     final today = DateTime.now();
     final diffDays = dueDate.difference(today).inDays;
 
+    if (study.status == StudyStatus.DONE){
+      return "DONE";
+    }
+
     if (diffDays > 0) {
       return "D-$diffDays";
     } else if (diffDays == 0) {
@@ -58,10 +102,14 @@ class StudyCardProvider with ChangeNotifier {
   }
 
   String getProgressStatus(StudyDetailResponse study) {
-    final progress = getProgress(study.id);
+    // final progress = getProgress(study.id);
     final dueDate = study.dueDate;
 
-    if (progress == 1.0) {
+    if (study.status == StudyStatus.DONE){
+      return "완료된 프로젝트 입니다!";
+    }
+
+    if (getProgress(study.id) == 1.0) {
       return "오늘 할 일 완료!";
     }
 
