@@ -147,7 +147,7 @@ class PersonalStatsCard extends StatelessWidget {
 
 
   String _getProgressMessage(double progress) {
-    if (progress == 1.0) return '오늘 목표 달성! 최고예요 🎉';
+    if (progress == 1.0) return '오늘 목표 달성! 🎉';
     if (progress >= 0.7) return '거의 다 왔어요 🔥';
     if (progress >= 0.4) return '좋아요, 절반 넘었어요 🙌';
     if (progress > 0.0) return '시작이 반이에요 💪';

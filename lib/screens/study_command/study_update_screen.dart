@@ -109,7 +109,12 @@ class _StudyUpdateScreenState extends State<StudyUpdateScreen> {
                   ),
 
                   GestureDetector(
-                    onTap: () => setState(() => _calendarOpen = !_calendarOpen),
+                    onTap: () {
+                      FocusScope.of(context).unfocus();
+                      Future.delayed(const Duration(milliseconds: 100), (){
+                        setState(() => _calendarOpen = !_calendarOpen);
+                      });
+                    },
                     child: AbsorbPointer(
                       child: Padding(
                         padding: const EdgeInsets.all(20.0),
