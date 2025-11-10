@@ -1,6 +1,6 @@
 class ChecklistItemDetailResponse {
   final int id;
-  final String type; // ChecklistItemType enum as String
+  // final String type; // ChecklistItemType enum as String
   int studyId;
   int memberId;
   final int? tempId;
@@ -13,7 +13,7 @@ class ChecklistItemDetailResponse {
 
   ChecklistItemDetailResponse({
     required this.id,
-    required this.type,
+    // required this.type,
     required this.studyId,
     required this.memberId,
     required this.tempId,
@@ -28,7 +28,7 @@ class ChecklistItemDetailResponse {
   factory ChecklistItemDetailResponse.fromJson(Map<String, dynamic> json) {
     return ChecklistItemDetailResponse(
       id: json['id'],
-      type: json['type'],
+      // type: json['type'],
       studyId: json['studyId'],
       memberId: json['memberId'],
       tempId: json['tempId'],
@@ -56,7 +56,7 @@ class ChecklistItemDetailResponse {
   }) {
     return ChecklistItemDetailResponse(
       id: id ?? this.id,
-      type: type ?? this.type,
+      // type: type ?? this.type,
       studyId: studyId ?? this.studyId,
       memberId: memberId ?? this.memberId,
       tempId: tempId ?? this.tempId,

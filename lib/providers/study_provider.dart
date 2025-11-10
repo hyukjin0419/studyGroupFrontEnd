@@ -7,10 +7,13 @@ import 'package:study_group_front_end/dto/study/detail/study_detail_response.dar
 import 'package:study_group_front_end/dto/study/update/study_order_update_request.dart';
 import 'package:study_group_front_end/dto/study/update/study_update_request.dart';
 import 'package:study_group_front_end/providers/loading_notifier.dart';
+import 'package:study_group_front_end/repository/checklist_item_repository.dart';
 
 class StudyProvider with ChangeNotifier, LoadingNotifier {
   final StudyApiService api;
-  StudyProvider(this.api);
+  final InMemoryChecklistItemRepository repository;
+
+  StudyProvider(this.api, this.repository);
 
   List<StudyDetailResponse> _studies = [];
   StudyDetailResponse? _selectedStudy;
@@ -123,6 +126,7 @@ class StudyProvider with ChangeNotifier, LoadingNotifier {
     try{
       await api.deleteStudy(studyId);
       _studies = await api.getMyStudies();
+      repository.clearAllCache();
       notifyListeners();
     } catch (e) {
       log("deleteStudy 실패: $e\nRoll back 합니다.", name: "[Study Provider]");

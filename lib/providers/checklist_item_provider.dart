@@ -189,7 +189,7 @@ class ChecklistItemProvider with ChangeNotifier, LoadingNotifier{
     final tempItem = ChecklistItemDetailResponse(
         id: tempId,
         tempId: null,
-        type: "STUDY",
+        // type: "STUDY",
         studyId: _study!.id,
         studyName: _study!.name,
         memberId: -1,
@@ -211,7 +211,7 @@ class ChecklistItemProvider with ChangeNotifier, LoadingNotifier{
         tempId: tempId,
         content: content,
         assigneeId: studyMemberId,
-        type: "STUDY",
+        // type: "STUDY",
         targetDate: _selectedDate!,
         orderIndex: group.totalCount,
       );

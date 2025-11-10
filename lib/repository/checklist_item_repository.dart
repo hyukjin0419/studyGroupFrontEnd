@@ -125,6 +125,12 @@ class InMemoryChecklistItemRepository{
     }
   }
 
+  void clearAllCache() {
+    _cache.clear();
+    log("🧹 모든 checklist 캐시 비움 완료", name: "[ChecklistRepository]");
+    _emitFromCache(delete: true);
+  }
+
 
 //--------------------Optimistic Update x--------------------//
   // ===========================================================

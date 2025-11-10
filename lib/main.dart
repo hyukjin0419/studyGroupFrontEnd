@@ -54,7 +54,10 @@ Future<void> main() async {
             create: (_) => MeProvider(AuthApiService(), MeApiService()),
           ),
           ChangeNotifierProvider(
-            create: (_) => StudyProvider(StudyApiService()),
+            create: (context) => StudyProvider(
+              StudyApiService(),
+              context.read<InMemoryChecklistItemRepository>(),
+            ),
           ),
           ChangeNotifierProvider(
               create: (_) => StudyJoinProvider(StudyJoinApiService()),
