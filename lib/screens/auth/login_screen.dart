@@ -10,6 +10,7 @@ import 'package:study_group_front_end/init_prefetch.dart';
 import 'package:study_group_front_end/providers/me_provider.dart';
 import 'package:study_group_front_end/snack_bar/show_error_snackbar.dart';
 import 'package:study_group_front_end/util/color_converters.dart';
+import 'package:study_group_front_end/util/errorExtractor.dart';
 
 class LoginScreen extends StatefulWidget {
   const LoginScreen({super.key});
@@ -208,15 +209,8 @@ class _LoginScreenState extends State<LoginScreen> {
         context.go('/personal');
       }
     } catch (e) {
-      String errorMessage = "로그인 실패";
-
-      try {
-        errorMessage = e.toString().replaceFirst("Exception: ", "");
-      } catch (_) {
-        errorMessage = e.toString();
-      }
-
-      print("error: $errorMessage");
+      final errorMessage = extractErrorMessageFromMessage(e);
+      
       if(mounted) {
         showMiddleErrorSnackBar(
             context, "다시 확인해 주세요.", errorMessage);

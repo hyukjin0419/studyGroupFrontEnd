@@ -4,6 +4,7 @@ import 'package:provider/provider.dart';
 import 'package:study_group_front_end/providers/me_provider.dart';
 import 'package:study_group_front_end/snack_bar/show_error_snackbar.dart';
 import 'package:study_group_front_end/util/color_converters.dart';
+import 'package:study_group_front_end/util/errorExtractor.dart';
 
 class ResetPasswordScreen extends StatefulWidget {
   const ResetPasswordScreen({super.key});
@@ -266,12 +267,8 @@ class _ResetPasswordScreenState extends State<ResetPasswordScreen> {
 
       }
     } catch (e) {
-      String errorMessage;
-      try {
-        errorMessage = e.toString().replaceFirst("Exception: ", "");
-      } catch (_) {
-        errorMessage = "이메일 발송에 실패했습니다";
-      }
+      final errorMessage = extractErrorMessageFromMessage(e);
+
       if (mounted) {
         showBottomErrorSnackBar(context, errorMessage);
       }

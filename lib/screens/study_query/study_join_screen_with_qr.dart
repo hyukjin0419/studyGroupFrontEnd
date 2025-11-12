@@ -5,6 +5,7 @@ import 'package:study_group_front_end/dto/study_member/fellower/study_join_reque
 import 'package:study_group_front_end/providers/study_join_provider.dart';
 import 'package:study_group_front_end/providers/study_provider.dart';
 import 'package:study_group_front_end/screens/study_command/widgets/input_decoration.dart';
+import 'package:study_group_front_end/util/errorExtractor.dart';
 import 'package:study_group_front_end/util/qr_scanner.dart';
 
 class StudyJoinScreenWithQr extends StatefulWidget {
@@ -98,8 +99,11 @@ class _StudyJoinScreenWithQrState extends State<StudyJoinScreenWithQr>{
       context.go('/studies');
     } catch (e) {
       if (!mounted) return;
+
+      final message = extractErrorMessageFromMessage(e);
+
       ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text("참여 실패: $e")),
+        SnackBar(content: message),
       );
     }
   }

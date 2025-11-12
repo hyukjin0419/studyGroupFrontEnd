@@ -4,6 +4,7 @@ import 'package:provider/provider.dart';
 import 'package:study_group_front_end/dto/member/signup/member_create_request.dart';
 import 'package:study_group_front_end/providers/me_provider.dart';
 import 'package:study_group_front_end/snack_bar/show_error_snackbar.dart';
+import 'package:study_group_front_end/util/errorExtractor.dart';
 
 class SignUpScreen extends StatefulWidget{
   const SignUpScreen({super.key});
@@ -33,13 +34,8 @@ class _SignUpScreenState extends State<SignUpScreen> {
 
       if (mounted) context.go('/login');
     } catch (e) {
-      String errorMessage;
+      final errorMessage = extractErrorMessageFromMessage(e);
 
-      try {
-        errorMessage = e.toString().replaceFirst("Exception: ", "");
-      } catch (_) {
-        errorMessage = e.toString();
-      }
       if(mounted){
         showBottomErrorSnackBar(context, errorMessage);
       }

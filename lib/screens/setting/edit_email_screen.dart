@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:study_group_front_end/providers/me_provider.dart';
 import 'package:study_group_front_end/snack_bar/show_error_snackbar.dart';
+import 'package:study_group_front_end/util/errorExtractor.dart';
 
 class EditEmailScreen extends StatefulWidget {
   const EditEmailScreen({super.key});
@@ -327,12 +328,8 @@ class _EditEmailScreenState extends State<EditEmailScreen> {
         showSuccessSnackBar(context, "인증 이메일이 발송되었습니다!", "메일함에서 인증 링크를 눌러주세요.\n인증 후 다시 로그인하시면 반영됩니다.");
       }
     } catch (e) {
-      String errorMessage;
-      try {
-        errorMessage = e.toString().replaceFirst("Exception: ", "");
-      } catch (_) {
-        errorMessage = e.toString();
-      }
+      final errorMessage = extractErrorMessageFromMessage(e);
+
       if (mounted) {
         showBottomErrorSnackBar(context, errorMessage);
       }
@@ -356,12 +353,8 @@ class _EditEmailScreenState extends State<EditEmailScreen> {
         });
       }
     } catch (e) {
-      String errorMessage;
-      try {
-        errorMessage = e.toString().replaceFirst("Exception: ", "");
-      } catch (_) {
-        errorMessage = e.toString();
-      }
+      final errorMessage = extractErrorMessageFromMessage(e);
+
       if (mounted) {
         showBottomErrorSnackBar(context, errorMessage);
       }

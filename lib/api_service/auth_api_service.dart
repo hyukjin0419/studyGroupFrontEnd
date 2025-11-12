@@ -8,6 +8,7 @@ import 'package:study_group_front_end/dto/member/login/member_login_response.dar
 import 'package:study_group_front_end/dto/member/signup/member_create_request.dart';
 import 'package:study_group_front_end/dto/member/signup/member_create_response.dart';
 import 'package:study_group_front_end/api_service/base_api_service.dart';
+import 'package:study_group_front_end/util/errorExtractor.dart';
 
 class AuthApiService extends BaseApiService {
   final String basePath = "/auth";
@@ -25,12 +26,6 @@ class AuthApiService extends BaseApiService {
       var message = extractErrorMessageFromResponse(response);
       throw Exception(message);
     }
-  }
-
-  extractErrorMessageFromResponse(Response response) {
-    final body = jsonDecode(response.body);
-    final message = body['message'];
-    return message;
   }
 
   Future<MemberLoginResponse> login(MemberLoginRequest request) async {
