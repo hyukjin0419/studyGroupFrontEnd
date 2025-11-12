@@ -74,7 +74,9 @@ abstract class BaseApiService {
     if (response.statusCode == 401) {
       final success = await _refreshAccessToken();
       if (success) {
+        log("accesstoken 재발급 되었습니다");
         await _buildHeaders(true);
+        log("새로운 accessotken으로 header 재설정 및 api 재요청");
         response = await request();
       } else {
         await TokenManager.clearTokens();

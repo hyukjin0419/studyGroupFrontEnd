@@ -18,7 +18,10 @@ Future<bool> initIfLoggedIn(BuildContext context) async {
 
   final isLoggedIn = await meProvider.loadCurrentMember();
 
-  if (!isLoggedIn) return false;
+  //TODO 여기서 로그인이 안되어있을 시 accesstoken 재발급 해야함,,>
+  if (!isLoggedIn) {
+    return false;
+  }
 
   try {
     studyCardProvider.init();
