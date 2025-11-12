@@ -10,5 +10,5 @@ extractErrorMessageFromResponse(Response response) {
 
 extractErrorMessageFromMessage(Object message){
   final errorMessage = message.toString().replaceFirst("Exception: ", "");
-  return errorMessage;
+  return errorMessage.toString();
 }

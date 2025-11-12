@@ -103,7 +103,7 @@ class _StudyJoinScreenWithQrState extends State<StudyJoinScreenWithQr>{
       final message = extractErrorMessageFromMessage(e);
 
       ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: message),
+        SnackBar(content: Text(message)),
       );
     }
   }
