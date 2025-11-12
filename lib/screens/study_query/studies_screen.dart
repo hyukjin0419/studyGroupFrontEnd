@@ -65,12 +65,6 @@ class _StudyScreenState extends State<StudiesScreen> {
         ],
       ),
       body: RefreshIndicator(
-        // 로딩 색상 숨김
-        displacement: 100,
-        color: Colors.transparent,
-        backgroundColor: Colors.transparent,
-        elevation: 0,
-        strokeWidth: 0.1,
         onRefresh: () async {
           final provider = context.read<StudyProvider>();
           await provider.getMyStudies();
