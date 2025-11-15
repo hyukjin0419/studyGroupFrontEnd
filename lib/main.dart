@@ -103,6 +103,7 @@ Future<void> main() async {
           ),
         ],
         child: MaterialApp.router(
+          debugShowCheckedModeBanner: false,
           routerConfig: router,
           theme: ThemeData(
             useMaterial3: true,

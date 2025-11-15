@@ -78,7 +78,11 @@ class InMemoryChecklistItemRepository{
 
 
   Future<void> fetchChecklistByWeek({required DateTime date, int? studyId, int? memberId, bool force = false}) async {
-    if(force = true) {_cache.clear(); log("clear cache");_emitFromCache(delete: true);}
+    if(force == true) {
+      _cache.clear();
+      log("clear cache");
+      _emitFromCache(delete: true);
+    }
     final keyDate = DateTime(date.year, date.month, date.day);
     log("studyId $studyId, memberId $memberId", name: "InMemoryChecklistItemRepository");
     final hit = cacheHit(memberId:memberId, studyId: studyId, date: date);
