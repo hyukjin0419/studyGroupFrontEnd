@@ -162,19 +162,21 @@ Widget _buildLabelAndChips(BuildContext context, String label, String color, Lis
       ),
       const SizedBox(width: 10),
 
-      SingleChildScrollView(
-        scrollDirection: Axis.horizontal,
-        child: Row(
-          children: names.map((name) {
-            return Padding(
-              padding: const EdgeInsets.only(right: 8),
-              child: MemberChip(
-                name: name,
-                color: hexToColor(color),
-                onAddPressed: () {},
-              ),
-            );
-          }).toList(),
+      Expanded(
+        child: SingleChildScrollView(
+          scrollDirection: Axis.horizontal,
+          child: Row(
+            children: names.map((name) {
+              return Padding(
+                padding: const EdgeInsets.only(right: 8),
+                child: MemberChip(
+                  name: name,
+                  color: hexToColor(color),
+                  onAddPressed: () {},
+                ),
+              );
+            }).toList(),
+          ),
         ),
       ),
     ],
