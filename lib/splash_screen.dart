@@ -5,7 +5,7 @@ import 'dart:math' as math;
 import 'package:study_group_front_end/init_prefetch.dart';
 
 class SplashScreen extends StatefulWidget {
-  const SplashScreen({Key? key}) : super(key: key);
+  const SplashScreen({super.key});
 
   @override
   State<SplashScreen> createState() => _SplashScreenState();
@@ -114,7 +114,7 @@ class _SplashScreenState extends State<SplashScreen>
     });
 
     // 2초 후 메인 화면으로 이동
-    Future.delayed(const Duration(milliseconds: 3000), () {
+    Future.delayed(const Duration(milliseconds: 1000), () {
       _initApp();
     });
   }
