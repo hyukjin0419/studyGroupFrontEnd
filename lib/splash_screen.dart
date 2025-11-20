@@ -113,7 +113,6 @@ class _SplashScreenState extends State<SplashScreen>
       }
     });
 
-    // 2초 후 메인 화면으로 이동
     Future.delayed(const Duration(milliseconds: 1000), () {
       _initApp();
     });

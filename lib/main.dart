@@ -28,130 +28,135 @@ Future<void> main() async {
   //비동기 작업 전에 Flutter 프레임워크 초기화 보장 -> 원래는 runApp에서 자동 초기화 되는데, 그 전에 초기화 해주어야해서
   WidgetsFlutterBinding.ensureInitialized();
   await SystemChrome.setPreferredOrientations(
-    [DeviceOrientation.portraitUp],
+    [DeviceOrientation.portraitUp], //세로 화면 고정
   );
 
-  await Firebase.initializeApp(options: DefaultFirebaseOptions.currentPlatform);
-
-  final localNotificationsService = LocalNotificationsService.instance();
-  await localNotificationsService.init();
-
-  await FcmInitializer.init(localNotificationsService: localNotificationsService);
-
+  //날짜 로케일 초기화 -> 한국어 날짜 표시를 위해 필요
   await initializeDateFormatting();
-
 
   runApp(
       MultiProvider(
-        providers: [
-          Provider<InMemoryChecklistItemRepository>(
-            create: (_) => InMemoryChecklistItemRepository(
-              ChecklistItemApiService(),
-              PersonalChecklistApiService()
+          providers: [
+            Provider<InMemoryChecklistItemRepository>(
+              create: (_) => InMemoryChecklistItemRepository(
+                  ChecklistItemApiService(),
+                  PersonalChecklistApiService()
+              ),
             ),
-          ),
-          ChangeNotifierProvider(
-            create: (_) => MeProvider(AuthApiService(), MeApiService()),
-          ),
-          ChangeNotifierProvider(
-            create: (context) => StudyProvider(
-              StudyApiService(),
-              context.read<InMemoryChecklistItemRepository>(),
+            ChangeNotifierProvider(
+              create: (_) => MeProvider(AuthApiService(), MeApiService()),
             ),
-          ),
-          ChangeNotifierProvider(
+            ChangeNotifierProvider(
+              create: (context) => StudyProvider(
+                StudyApiService(),
+                context.read<InMemoryChecklistItemRepository>(),
+              ),
+            ),
+            ChangeNotifierProvider(
               create: (_) => StudyJoinProvider(StudyJoinApiService()),
-          ),
-          //TODO inmemory 수정 바람
-          ChangeNotifierProvider(
-            create: (context) => ChecklistItemProvider(
-              context.read<InMemoryChecklistItemRepository>(),
             ),
-          ),
-          ChangeNotifierProxyProvider2<MeProvider, StudyProvider, PersonalChecklistProvider>(
-            create: (context) => PersonalChecklistProvider(
-              context.read<InMemoryChecklistItemRepository>(),
+            //TODO inmemory 수정 바람
+            ChangeNotifierProvider(
+              create: (context) => ChecklistItemProvider(
+                context.read<InMemoryChecklistItemRepository>(),
+              ),
             ),
-            update: (context, me, study, previous) {
-              final memberId = me.currentMember?.id ?? 0;
-              final studies = study.studies;
+            ChangeNotifierProxyProvider2<MeProvider, StudyProvider, PersonalChecklistProvider>(
+              create: (context) => PersonalChecklistProvider(
+                context.read<InMemoryChecklistItemRepository>(),
+              ),
+              update: (context, me, study, previous) {
+                final memberId = me.currentMember?.id ?? 0;
+                final studies = study.studies;
 
-              final repo = context.read<InMemoryChecklistItemRepository>();
+                final repo = context.read<InMemoryChecklistItemRepository>();
 
-              // ✅ 매번 최신 memberId, study 목록 반영
-              final provider = previous ?? PersonalChecklistProvider(repo);
-              provider.setMyStudies(studies);
-              provider.setCurrentMemberId(memberId);
+                // ✅ 매번 최신 memberId, study 목록 반영
+                final provider = previous ?? PersonalChecklistProvider(repo);
+                provider.setMyStudies(studies);
+                provider.setCurrentMemberId(memberId);
 
-              return provider;
-            },
-          ),
-          ChangeNotifierProxyProvider<PersonalChecklistProvider, PersonalStatsProvider>(
-            create: (context) => PersonalStatsProvider(
-              context.read<PersonalChecklistProvider>(),
+                return provider;
+              },
             ),
-            update: (context, checklistProvider, previous)
+            ChangeNotifierProxyProvider<PersonalChecklistProvider, PersonalStatsProvider>(
+              create: (context) => PersonalStatsProvider(
+                context.read<PersonalChecklistProvider>(),
+              ),
+              update: (context, checklistProvider, previous)
               => previous ?? PersonalStatsProvider(checklistProvider),
-          ),
-          ChangeNotifierProvider(
-            create: (context) => StudyCardProvider(
-              context.read<InMemoryChecklistItemRepository>(),
             ),
-          ),
-          ChangeNotifierProvider(
-            create: (_) => InsightProvider(InsightApiService()),
-          ),
-        ],
-        child: MaterialApp.router(
-          debugShowCheckedModeBanner: false,
-          routerConfig: router,
-          theme: ThemeData(
-            useMaterial3: true,
-            fontFamily: 'Pretendard',
-
-            appBarTheme: const AppBarTheme(
-              backgroundColor: Colors.white,
-              surfaceTintColor: Colors.transparent,
-            ),
-
-            scaffoldBackgroundColor: Colors.white,
-
-            colorScheme: ColorScheme.fromSeed(
-              seedColor: Color(0xFF73B4E3),
-              brightness: Brightness.light,
-            ).copyWith(
-              primary: const Color(0xFF73B4E3),
-            ),
-
-            textTheme: const TextTheme(
-              displayLarge: TextStyle(fontSize: 36, fontWeight: FontWeight.w400),
-              displayMedium: TextStyle(fontSize: 20, fontWeight: FontWeight.w400),
-              bodyLarge: TextStyle(fontSize: 16, fontWeight: FontWeight.w600),
-              bodyMedium: TextStyle(fontSize: 15, fontWeight: FontWeight.w500),
-              bodySmall: TextStyle(fontSize: 14, fontWeight: FontWeight.w400),
-              titleSmall: TextStyle(fontSize: 16, fontWeight: FontWeight.w300),
-            ),
-            
-            textButtonTheme: TextButtonThemeData(
-              style: TextButton.styleFrom(
-                foregroundColor: Colors.black,
-                textStyle: TextStyle(fontSize: 12, fontWeight: FontWeight.w400),
-                padding: EdgeInsets.zero,
-                minimumSize: Size.zero,
-                tapTargetSize: MaterialTapTargetSize.shrinkWrap,
+            ChangeNotifierProvider(
+              create: (context) => StudyCardProvider(
+                context.read<InMemoryChecklistItemRepository>(),
               ),
             ),
+            ChangeNotifierProvider(
+              create: (_) => InsightProvider(InsightApiService()),
+            ),
+          ],
+          child: MaterialApp.router(
+            debugShowCheckedModeBanner: false,
+            routerConfig: router,
+            theme: ThemeData(
+              useMaterial3: true,
+              fontFamily: 'Pretendard',
 
-            filledButtonTheme: FilledButtonThemeData(
-              style: FilledButton.styleFrom(
-                shape: RoundedRectangleBorder(
-                  borderRadius: BorderRadius.circular(8),
+              appBarTheme: const AppBarTheme(
+                backgroundColor: Colors.white,
+                surfaceTintColor: Colors.transparent,
+              ),
+
+              scaffoldBackgroundColor: Colors.white,
+
+              colorScheme: ColorScheme.fromSeed(
+                seedColor: Color(0xFF73B4E3),
+                brightness: Brightness.light,
+              ).copyWith(
+                primary: const Color(0xFF73B4E3),
+              ),
+
+              textTheme: const TextTheme(
+                displayLarge: TextStyle(fontSize: 36, fontWeight: FontWeight.w400),
+                displayMedium: TextStyle(fontSize: 20, fontWeight: FontWeight.w400),
+                bodyLarge: TextStyle(fontSize: 16, fontWeight: FontWeight.w600),
+                bodyMedium: TextStyle(fontSize: 15, fontWeight: FontWeight.w500),
+                bodySmall: TextStyle(fontSize: 14, fontWeight: FontWeight.w400),
+                titleSmall: TextStyle(fontSize: 16, fontWeight: FontWeight.w300),
+              ),
+
+              textButtonTheme: TextButtonThemeData(
+                style: TextButton.styleFrom(
+                  foregroundColor: Colors.black,
+                  textStyle: TextStyle(fontSize: 12, fontWeight: FontWeight.w400),
+                  padding: EdgeInsets.zero,
+                  minimumSize: Size.zero,
+                  tapTargetSize: MaterialTapTargetSize.shrinkWrap,
                 ),
-                minimumSize: const Size.fromHeight(48),
+              ),
+
+              filledButtonTheme: FilledButtonThemeData(
+                style: FilledButton.styleFrom(
+                  shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(8),
+                  ),
+                  minimumSize: const Size.fromHeight(48),
+                ),
               ),
             ),
-          ),
-        )
+          )
       )
   );
+
+  //Firebese SDK (softeware developmemt kit) 전체 루트 초기화
+  await Firebase.initializeApp(options: DefaultFirebaseOptions.currentPlatform);
+
+  //Local Notifications 초기화
+  final localNotificationsService = LocalNotificationsService.instance();
+  await localNotificationsService.init();
+
+  //FCM 초기화
+  await FcmInitializer.init(localNotificationsService: localNotificationsService);
+
+
 }
