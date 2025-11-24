@@ -40,8 +40,8 @@ class _ResetPasswordScreenState extends State<ResetPasswordScreen> {
                 crossAxisAlignment: CrossAxisAlignment.center,
                 children: [
                   Image.asset(
-                    'assets/logo/owl.png',
-                    height: 200,
+                    'assets/logo/logo.png',
+                    height: 100,
                   ),
                   const SizedBox(height: 20),
                   // Sync Mate 타이틀

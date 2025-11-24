@@ -102,10 +102,10 @@ class ProgressIconPainter extends CustomPainter {
 
     // 색상 설정
     final colors = [
-      const Color(0xFFFF9999), // 연한 빨강
-      const Color(0xFFFFB366), // 연한 주황
-      const Color(0xFFFFD966), // 연한 노랑
-      const Color(0xFF99CC99), // 연한 초록
+      const Color(0xFF8AB4F8),
+      const Color(0xFFA7E07D),
+      const Color(0xFFFFAB91),
+      const Color(0xFFB39DDB),
     ];
 
     // 좌상단

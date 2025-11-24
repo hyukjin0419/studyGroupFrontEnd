@@ -35,8 +35,8 @@ class _StudyScreenState extends State<StudiesScreen> {
             crossAxisAlignment: CrossAxisAlignment.end,
             children: [
               Image.asset(
-                'assets/logo/owl2.png',
-                height: 40,
+                'assets/logo/logo.png',
+                height: 25,
               ),
               SizedBox(width: 5),
               Text(
